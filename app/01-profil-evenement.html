@@ -460,11 +460,11 @@
 
       <div class="section-step active" onclick="goSection(0)">
         <div class="step-dot">A</div>
-        <div class="step-label" data-fr="Profil général" data-en="General profile">Profil général</div>
+        <div class="step-label" data-fr="Profil général & phases" data-en="General profile & phases">Profil général & phases</div>
       </div>
       <div class="section-step" onclick="goSection(1)">
         <div class="step-dot">B</div>
-        <div class="step-label" data-fr="Site & périmètre" data-en="Site & perimeter">Site & périmètre</div>
+        <div class="step-label" data-fr="Site, périmètre & accès" data-en="Site, perimeter & access">Site, périmètre & accès</div>
       </div>
       <div class="section-step" onclick="goSection(2)">
         <div class="step-dot">C</div>
@@ -476,7 +476,7 @@
       </div>
       <div class="section-step" onclick="goSection(4)">
         <div class="step-dot">E</div>
-        <div class="step-label" data-fr="Ressources & contraintes" data-en="Resources & constraints">Ressources & contraintes</div>
+        <div class="step-label" data-fr="Ressources & opérations" data-en="Resources & operations">Ressources & opérations</div>
       </div>
       <div class="section-step" onclick="goSection(5)">
         <div class="step-dot">F</div>
@@ -531,12 +531,44 @@
           </div>
 
           <div class="field">
-            <label><span data-fr="Date & heure d'ouverture" data-en="Opening date & time">Date & heure d'ouverture</span> <span class="req">*</span></label>
+            <label><span data-fr="Date & heure d'ouverture au public" data-en="Public opening date & time">Date & heure d'ouverture au public</span> <span class="req">*</span></label>
             <input type="datetime-local" id="date-debut" onchange="updateRiskScore()" />
           </div>
           <div class="field">
-            <label><span data-fr="Date & heure de fermeture" data-en="Closing date & time">Date & heure de fermeture</span> <span class="req">*</span></label>
+            <label><span data-fr="Date & heure de fermeture au public" data-en="Public closing date & time">Date & heure de fermeture au public</span> <span class="req">*</span></label>
             <input type="datetime-local" id="date-fin" onchange="updateRiskScore()" />
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Début montage / installation" data-en="Setup / installation start">Début montage / installation</span> <span class="req">*</span></label>
+            <input type="datetime-local" id="date-montage" onchange="updateRiskScore()" />
+            <div class="hint" data-fr="Phase pré-événement — accès accrédités techniciens et fournisseurs" data-en="Pre-event phase — accredited access for technicians and suppliers">Phase pré-événement — accès accrédités techniciens et fournisseurs</div>
+          </div>
+          <div class="field">
+            <label><span data-fr="Fin démantèlement / remise en état" data-en="Dismantling / restoration end">Fin démantèlement / remise en état</span> <span class="req">*</span></label>
+            <input type="datetime-local" id="date-demantelement" onchange="updateRiskScore()" />
+            <div class="hint" data-fr="Phase post-événement — sécurité du matériel, accès restreint, risque vol" data-en="Post-event phase — equipment security, restricted access, theft risk">Phase post-événement — sécurité du matériel, accès restreint, risque vol</div>
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Durée estimée du montage" data-en="Estimated setup duration">Durée estimée du montage</span></label>
+            <select id="duree-montage" onchange="updateRiskScore()">
+              <option value="" data-fr="Sélectionner..." data-en="Select...">Sélectionner...</option>
+              <option value="0.5" data-fr="Moins de 12h" data-en="Less than 12h">Moins de 12h</option>
+              <option value="1" data-fr="1 journée" data-en="1 day">1 journée</option>
+              <option value="2" data-fr="2 journées" data-en="2 days">2 journées</option>
+              <option value="3" data-fr="3 journées et plus" data-en="3 days or more">3 journées et plus</option>
+            </select>
+          </div>
+          <div class="field">
+            <label><span data-fr="Durée estimée du démantèlement" data-en="Estimated dismantling duration">Durée estimée du démantèlement</span></label>
+            <select id="duree-demantelement" onchange="updateRiskScore()">
+              <option value="" data-fr="Sélectionner..." data-en="Select...">Sélectionner...</option>
+              <option value="0.5" data-fr="Moins de 12h" data-en="Less than 12h">Moins de 12h</option>
+              <option value="1" data-fr="1 journée" data-en="1 day">1 journée</option>
+              <option value="2" data-fr="2 journées" data-en="2 days">2 journées</option>
+              <option value="3" data-fr="3 journées et plus" data-en="3 days or more">3 journées et plus</option>
+            </select>
           </div>
 
           <div class="field">
@@ -654,6 +686,63 @@
           </div>
         </div>
 
+        <div class="form-divider"></div>
+
+        <!-- CONTACTS ORGANISATEURS -->
+        <div class="field-grid fg-2">
+          <div class="field">
+            <label><span data-fr="Responsable organisateur principal" data-en="Main event organizer">Responsable organisateur principal</span> <span class="req">*</span></label>
+            <input type="text" id="organisateur-nom" placeholder="Nom, prénom" />
+          </div>
+          <div class="field">
+            <label><span data-fr="Téléphone direct (urgence)" data-en="Direct phone (emergency)">Téléphone direct (urgence)</span> <span class="req">*</span></label>
+            <input type="tel" id="organisateur-tel" placeholder="+1 514 000-0000" />
+          </div>
+          <div class="field">
+            <label><span data-fr="Responsable technique / scène" data-en="Technical / stage manager">Responsable technique / scène</span></label>
+            <input type="text" placeholder="Nom, prénom" />
+          </div>
+          <div class="field">
+            <label><span data-fr="Responsable montage / démantèlement" data-en="Setup / dismantling manager">Responsable montage / démantèlement</span></label>
+            <input type="text" id="resp-montage" placeholder="Nom, téléphone" />
+            <div class="hint" data-fr="Interlocuteur clé pour coordonner les accès hors événement" data-en="Key contact for coordinating access outside event hours">Interlocuteur clé pour coordonner les accès hors événement</div>
+          </div>
+        </div>
+
+        <div class="form-divider"></div>
+
+        <!-- CONDITIONS MÉTÉO -->
+        <div class="field-grid fg-3">
+          <div class="field">
+            <label><span data-fr="Conditions météo prévues" data-en="Expected weather conditions">Conditions météo prévues</span></label>
+            <select id="meteo" onchange="updateRiskScore()">
+              <option value="" data-fr="Sélectionner..." data-en="Select...">Sélectionner...</option>
+              <option value="beau" data-fr="Beau temps / ensoleillé" data-en="Clear / sunny">Beau temps / ensoleillé</option>
+              <option value="nuageux" data-fr="Nuageux / variable" data-en="Cloudy / variable">Nuageux / variable</option>
+              <option value="pluie" data-fr="Pluie probable" data-en="Rain likely">Pluie probable</option>
+              <option value="orage" data-fr="Orages / vents forts" data-en="Storms / strong winds">Orages / vents forts</option>
+              <option value="froid" data-fr="Froid extrême (&lt;-15°C)" data-en="Extreme cold (&lt;-15°C)">Froid extrême (&lt;-15°C)</option>
+              <option value="chaleur" data-fr="Canicule (&gt;35°C)" data-en="Heat wave (&gt;35°C)">Canicule (&gt;35°C)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label><span data-fr="Site extérieur ?" data-en="Outdoor venue?">Site extérieur ?</span></label>
+            <div class="yn-toggle">
+              <button class="yn-btn" onclick="setYN(this,'exterieur','oui')">Oui</button>
+              <button class="yn-btn" onclick="setYN(this,'exterieur','non')">Non</button>
+            </div>
+            <input type="hidden" id="exterieur" value="" />
+          </div>
+          <div class="field">
+            <label><span data-fr="Plan météo d'urgence prévu ?" data-en="Emergency weather plan in place?">Plan météo d'urgence prévu ?</span></label>
+            <div class="yn-toggle">
+              <button class="yn-btn" onclick="setYN(this,'plan-meteo','oui')">Oui</button>
+              <button class="yn-btn" onclick="setYN(this,'plan-meteo','non')">Non</button>
+            </div>
+            <input type="hidden" id="plan-meteo" value="" />
+          </div>
+        </div>
+
         <!-- Live calculator -->
         <div class="form-divider"></div>
         <div class="calc-card">
@@ -719,6 +808,45 @@
               <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span data-fr="🚗 Stationnement" data-en="🚗 Parking">🚗 Stationnement</span></div>
               <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span data-fr="🍺 Zone alcool" data-en="🍺 Alcohol zone">🍺 Zone alcool</span></div>
               <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span data-fr="🧒 Zone enfants" data-en="🧒 Children zone">🧒 Zone enfants</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span data-fr="🚛 Zone livraison / chargement" data-en="🚛 Loading / delivery zone">🚛 Zone livraison / chargement</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span data-fr="🔧 Zone montage / technique" data-en="🔧 Setup / technical zone">🔧 Zone montage / technique</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span data-fr="🍽️ Restauration / food trucks" data-en="🍽️ Food & beverage area">🍽️ Restauration / food trucks</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span data-fr="🅿️ Zone presse / médias" data-en="🅿️ Press / media zone">🅿️ Zone presse / médias</span></div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Nb. de techniciens / équipes montage" data-en="No. of technicians / setup crews">Nb. de techniciens / équipes montage</span></label>
+            <div class="input-group">
+              <input type="number" id="nb-techniciens" placeholder="30" min="0" oninput="updateRiskScore()" />
+              <div class="input-unit" data-fr="personnes" data-en="persons">personnes</div>
+            </div>
+            <div class="hint" data-fr="Accréditations requises — inclure dans le plan d'accès montage" data-en="Accreditations required — include in setup access plan">Accréditations requises — inclure dans le plan d'accès montage</div>
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Système d'accréditation prévu" data-en="Planned accreditation system">Système d'accréditation prévu</span></label>
+            <select id="accreditation">
+              <option value="" data-fr="Sélectionner..." data-en="Select...">Sélectionner...</option>
+              <option value="laissez-passer" data-fr="Laissez-passer papier" data-en="Paper pass">Laissez-passer papier</option>
+              <option value="badge-couleur" data-fr="Badge couleur par zone" data-en="Color badge by zone">Badge couleur par zone</option>
+              <option value="qr" data-fr="QR code / NFC" data-en="QR code / NFC">QR code / NFC</option>
+              <option value="biometrique" data-fr="Biométrique / facial" data-en="Biometric / facial">Biométrique / facial</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Gestion des files d'attente entrées" data-en="Entry queue management">Gestion des files d'attente entrées</span></label>
+            <select id="gestion-file" onchange="updateRiskScore()">
+              <option value="" data-fr="Sélectionner..." data-en="Select...">Sélectionner...</option>
+              <option value="libre" data-fr="Accès libre (sans file organisée)" data-en="Free access (no organized queue)">Accès libre (sans file organisée)</option>
+              <option value="serpentin" data-fr="File serpentin avec barrières" data-en="Serpentine queue with barriers">File serpentin avec barrières</option>
+              <option value="zones" data-fr="Zones d'attente délimitées" data-en="Designated waiting zones">Zones d'attente délimitées</option>
+              <option value="numerotee" data-fr="File numérotée / horaire d'entrée" data-en="Numbered queue / entry time slots">File numérotée / horaire d'entrée</option>
+            </select>
+            <div class="ai-hint" style="margin-top:6px">
+              <span class="ai-icon">🧠</span>
+              <span data-fr="Les files non gérées augmentent significativement le score de risque en zone entrée." data-en="Unmanaged queues significantly increase the risk score in entry zones.">Les files non gérées augmentent significativement le score de risque en zone entrée.</span>
             </div>
           </div>
         </div>
@@ -995,6 +1123,96 @@
             </div>
           </div>
         </div>
+
+        <div class="form-divider"></div>
+
+        <!-- PHASES OPÉRATIONNELLES -->
+        <div class="section-title-bar" style="margin-bottom:14px">
+          <div class="section-letter" style="font-size:0.9rem;width:28px;height:28px;color:var(--orange);border-color:rgba(251,146,60,0.3);background:rgba(251,146,60,0.08)">🔧</div>
+          <div class="section-title-text">
+            <h3 style="font-size:0.9rem" data-fr="Phases opérationnelles — Montage, réparations & démantèlement" data-en="Operational phases — Setup, repairs & dismantling">Phases opérationnelles — Montage, réparations & démantèlement</h3>
+            <p data-fr="Sécurité hors heures d'événement et réparations en cours d'opération" data-en="Security outside event hours and in-operation repairs">Sécurité hors heures d'événement et réparations en cours d'opération</p>
+          </div>
+        </div>
+
+        <div class="field-grid fg-2">
+          <div class="field">
+            <label><span data-fr="Agents de sécurité requis pendant le montage" data-en="Security agents required during setup">Agents de sécurité requis pendant le montage</span></label>
+            <input type="number" id="agents-montage" placeholder="4" min="0" oninput="updateRiskScore()" />
+            <div class="hint" data-fr="Contrôle d'accès techniciens, surveillance matériel, périmètre" data-en="Technician access control, equipment surveillance, perimeter">Contrôle d'accès techniciens, surveillance matériel, périmètre</div>
+          </div>
+          <div class="field">
+            <label><span data-fr="Agents requis pendant le démantèlement" data-en="Agents required during dismantling">Agents requis pendant le démantèlement</span></label>
+            <input type="number" id="agents-demantelement" placeholder="4" min="0" oninput="updateRiskScore()" />
+            <div class="hint" data-fr="Risque vol élevé — matériel non sécurisé, accès nocturne fréquent" data-en="High theft risk — unsecured equipment, frequent night access">Risque vol élevé — matériel non sécurisé, accès nocturne fréquent</div>
+          </div>
+          <div class="field">
+            <label><span data-fr="Réparations / interventions techniques planifiées pendant l'événement ?" data-en="Planned repairs / technical interventions during the event?">Réparations / interventions techniques pendant l'événement ?</span></label>
+            <div class="yn-toggle">
+              <button class="yn-btn" onclick="setYN(this,'reparations','oui');document.getElementById('sub-reparations').style.display='block'">Oui</button>
+              <button class="yn-btn" onclick="setYN(this,'reparations','non');document.getElementById('sub-reparations').style.display='none'">Non</button>
+            </div>
+            <input type="hidden" id="reparations" value="" />
+            <div class="sub-form" id="sub-reparations" style="display:none;margin-top:10px">
+              <div class="field-grid fg-1">
+                <div class="field">
+                  <label data-fr="Nature des interventions prévues" data-en="Nature of planned interventions">Nature des interventions prévues</label>
+                  <textarea rows="2" placeholder="ex. : Remplacement câblage scène, maintenance générateurs, réparation barrières..."></textarea>
+                </div>
+                <div class="field">
+                  <label data-fr="Protocole d'accès techniciens en cours d'événement" data-en="Technician access protocol during event">Protocole d'accès techniciens en cours d'événement</label>
+                  <select>
+                    <option data-fr="Escorte obligatoire par un agent" data-en="Mandatory escort by an agent">Escorte obligatoire par un agent</option>
+                    <option data-fr="Badge d'accès zones restreintes" data-en="Restricted zone access badge">Badge d'accès zones restreintes</option>
+                    <option data-fr="Accès libre avec identification" data-en="Free access with identification">Accès libre avec identification</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label><span data-fr="Surveillance du matériel entre les phases ?" data-en="Equipment surveillance between phases?">Surveillance du matériel entre les phases ?</span></label>
+            <select id="surveillance-materiel" onchange="updateRiskScore()">
+              <option value="" data-fr="Sélectionner..." data-en="Select...">Sélectionner...</option>
+              <option value="aucune" data-fr="Aucune surveillance spécifique" data-en="No specific surveillance">Aucune surveillance spécifique</option>
+              <option value="agent" data-fr="Agent de nuit sur site" data-en="Night agent on-site">Agent de nuit sur site</option>
+              <option value="cctv" data-fr="CCTV uniquement" data-en="CCTV only">CCTV uniquement</option>
+              <option value="agent-cctv" data-fr="Agent + CCTV" data-en="Agent + CCTV">Agent + CCTV</option>
+              <option value="gardiennage" data-fr="Gardiennage 24/7 pendant montage" data-en="24/7 guarding during setup">Gardiennage 24/7 pendant montage</option>
+            </select>
+            <div class="ai-hint" style="margin-top:6px">
+              <span class="ai-icon">🧠</span>
+              <span data-fr="L'absence de surveillance entre les phases augmente le risque de vol de matériel et d'intrusion." data-en="Lack of surveillance between phases increases equipment theft and intrusion risk.">L'absence de surveillance entre les phases augmente le risque de vol de matériel et d'intrusion.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-divider"></div>
+
+        <div class="field-grid fg-2">
+          <div class="field">
+            <label><span data-fr="Plan de démantèlement documenté ?" data-en="Documented dismantling plan?">Plan de démantèlement documenté ?</span></label>
+            <div class="yn-toggle">
+              <button class="yn-btn" onclick="setYN(this,'plan-demantelement','oui')">Oui</button>
+              <button class="yn-btn" onclick="setYN(this,'plan-demantelement','non')">Non</button>
+            </div>
+            <input type="hidden" id="plan-demantelement" value="" />
+          </div>
+          <div class="field">
+            <label><span data-fr="Remise en état du site requise ?" data-en="Site restoration required?">Remise en état du site requise ?</span></label>
+            <div class="yn-toggle">
+              <button class="yn-btn" onclick="setYN(this,'remise-etat','oui');document.getElementById('sub-remise').style.display='block'">Oui</button>
+              <button class="yn-btn" onclick="setYN(this,'remise-etat','non');document.getElementById('sub-remise').style.display='none'">Non</button>
+            </div>
+            <input type="hidden" id="remise-etat" value="" />
+            <div class="sub-form" id="sub-remise" style="display:none;margin-top:10px">
+              <div class="field">
+                <label data-fr="Délai de remise en état (jours)" data-en="Restoration deadline (days)">Délai de remise en état (jours)</label>
+                <input type="number" placeholder="3" min="1" />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- ═══ SECTION F ═══ -->
@@ -1196,8 +1414,8 @@ function setLang(l) {
 // ── Section navigation ────────────────────────────────────
 const sections = ['A','B','C','D','E','F'];
 const sectionNames = {
-  fr:['Profil général','Site & périmètre','Contexte réglementaire','Paramètres de risque','Ressources & contraintes','Documents'],
-  en:['General profile','Site & perimeter','Regulatory context','Risk parameters','Resources & constraints','Documents']
+  fr:['Profil général & phases','Site, périmètre & accès','Contexte réglementaire','Paramètres de risque','Ressources, montage & démantèlement','Documents'],
+  en:['General profile & phases','Site, perimeter & access','Regulatory context','Risk parameters','Resources, setup & dismantling','Documents']
 };
 let currentSection = 0;
 
