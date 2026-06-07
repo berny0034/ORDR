@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ORDR.AI™ — Gestion de crise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:#07070f; --bg-sidebar:#0b0b16; --bg-card:#111120; --bg-input:#16162a; --bg-hover:#1a1a2e;
+      --border:rgba(255,255,255,0.07); --border-accent:rgba(196,224,0,0.3);
+      --accent:#c4e000; --accent-dim:rgba(196,224,0,0.10);
+      --cyan:#00d4ff; --cyan-dim:rgba(0,212,255,0.10);
+      --purple:#8b5cf6; --purple-dim:rgba(139,92,246,0.10);
+      --red:#f43f5e; --red-dim:rgba(244,63,94,0.10);
+      --orange:#fb923c; --green:#22c55e;
+      --text:#eeeef8; --text-2:#8892a4; --text-3:#4a5568;
+      --topbar-h:56px; --sidebar-w:220px; --right-w:300px;
+      --font:'Inter',system-ui,sans-serif; --r:8px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{font-size:14px} body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+    a{text-decoration:none;color:inherit} input,select,textarea,button{font-family:var(--font)}
+
+    /* CRISIS MODE OVERLAY */
+    body.crisis-active { --bg:#0f0508; }
+    body.crisis-active .topbar { background:rgba(30,4,10,0.97); border-bottom-color:rgba(244,63,94,0.3); }
+    body.crisis-active .sidebar { background:#09030a; border-right-color:rgba(244,63,94,0.15); }
+    .crisis-stripe { display:none; position:fixed; top:var(--topbar-h); left:0; right:0; z-index:999; background:repeating-linear-gradient(45deg,rgba(244,63,94,0.12),rgba(244,63,94,0.12) 10px,transparent 10px,transparent 20px); height:4px; }
+    body.crisis-active .crisis-stripe { display:block; }
+
+    /* TOPBAR */
+    .topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar-h);background:rgba(7,7,15,0.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:14px;z-index:1000;transition:all 0.4s}
+    .topbar-logo img{height:30px}
+    .topbar-divider{width:1px;height:24px;background:var(--border);flex-shrink:0}
+    .breadcrumb{display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text-2)}
+    .breadcrumb .active{color:var(--red);font-weight:700}
+    .breadcrumb .sep{opacity:0.4}
+    .topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+    .lang-toggle{display:flex;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;overflow:hidden;font-size:0.72rem}
+    .lang-toggle button{padding:4px 11px;background:transparent;border:none;color:var(--text-2);cursor:pointer;font-weight:700;transition:all 0.2s}
+    .lang-toggle button.active{background:var(--accent);color:#000}
+    .badge{display:flex;align-items:center;gap:5px;font-size:0.68rem;font-weight:700;padding:4px 10px;border-radius:20px}
+    .badge-standby{background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);color:var(--purple)}
+    .badge-crisis{background:rgba(244,63,94,0.15);border:1px solid rgba(244,63,94,0.4);color:var(--red);animation:badge-pulse 1s infinite}
+    @keyframes badge-pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+    .badge .dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 1.2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+    .avatar{width:30px;height:30px;border-radius:50%;background:var(--accent-dim);border:2px solid var(--border-accent);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;color:var(--accent)}
+
+    .app{display:flex;padding-top:var(--topbar-h);min-height:100vh}
+
+    /* SIDEBAR */
+    .sidebar{position:fixed;top:var(--topbar-h);left:0;width:var(--sidebar-w);height:calc(100vh - var(--topbar-h));background:var(--bg-sidebar);border-right:1px solid var(--border);overflow-y:auto;z-index:900;display:flex;flex-direction:column;transition:all 0.4s}
+    .sb-section{padding:14px 14px 6px}
+    .sb-label{font-size:0.62rem;font-weight:700;color:var(--text-3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
+    .mod-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;cursor:pointer;margin-bottom:2px;color:var(--text-2);font-size:0.78rem;font-weight:500;transition:all 0.2s}
+    .mod-item:hover{background:rgba(255,255,255,0.04);color:var(--text)}
+    .mod-item.active{background:rgba(244,63,94,0.1);color:var(--red)}
+    .mod-item .mn{font-size:0.65rem;font-weight:800;color:var(--text-3);width:14px;flex-shrink:0}
+    .mod-item.active .mn{color:var(--red)}
+    .mod-item .mi{font-size:0.9rem;width:18px;text-align:center;flex-shrink:0}
+    .mod-item .mbadge{margin-left:auto;background:var(--red);color:#fff;font-size:0.58rem;font-weight:800;padding:2px 6px;border-radius:10px}
+    .mod-item.done .mn{color:var(--green)}
+    .sb-sep{height:1px;background:var(--border);margin:8px 12px}
+    .tab-nav{padding:8px 14px;flex:1}
+    .tab-item{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px;cursor:pointer;margin-bottom:2px;font-size:0.77rem;transition:all 0.2s;color:var(--text-2)}
+    .tab-item:hover{background:rgba(255,255,255,0.04);color:var(--text)}
+    .tab-item.active{background:rgba(244,63,94,0.08);color:var(--red);font-weight:700}
+    .tab-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.62rem;font-weight:800;flex-shrink:0;color:var(--text-3)}
+    .tab-item.active .tab-dot{border-color:var(--red);color:var(--red);background:rgba(244,63,94,0.08)}
+
+    /* MAIN */
+    .main{margin-left:var(--sidebar-w);margin-right:var(--right-w);flex:1;display:flex;flex-direction:column;min-width:0}
+    .page-header{padding:20px 28px 0;border-bottom:1px solid var(--border);background:rgba(7,7,15,0.7);backdrop-filter:blur(8px);position:sticky;top:var(--topbar-h);z-index:50}
+    .page-title-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+    .page-title{font-size:1.4rem;font-weight:900;letter-spacing:-0.02em}
+    .page-title .hl{color:var(--red)}
+    .page-sub{font-size:0.78rem;color:var(--text-2);margin-top:2px}
+    .page-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .btn{padding:7px 14px;border-radius:7px;font-size:0.78rem;font-weight:700;cursor:pointer;border:none;transition:all 0.2s;white-space:nowrap}
+    .btn-ghost{background:transparent;color:var(--text-2);border:1px solid var(--border)}
+    .btn-ghost:hover{color:var(--text);border-color:rgba(255,255,255,0.2)}
+    .btn-primary{background:var(--accent);color:#000}
+    .btn-primary:hover{background:#d4f000;transform:translateY(-1px)}
+    .btn-red{background:rgba(244,63,94,0.12);color:var(--red);border:1px solid rgba(244,63,94,0.3)}
+    .btn-red:hover{background:rgba(244,63,94,0.22)}
+    .btn-red-solid{background:var(--red);color:#fff;border:none}
+    .btn-red-solid:hover{background:#e02040;transform:translateY(-1px)}
+    .btn-orange{background:rgba(251,146,60,0.12);color:var(--orange);border:1px solid rgba(251,146,60,0.3)}
+    .btn-cyan{background:rgba(0,212,255,0.12);color:var(--cyan);border:1px solid rgba(0,212,255,0.25)}
+    .tab-bar{display:flex;gap:0}
+    .tab-bar-btn{padding:10px 18px;background:transparent;border:none;cursor:pointer;font-size:0.8rem;font-weight:600;color:var(--text-2);border-bottom:2px solid transparent;transition:all 0.2s}
+    .tab-bar-btn:hover{color:var(--text)}
+    .tab-bar-btn.active{color:var(--red);border-bottom-color:var(--red)}
+    .content{padding:20px 28px 80px;display:flex;flex-direction:column;gap:18px}
+
+    /* Cards */
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r)}
+    .card.crisis-card{border-color:rgba(244,63,94,0.25);background:rgba(15,5,8,0.8)}
+    .card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border)}
+    .card-title{display:flex;align-items:center;gap:10px;font-size:0.88rem;font-weight:800}
+    .card-icon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0}
+    .card-body{padding:18px}
+    .card-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+    .tab-panel{display:none} .tab-panel.active{display:flex;flex-direction:column;gap:18px}
+
+    /* CRISIS LEVEL SELECTOR */
+    .crisis-levels{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:4px}
+    .level-card{background:var(--bg-input);border:2px solid var(--border);border-radius:var(--r);padding:18px;text-align:center;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden}
+    .level-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.3s}
+    .level-card:hover{transform:translateY(-2px)}
+    .level-card.active-n1{border-color:var(--green);background:rgba(34,197,94,0.05)}
+    .level-card.active-n2{border-color:var(--orange);background:rgba(251,146,60,0.07)}
+    .level-card.active-n3{border-color:var(--red);background:rgba(244,63,94,0.09);animation:level-pulse 2s infinite}
+    @keyframes level-pulse{0%,100%{box-shadow:0 0 0 0 rgba(244,63,94,0.3)}50%{box-shadow:0 0 0 10px rgba(244,63,94,0)}}
+    .lc-number{font-size:2.5rem;font-weight:900;line-height:1;margin-bottom:6px}
+    .lc-title{font-size:0.85rem;font-weight:800;margin-bottom:4px}
+    .lc-desc{font-size:0.7rem;color:var(--text-2);line-height:1.5;margin-bottom:10px}
+    .lc-status{font-size:0.65rem;font-weight:800;padding:3px 10px;border-radius:20px;border:1px solid;display:inline-block}
+    .lcs-inactive{background:rgba(255,255,255,0.04);border-color:var(--border);color:var(--text-3)}
+    .lcs-active{background:rgba(244,63,94,0.12);border-color:rgba(244,63,94,0.35);color:var(--red)}
+    .lcs-standby{background:rgba(251,146,60,0.1);border-color:rgba(251,146,60,0.3);color:var(--orange)}
+
+    /* Timer / horloge de crise */
+    .crisis-timer{display:flex;align-items:center;gap:16px;padding:14px 18px;background:rgba(244,63,94,0.05);border:1px solid rgba(244,63,94,0.15);border-radius:var(--r)}
+    .ct-val{font-size:2rem;font-weight:900;color:var(--red);font-variant-numeric:tabular-nums;letter-spacing:0.04em}
+    .ct-label{font-size:0.7rem;color:var(--text-2);font-weight:600;margin-bottom:2px}
+    .ct-actions{display:flex;gap:7px;margin-left:auto}
+    .ct-phase{display:flex;align-items:center;gap:10px;flex:1}
+    .phase-badge{padding:4px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;border:1px solid}
+
+    /* Checklist */
+    .checklist{display:flex;flex-direction:column;gap:0}
+    .cl-item{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:all 0.2s}
+    .cl-item:last-child{border:none}
+    .cl-item:hover{background:rgba(255,255,255,0.02);margin:0 -18px;padding:11px 18px}
+    .cl-checkbox{width:20px;height:20px;border-radius:5px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;margin-top:1px}
+    .cl-item.done .cl-checkbox{background:var(--green);border-color:var(--green)}
+    .cl-item.done .cl-checkbox::after{content:'✓';font-size:0.68rem;color:#000;font-weight:900}
+    .cl-item.urgent .cl-checkbox{border-color:var(--red)}
+    .cl-item.done .cl-text{text-decoration:line-through;color:var(--text-3)}
+    .cl-text{flex:1;font-size:0.8rem;line-height:1.5}
+    .cl-owner{font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--bg-input);border:1px solid var(--border);color:var(--text-2);white-space:nowrap;align-self:center}
+    .cl-timer{font-size:0.65rem;color:var(--text-3);margin-left:4px;white-space:nowrap}
+    .cl-urgent-tag{font-size:0.6rem;font-weight:800;color:var(--red);background:rgba(244,63,94,0.1);border:1px solid rgba(244,63,94,0.25);border-radius:4px;padding:1px 6px;margin-left:6px}
+
+    /* Crisis type selector */
+    .crisis-types{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .ct-type{background:var(--bg-input);border:2px solid var(--border);border-radius:var(--r);padding:14px 12px;text-align:center;cursor:pointer;transition:all 0.2s}
+    .ct-type:hover{border-color:rgba(244,63,94,0.3);background:rgba(244,63,94,0.04)}
+    .ct-type.selected{border-color:var(--red);background:rgba(244,63,94,0.08)}
+    .ct-type-icon{font-size:1.6rem;margin-bottom:6px}
+    .ct-type-name{font-size:0.75rem;font-weight:800;margin-bottom:3px}
+    .ct-type-sub{font-size:0.62rem;color:var(--text-2)}
+
+    /* Decision tree */
+    .decision-tree{padding:18px;display:flex;flex-direction:column;gap:12px}
+    .dt-node{background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;position:relative}
+    .dt-node.dt-trigger{border-color:rgba(244,63,94,0.35);background:rgba(244,63,94,0.06)}
+    .dt-node.dt-action{border-color:rgba(0,212,255,0.25);background:rgba(0,212,255,0.04)}
+    .dt-node.dt-decision{border-color:rgba(251,146,60,0.3);background:rgba(251,146,60,0.05)}
+    .dt-node.dt-end{border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.05)}
+    .dt-connector{display:flex;justify-content:center;height:20px;position:relative}
+    .dt-connector::before{content:'';position:absolute;top:0;left:50%;width:2px;height:100%;background:var(--border)}
+    .dt-connector-arrow::after{content:'▼';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);font-size:0.6rem;color:var(--text-3)}
+    .dt-type{font-size:0.6rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
+    .dt-type.trig{color:var(--red)} .dt-type.act{color:var(--cyan)} .dt-type.dec{color:var(--orange)} .dt-type.end{color:var(--green)}
+    .dt-content{font-size:0.8rem;font-weight:600;margin-bottom:6px}
+    .dt-sub{font-size:0.72rem;color:var(--text-2);line-height:1.5}
+    .dt-branches{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .dt-branch{background:var(--bg-card);border:1px solid var(--border);border-radius:7px;padding:10px 12px;cursor:pointer;transition:all 0.2s}
+    .dt-branch:hover{border-color:var(--accent);background:var(--accent-dim)}
+    .dt-branch-label{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px}
+    .dt-branch-content{font-size:0.75rem;color:var(--text-2)}
+
+    /* Scenario cards */
+    .scenario-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    .sc-card{background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r);padding:16px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+    .sc-card:hover{border-color:rgba(244,63,94,0.3);background:rgba(244,63,94,0.04)}
+    .sc-card.active-sc{border-color:var(--red);background:rgba(244,63,94,0.07)}
+    .sc-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--border)}
+    .sc-card.active-sc::before{background:var(--red)}
+    .sc-icon{font-size:1.4rem;margin-bottom:8px}
+    .sc-name{font-size:0.85rem;font-weight:800;margin-bottom:4px}
+    .sc-desc{font-size:0.72rem;color:var(--text-2);line-height:1.5;margin-bottom:10px}
+    .sc-meta{display:flex;gap:8px;flex-wrap:wrap}
+    .sc-tag{font-size:0.62rem;font-weight:700;padding:2px 8px;border-radius:10px;border:1px solid;background:transparent}
+
+    /* Contact blast */
+    .contact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .contact-card{background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+    .cc-header{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+    .cc-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:800;flex-shrink:0}
+    .cc-name{font-size:0.8rem;font-weight:800}
+    .cc-role{font-size:0.65rem;color:var(--text-2)}
+    .cc-callsign{font-size:0.68rem;font-family:monospace;font-weight:800;color:var(--cyan);margin-bottom:8px}
+    .cc-status{display:flex;align-items:center;gap:5px;font-size:0.68rem;margin-bottom:10px}
+    .cc-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+    .cc-actions{display:flex;gap:5px}
+    .cc-btn{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:5px;padding:5px;font-size:0.65rem;font-weight:700;cursor:pointer;transition:all 0.2s;text-align:center;color:var(--text-2)}
+    .cc-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+    /* Rapport de crise */
+    .report-form{display:flex;flex-direction:column;gap:14px}
+    .rf-group{display:flex;flex-direction:column;gap:5px}
+    .rf-label{font-size:0.72rem;font-weight:700;color:var(--text-2)}
+    .rf-input{background:var(--bg-input);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:0.8rem}
+    .rf-input:focus{outline:none;border-color:var(--accent)}
+    .rf-textarea{background:var(--bg-input);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:0.8rem;resize:vertical;min-height:80px}
+    .rf-textarea:focus{outline:none;border-color:var(--accent)}
+    .rf-select{background:var(--bg-input);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:0.8rem;cursor:pointer}
+    .rf-select:focus{outline:none;border-color:var(--accent)}
+    .rf-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .rf-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+    /* Timeline de crise */
+    .crisis-timeline{display:flex;flex-direction:column;gap:0;position:relative;padding-left:28px}
+    .crisis-timeline::before{content:'';position:absolute;left:9px;top:10px;bottom:10px;width:2px;background:var(--border)}
+    .ctl-item{position:relative;padding:10px 0 10px 16px;cursor:pointer}
+    .ctl-dot{position:absolute;left:-19px;top:14px;width:10px;height:10px;border-radius:50%;border:2px solid var(--border);background:var(--bg)}
+    .ctl-item.crit .ctl-dot{border-color:var(--red);background:var(--red);box-shadow:0 0 6px rgba(244,63,94,0.4)}
+    .ctl-item.warn .ctl-dot{border-color:var(--orange);background:var(--orange)}
+    .ctl-item.ok .ctl-dot{border-color:var(--green);background:var(--green)}
+    .ctl-item.info .ctl-dot{border-color:var(--cyan);background:var(--cyan)}
+    .ctl-time{font-size:0.65rem;color:var(--text-3);margin-bottom:2px;font-weight:700}
+    .ctl-title{font-size:0.8rem;font-weight:800;margin-bottom:2px}
+    .ctl-desc{font-size:0.72rem;color:var(--text-2);line-height:1.5}
+    .ctl-author{font-size:0.65rem;color:var(--text-3);margin-top:3px;display:flex;align-items:center;gap:4px}
+
+    /* Nav bottom */
+    .nav-bottom{display:flex;justify-content:space-between;align-items:center;padding:14px 28px;border-top:1px solid var(--border);position:sticky;bottom:0;background:rgba(7,7,15,0.96);backdrop-filter:blur(8px)}
+
+    /* RIGHT PANEL */
+    .right-panel{position:fixed;top:var(--topbar-h);right:0;width:var(--right-w);height:calc(100vh - var(--topbar-h));background:var(--bg-sidebar);border-left:1px solid var(--border);overflow-y:auto;z-index:900;display:flex;flex-direction:column}
+    .rp-header{padding:14px 16px;border-bottom:1px solid var(--border)}
+    .rp-title{font-size:0.8rem;font-weight:800;display:flex;align-items:center;gap:7px;margin-bottom:3px}
+    .rp-badge{background:var(--accent-dim);border:1px solid var(--border-accent);color:var(--accent);font-size:0.62rem;font-weight:800;padding:2px 7px;border-radius:10px}
+    .rp-sub{font-size:0.7rem;color:var(--text-2)}
+    .ia-block{padding:14px 16px;border-bottom:1px solid var(--border)}
+    .ia-block-title{font-size:0.65rem;font-weight:700;color:var(--text-3);letter-spacing:0.09em;text-transform:uppercase;margin-bottom:10px}
+    .ia-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:11px;margin-bottom:8px;cursor:pointer;transition:all 0.2s}
+    .ia-card:last-child{margin-bottom:0}
+    .ia-card:hover{border-color:var(--border-accent)}
+    .ia-type{font-size:0.6rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
+    .ia-type.warn{color:var(--orange)} .ia-type.info{color:var(--cyan)} .ia-type.crit{color:var(--red)} .ia-type.ok{color:var(--green)}
+    .ia-msg{font-size:0.73rem;color:var(--text-2);line-height:1.5}
+    .ia-action{margin-top:6px;font-size:0.68rem;font-weight:700;color:var(--accent);cursor:pointer}
+    .rp-kpi-row{display:flex;justify-content:space-between;align-items:center;padding:7px 16px;border-bottom:1px solid var(--border)}
+    .rp-kpi-label{font-size:0.72rem;color:var(--text-2)}
+    .rp-kpi-val{font-size:0.8rem;font-weight:800}
+
+    ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  </style>
+</head>
+<body>
+
+<div class="crisis-stripe"></div>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-logo"><img src="../assets/logos/logo_dark.png" alt="ORDR.AI" /></div>
+  <div class="topbar-divider"></div>
+  <div class="breadcrumb">
+    <span>ORDR.AI™</span><span class="sep">/</span>
+    <a href="03-deploiement.html">Déploiement</a><span class="sep">/</span>
+    <span class="active" data-fr="Gestion de crise" data-en="Crisis management">Gestion de crise</span>
+  </div>
+  <div class="topbar-right">
+    <div class="badge badge-standby" id="crisis-badge"><span class="dot"></span><span id="badge-text" data-fr="VEILLE — Niveau 0" data-en="STANDBY — Level 0">VEILLE — Niveau 0</span></div>
+    <div class="lang-toggle">
+      <button onclick="setLang('fr')" class="active" data-l="fr">FR</button>
+      <button onclick="setLang('en')" data-l="en">EN</button>
+    </div>
+    <div class="avatar">AB</div>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-section">
+      <div class="sb-label">Modules</div>
+      <div class="mod-item done" onclick="location.href='01-profil-evenement.html'"><span class="mn">✓</span><span class="mi">🎯</span><span data-fr="Évaluation du risque" data-en="Risk assessment">Évaluation du risque</span></div>
+      <div class="mod-item done" onclick="location.href='02-planification.html'"><span class="mn">✓</span><span class="mi">📋</span><span data-fr="Planification" data-en="Planning">Planification</span></div>
+      <div class="mod-item done" onclick="location.href='03-deploiement.html'"><span class="mn">✓</span><span class="mi">🗺️</span><span data-fr="Déploiement" data-en="Deployment">Déploiement</span></div>
+      <div class="mod-item active"><span class="mn">4</span><span class="mi">🚨</span><span data-fr="Gestion de crise" data-en="Crisis mgmt">Gestion de crise</span><span class="mbadge" id="sb-crisis-badge">VEILLE</span></div>
+      <div class="mod-item"><span class="mn">5</span><span class="mi">💼</span><span>BackOffice</span></div>
+      <div class="mod-item"><span class="mn">6</span><span class="mi">📈</span><span data-fr="Rétroaction IA" data-en="AI Feedback">Rétroaction IA</span></div>
+    </div>
+    <div class="sb-sep"></div>
+    <div class="tab-nav">
+      <div class="sb-label" data-fr="Gestion de crise" data-en="Crisis management">Gestion de crise</div>
+      <div class="tab-item active" onclick="switchTab('t1',this)"><div class="tab-dot">1</div><span data-fr="Niveau d'activation" data-en="Activation level">Niveau d'activation</span></div>
+      <div class="tab-item" onclick="switchTab('t2',this)"><div class="tab-dot">2</div><span data-fr="Procédures d'urgence" data-en="Emergency procedures">Procédures d'urgence</span></div>
+      <div class="tab-item" onclick="switchTab('t3',this)"><div class="tab-dot">3</div><span data-fr="Arbre décisionnel IA" data-en="AI decision tree">Arbre décisionnel IA</span></div>
+      <div class="tab-item" onclick="switchTab('t4',this)"><div class="tab-dot">4</div><span data-fr="Scénarios de crise" data-en="Crisis scenarios">Scénarios de crise</span></div>
+      <div class="tab-item" onclick="switchTab('t5',this)"><div class="tab-dot">5</div><span data-fr="Contacts d'urgence" data-en="Emergency contacts">Contacts d'urgence</span></div>
+      <div class="tab-item" onclick="switchTab('t6',this)"><div class="tab-dot">6</div><span data-fr="Rapport de crise" data-en="Crisis report">Rapport de crise</span></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="page-header">
+      <div class="page-title-row">
+        <div>
+          <div class="page-title">Gestion de <span class="hl">crise</span></div>
+          <div class="page-sub" id="page-sub" data-fr="Module 4 · Protocoles d'urgence · Arbres décisionnels ORDR.AI™" data-en="Module 4 · Emergency protocols · ORDR.AI™ decision trees">Module 4 · Protocoles d'urgence · Arbres décisionnels ORDR.AI™</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-ghost" data-fr="📋 Journal de bord" data-en="📋 Logbook">📋 Journal de bord</button>
+          <button class="btn btn-orange" onclick="activateLevel(2)" data-fr="⬆ Niv. 2 — Urgent" data-en="⬆ Lv. 2 — Urgent">⬆ Niv. 2 — Urgent</button>
+          <button class="btn btn-red-solid" onclick="activateLevel(3)" data-fr="🚨 DÉCLENCHER CRISE N3" data-en="🚨 TRIGGER CRISIS L3">🚨 DÉCLENCHER CRISE N3</button>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <button class="tab-bar-btn active" onclick="switchTab('t1',null,this)" data-fr="① Activation" data-en="① Activation">① Activation</button>
+        <button class="tab-bar-btn" onclick="switchTab('t2',null,this)" data-fr="② Procédures" data-en="② Procedures">② Procédures</button>
+        <button class="tab-bar-btn" onclick="switchTab('t3',null,this)" data-fr="③ Arbre IA" data-en="③ AI Tree">③ Arbre IA</button>
+        <button class="tab-bar-btn" onclick="switchTab('t4',null,this)" data-fr="④ Scénarios" data-en="④ Scenarios">④ Scénarios</button>
+        <button class="tab-bar-btn" onclick="switchTab('t5',null,this)" data-fr="⑤ Contacts" data-en="⑤ Contacts">⑤ Contacts</button>
+        <button class="tab-bar-btn" onclick="switchTab('t6',null,this)" data-fr="⑥ Rapport" data-en="⑥ Report">⑥ Rapport</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ════ TAB 1 — ACTIVATION ════ -->
+      <div class="tab-panel active" id="t1">
+
+        <!-- Niveau d'activation -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:rgba(244,63,94,0.1)">🚨</div><span data-fr="Niveau d'activation de crise" data-en="Crisis activation level">Niveau d'activation de crise</span></div>
+            <div class="card-actions">
+              <button class="btn btn-ghost" onclick="activateLevel(0)" data-fr="Revenir en veille" data-en="Return to standby">Revenir en veille</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="crisis-levels">
+              <!-- N1 -->
+              <div class="level-card" id="lc1" onclick="activateLevel(1)">
+                <div class="lc-number" style="color:var(--orange)">N1</div>
+                <div class="lc-title" data-fr="Incident localisé" data-en="Localized incident">Incident localisé</div>
+                <div class="lc-desc" data-fr="Événement mineur nécessitant une intervention standard. Aucun risque d'escalade immédiate." data-en="Minor event requiring standard response. No immediate escalation risk.">Événement mineur nécessitant une intervention standard. Aucun risque d'escalade immédiate.</div>
+                <ul style="font-size:0.68rem;color:var(--text-2);text-align:left;padding-left:16px;margin-bottom:12px;line-height:1.8">
+                  <li data-fr="Bagarre limitée (≤ 3 personnes)" data-en="Limited fight (≤ 3 people)">Bagarre limitée (≤ 3 personnes)</li>
+                  <li data-fr="Malaise médical isolé" data-en="Isolated medical incident">Malaise médical isolé</li>
+                  <li data-fr="File d'attente > 30 min" data-en="Queue > 30 min">File d'attente > 30 min</li>
+                </ul>
+                <span class="lc-status lcs-standby" id="lcs1" data-fr="En veille" data-en="Standby">En veille</span>
+              </div>
+              <!-- N2 -->
+              <div class="level-card" id="lc2" onclick="activateLevel(2)">
+                <div class="lc-number" style="color:var(--orange)">N2</div>
+                <div class="lc-title" data-fr="Incident majeur" data-en="Major incident">Incident majeur</div>
+                <div class="lc-desc" data-fr="Situation nécessitant l'activation des plans de contingence et la mobilisation des renforts." data-en="Situation requiring contingency plan activation and reinforcement mobilization.">Situation nécessitant l'activation des plans de contingence et la mobilisation des renforts.</div>
+                <ul style="font-size:0.68rem;color:var(--text-2);text-align:left;padding-left:16px;margin-bottom:12px;line-height:1.8">
+                  <li data-fr="Mouvement de foule incontrôlé" data-en="Uncontrolled crowd movement">Mouvement de foule incontrôlé</li>
+                  <li data-fr="Blessés multiples (3–10)" data-en="Multiple injured (3–10)">Blessés multiples (3–10)</li>
+                  <li data-fr="Intrusion ou menace directe" data-en="Intrusion or direct threat">Intrusion ou menace directe</li>
+                </ul>
+                <span class="lc-status lcs-inactive" id="lcs2" data-fr="Inactif" data-en="Inactive">Inactif</span>
+              </div>
+              <!-- N3 -->
+              <div class="level-card" id="lc3" onclick="activateLevel(3)">
+                <div class="lc-number" style="color:var(--red)">N3</div>
+                <div class="lc-title" data-fr="Crise majeure" data-en="Major crisis">Crise majeure</div>
+                <div class="lc-desc" data-fr="Urgence absolue. Évacuation totale ou partielle. Coordination avec SPVM, pompiers, ambulances." data-en="Absolute emergency. Full or partial evacuation. Coordination with police, fire, ambulances.">Urgence absolue. Évacuation totale ou partielle. Coordination avec SPVM, pompiers, ambulances.</div>
+                <ul style="font-size:0.68rem;color:var(--text-2);text-align:left;padding-left:16px;margin-bottom:12px;line-height:1.8">
+                  <li data-fr="Évacuation totale du site" data-en="Full site evacuation">Évacuation totale du site</li>
+                  <li data-fr="Attentat / menace terroriste" data-en="Attack / terrorist threat">Attentat / menace terroriste</li>
+                  <li data-fr="+10 blessés graves" data-en="+10 serious injuries">+10 blessés graves</li>
+                </ul>
+                <span class="lc-status lcs-inactive" id="lcs3" data-fr="Inactif" data-en="Inactive">Inactif</span>
+              </div>
+            </div>
+
+            <!-- Timer de crise -->
+            <div class="crisis-timer" id="crisis-timer-block" style="display:none">
+              <div>
+                <div class="ct-label" data-fr="TEMPS DE CRISE" data-en="CRISIS DURATION">TEMPS DE CRISE</div>
+                <div class="ct-val" id="crisis-elapsed">00:00:00</div>
+              </div>
+              <div class="ct-phase">
+                <div>
+                  <div class="ct-label" data-fr="Niveau actif" data-en="Active level">Niveau actif</div>
+                  <div id="ct-level-badge"></div>
+                </div>
+                <div style="margin-left:20px">
+                  <div class="ct-label" data-fr="Type d'incident" data-en="Incident type">Type d'incident</div>
+                  <div style="font-size:0.8rem;font-weight:800" id="ct-incident-type" data-fr="— Sélectionner —" data-en="— Select —">— Sélectionner —</div>
+                </div>
+              </div>
+              <div class="ct-actions">
+                <button class="btn btn-orange" data-fr="↑ Escalader" data-en="↑ Escalate" onclick="activateLevel(Math.min(currentLevel+1,3))">↑ Escalader</button>
+                <button class="btn btn-ghost" data-fr="↓ Déescalader" data-en="↓ De-escalate" onclick="activateLevel(Math.max(currentLevel-1,0))">↓ Déescalader</button>
+                <button class="btn btn-primary" onclick="closeCrisis()" data-fr="✓ Clore la crise" data-en="✓ Close crisis">✓ Clore la crise</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timeline des événements -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:rgba(0,212,255,0.1)">⏱</div><span data-fr="Chronologie des événements" data-en="Event timeline">Chronologie des événements</span></div>
+            <button class="btn btn-ghost" style="font-size:0.7rem" data-fr="+ Ajouter entrée" data-en="+ Add entry">+ Ajouter entrée</button>
+          </div>
+          <div class="card-body" style="padding:14px 18px">
+            <div class="crisis-timeline">
+              <div class="ctl-item crit">
+                <div class="ctl-dot"></div>
+                <div class="ctl-time">13:41</div>
+                <div class="ctl-title" data-fr="Altercation signalée — Zone alcool B-7" data-en="Altercation reported — Alcohol zone B-7">Altercation signalée — Zone alcool B-7</div>
+                <div class="ctl-desc" data-fr="Bagarre entre 3 individus. T. Mercure et V. Côté en intervention. Niveau N1 activé." data-en="Fight between 3 individuals. T. Mercure and V. Côté intervening. Level N1 activated.">Bagarre entre 3 individus. T. Mercure et V. Côté en intervention. Niveau N1 activé.</div>
+                <div class="ctl-author">👮 T. Mercure · BRAVO-5</div>
+              </div>
+              <div class="ctl-item warn">
+                <div class="ctl-dot"></div>
+                <div class="ctl-time">13:37</div>
+                <div class="ctl-title" data-fr="Densité critique détectée — Scène (4.2/m²)" data-en="Critical density detected — Stage (4.2/m²)">Densité critique détectée — Scène (4.2/m²)</div>
+                <div class="ctl-desc" data-fr="Seuil R3 dépassé. IA recommande redirection flux nord. Action non encore prise." data-en="R3 threshold exceeded. AI recommends north flow redirection. Action not yet taken.">Seuil R3 dépassé. IA recommande redirection flux nord. Action non encore prise.</div>
+                <div class="ctl-author">🤖 ORDR.AI™ — détection automatique</div>
+              </div>
+              <div class="ctl-item ok">
+                <div class="ctl-dot"></div>
+                <div class="ctl-time">13:22</div>
+                <div class="ctl-title" data-fr="File d'attente E-3 résolue" data-en="Queue at E-3 resolved">File d'attente E-3 résolue</div>
+                <div class="ctl-desc" data-fr="Portail 4B ouvert. File réduite de 48 min → 12 min. Situation normalisée." data-en="Gate 4B opened. Queue reduced from 48 min → 12 min. Situation normalized.">Portail 4B ouvert. File réduite de 48 min → 12 min. Situation normalisée.</div>
+                <div class="ctl-author">👮 S. Côté · CHARLIE-1</div>
+              </div>
+              <div class="ctl-item info">
+                <div class="ctl-dot"></div>
+                <div class="ctl-time">12:00</div>
+                <div class="ctl-title" data-fr="Déploiement initial validé — 76 agents en poste" data-en="Initial deployment validated — 76 agents on post">Déploiement initial validé — 76 agents en poste</div>
+                <div class="ctl-desc" data-fr="Toutes les zones couvertes. Postes de commandement opérationnels." data-en="All zones covered. Command posts operational.">Toutes les zones couvertes. Postes de commandement opérationnels.</div>
+                <div class="ctl-author">👤 D. Blain · ALPHA-1</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ TAB 2 — PROCÉDURES ════ -->
+      <div class="tab-panel" id="t2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:rgba(244,63,94,0.1)">📋</div><span data-fr="Liste de vérification d'urgence" data-en="Emergency checklist">Liste de vérification d'urgence</span></div>
+            <div class="card-actions">
+              <select class="rf-select" style="padding:5px 10px;font-size:0.75rem" onchange="changeChecklist(this.value)">
+                <option value="n1" data-fr="Niveau 1 — Incident localisé" data-en="Level 1 — Localized incident">Niveau 1 — Incident localisé</option>
+                <option value="n2" data-fr="Niveau 2 — Incident majeur" data-en="Level 2 — Major incident">Niveau 2 — Incident majeur</option>
+                <option value="n3" data-fr="Niveau 3 — Crise majeure" data-en="Level 3 — Major crisis">Niveau 3 — Crise majeure</option>
+                <option value="evac" data-fr="Évacuation complète" data-en="Full evacuation">Évacuation complète</option>
+              </select>
+              <button class="btn btn-ghost" onclick="resetChecklist()" data-fr="Réinitialiser" data-en="Reset">Réinitialiser</button>
+              <span id="cl-progress" style="font-size:0.75rem;color:var(--text-2)">0 / 12 complétés</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="checklist" id="checklist">
+              <div class="cl-item urgent" onclick="toggleCL(this)">
+                <div class="cl-checkbox"></div>
+                <div class="cl-text"><strong data-fr="IMMÉDIAT :" data-en="IMMEDIATE:">IMMÉDIAT :</strong> <span data-fr="Confirmer la nature et l'étendue de l'incident par radio sur CH-01" data-en="Confirm incident nature and scope via radio on CH-01">Confirmer la nature et l'étendue de l'incident par radio sur CH-01</span><span class="cl-urgent-tag" data-fr="URGENT" data-en="URGENT">URGENT</span></div>
+                <span class="cl-owner">ALPHA-1</span>
+              </div>
+              <div class="cl-item urgent" onclick="toggleCL(this)">
+                <div class="cl-checkbox"></div>
+                <div class="cl-text" data-fr="Sécuriser le périmètre immédiat de l'incident (rayon de 15 m minimum)" data-en="Secure immediate incident perimeter (15 m radius minimum)">Sécuriser le périmètre immédiat de l'incident (rayon de 15 m minimum)<span class="cl-urgent-tag" data-fr="URGENT" data-en="URGENT">URGENT</span></div>
+                <span class="cl-owner">Superviseur zone</span>
+              </div>
+              <div class="cl-item" onclick="toggleCL(this)">
+                <div class="cl-checkbox"></div>
+                <div class="cl-text" data-fr="Notifier le poste de commandement ALPHA-1 avec : qui, quoi, où, combien de blessés" data-en="Notify command post ALPHA-1 with: who, what, where, how many injured">Notifier le poste de commandement ALPHA-1 avec : qui, quoi, où, combien de blessés</div>
+                <span class="cl-owner">Superviseur zone</span><span class="cl-timer">≤ 2 min</span>
+              </div>
+              <div class="cl-item" onclick="toggleCL(this)">
+                <div class="cl-checkbox"></div>
+                <div class="cl-text" data-fr="Activer le Plan de contingence correspondant au type d'incident" data-en="Activate the contingency plan corresponding to the incident type">Activer le Plan de contingence correspondant au type d'incident</div>
+                <span class="cl-owner">ALPHA-1</span>
+              </div>
+              <div class="cl-item" onclick="toggleCL(this)">
+                <div class="cl-checkbox"></div>
+                <div class="cl-text" data-fr="Dépêcher les renforts de la réserve tactique vers la zone affectée" data-en="Deploy tactical reserve reinforcements to affected zone">Dépêcher les renforts de la réserve tactique vers la zone affectée</div>
+                <span class="cl-owner">ALPHA-1</span>
+              </div>
+              <div class="cl-item" onclick="toggleCL(this)">
+                <div class="cl-checkbox"></div>
+                <div class="cl-text" data-fr="Alerter MEDIC-1 et préparer la zone médicale pour recevoir des blessés" data-en="Alert MEDIC-1 and prepare medical zone to receive casualties">Alerter MEDIC-1 et préparer la zone médicale pour recevoir des blessés</div>
+                <span class="cl-owner">MEDIC-1</span>
+              </div>
+              <div class="cl-item" onclick="toggleCL(this)">
+                <div class="cl-checkbox"></div>
+                <div class="cl-text" data-fr="Documenter l'heure de début d'incident dans le journal de bord" data-en="Document incident start time in logbook">Documenter l'heure de début d'incident dans le journal de bord</div>
+                <span class="cl-owner">Secrétaire cmd</span>
+              </div>
+              <div class="cl-item" onclick="toggleCL(this)">
+                <div class="cl-checkbox"></div>
+                <div class="cl-text" data-fr="Notifier le client / promoteur de l'événement par téléphone" data-en="Notify event client / promoter by phone">Notifier le client / promoteur de l'événement par téléphone</div>
+                <span class="cl-owner">ALPHA-1</span>
+              </div>
+              <div class="cl-item" onclick="toggleCL(this)">
+                <div class="cl-checkbox"></div>
+                <div class="cl-text" data-fr="Rediriger les flux de public pour éviter la zone d'incident" data-en="Redirect public flow to avoid incident zone">Rediriger les flux de public pour éviter la zone d'incident</div>
+                <span class="cl-owner">Superviseurs zones adj.</span>
+              </div>
+              <div class="cl-item" onclick="toggleCL(this)">
+                <div class="cl-checkbox"></div>
+                <div class="cl-text" data-fr="Évaluer si escalade vers N2 est nécessaire selon l'évolution de la situation" data-en="Assess if escalation to N2 is required based on situation evolution">Évaluer si escalade vers N2 est nécessaire selon l'évolution de la situation</div>
+                <span class="cl-owner">ALPHA-1</span><span class="cl-timer">≤ 10 min</span>
+              </div>
+              <div class="cl-item" onclick="toggleCL(this)">
+                <div class="cl-checkbox"></div>
+                <div class="cl-text" data-fr="Maintenir la communication radio toutes les 5 minutes sur CH-01" data-en="Maintain radio communication every 5 minutes on CH-01">Maintenir la communication radio toutes les 5 minutes sur CH-01</div>
+                <span class="cl-owner">Tous superviseurs</span>
+              </div>
+              <div class="cl-item" onclick="toggleCL(this)">
+                <div class="cl-checkbox"></div>
+                <div class="cl-text" data-fr="Préparer un rapport préliminaire d'incident pour transmission" data-en="Prepare preliminary incident report for transmission">Préparer un rapport préliminaire d'incident pour transmission</div>
+                <span class="cl-owner">ALPHA-1</span><span class="cl-timer">≤ 30 min</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ TAB 3 — ARBRE DÉCISIONNEL IA ════ -->
+      <div class="tab-panel" id="t3">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:var(--accent-dim)">🧠</div><span data-fr="Arbre décisionnel ORDR.AI™" data-en="ORDR.AI™ Decision tree">Arbre décisionnel ORDR.AI™</span></div>
+            <div class="card-actions">
+              <select class="rf-select" style="padding:5px 10px;font-size:0.75rem">
+                <option data-fr="Mouvement de foule" data-en="Crowd movement">Mouvement de foule</option>
+                <option data-fr="Incident médical" data-en="Medical incident">Incident médical</option>
+                <option data-fr="Altercation / bagarre" data-en="Altercation / fight">Altercation / bagarre</option>
+                <option data-fr="Évacuation d'urgence" data-en="Emergency evacuation">Évacuation d'urgence</option>
+                <option data-fr="Menace terroriste" data-en="Terrorist threat">Menace terroriste</option>
+              </select>
+            </div>
+          </div>
+          <div class="decision-tree">
+            <div class="dt-node dt-trigger">
+              <div class="dt-type trig" data-fr="⚡ DÉCLENCHEUR" data-en="⚡ TRIGGER">⚡ DÉCLENCHEUR</div>
+              <div class="dt-content" data-fr="Densité > 4.0 pers/m² détectée (Scène principale)" data-en="Density > 4.0 pers/m² detected (Main stage)">Densité > 4.0 pers/m² détectée (Scène principale)</div>
+              <div class="dt-sub" data-fr="Signal capté par ORDR.AI™ via analyse heatmap temps réel. Seuil R3 franchi à 13:37." data-en="Signal captured by ORDR.AI™ via real-time heatmap analysis. R3 threshold crossed at 13:37.">Signal capté par ORDR.AI™ via analyse heatmap temps réel. Seuil R3 franchi à 13:37.</div>
+            </div>
+            <div class="dt-connector dt-connector-arrow"></div>
+
+            <div class="dt-node dt-action">
+              <div class="dt-type act" data-fr="⚙ ACTION AUTOMATIQUE ORDR.AI™" data-en="⚙ ORDR.AI™ AUTO ACTION">⚙ ACTION AUTOMATIQUE ORDR.AI™</div>
+              <div class="dt-content" data-fr="Notification push à ALPHA-1 et BRAVO-1 · Alerte Module 4 · Suggestion de redirection" data-en="Push notification to ALPHA-1 and BRAVO-1 · Module 4 alert · Redirection suggestion">Notification push à ALPHA-1 et BRAVO-1 · Alerte Module 4 · Suggestion de redirection</div>
+              <div class="dt-sub" data-fr="Délai d'intervention cible : 2 minutes. Plan de contingence B-1 pré-chargé." data-en="Target response time: 2 minutes. Contingency plan B-1 pre-loaded.">Délai d'intervention cible : 2 minutes. Plan de contingence B-1 pré-chargé.</div>
+            </div>
+            <div class="dt-connector dt-connector-arrow"></div>
+
+            <div class="dt-node dt-decision">
+              <div class="dt-type dec" data-fr="❓ DÉCISION CHEF DE SÉCURITÉ" data-en="❓ SECURITY CHIEF DECISION">❓ DÉCISION CHEF DE SÉCURITÉ</div>
+              <div class="dt-content" data-fr="La redirection de flux est-elle suffisante pour réduire la densité sous le seuil R3 ?" data-en="Is flow redirection sufficient to reduce density below R3 threshold?">La redirection de flux est-elle suffisante pour réduire la densité sous le seuil R3 ?</div>
+              <div class="dt-branches">
+                <div class="dt-branch" style="border-color:rgba(34,197,94,0.3)">
+                  <div class="dt-branch-label" style="color:var(--green)" data-fr="✓ OUI — Densité en baisse" data-en="✓ YES — Density decreasing">✓ OUI — Densité en baisse</div>
+                  <div class="dt-branch-content" data-fr="Maintenir la surveillance. Documenter. Retour à N0 si stable." data-en="Maintain surveillance. Document. Return to N0 if stable.">Maintenir la surveillance. Documenter. Retour à N0 si stable.</div>
+                </div>
+                <div class="dt-branch" style="border-color:rgba(244,63,94,0.3)">
+                  <div class="dt-branch-label" style="color:var(--red)" data-fr="✗ NON — Densité stable / croissante" data-en="✗ NO — Density stable / growing">✗ NON — Densité stable / croissante</div>
+                  <div class="dt-branch-content" data-fr="Escalader vers N2. Activer Plan B-1 Évacuation partielle scène." data-en="Escalate to N2. Activate Plan B-1 Partial stage evacuation.">Escalader vers N2. Activer Plan B-1 Évacuation partielle scène.</div>
+                </div>
+              </div>
+            </div>
+            <div class="dt-connector dt-connector-arrow"></div>
+
+            <div class="dt-node dt-action">
+              <div class="dt-type act" data-fr="⚙ ACTIONS N2 — ORDR.AI™" data-en="⚙ N2 ACTIONS — ORDR.AI™">⚙ ACTIONS N2 — ORDR.AI™</div>
+              <div class="dt-content" data-fr="Évacuation partielle + renfort réserve + notification SPVM" data-en="Partial evacuation + reserve reinforcement + SPVM notification">Évacuation partielle + renfort réserve + notification SPVM</div>
+              <div class="dt-sub" data-fr="• Activer couloir nord d'évacuation (capacité 800 pers/min)\n• Dépêcher FOXTROT-1,2,3 vers scène\n• Alerter SPVM (ligne directe: #4467)\n• Mettre MEDIC-1 en statut rouge" data-en="• Activate north evacuation corridor (800 persons/min capacity)\n• Deploy FOXTROT-1,2,3 to stage\n• Alert SPVM (direct line: #4467)\n• Set MEDIC-1 to red status">• Activer couloir nord d'évacuation (capacité 800 pers/min)<br>• Dépêcher FOXTROT-1,2,3 vers scène<br>• Alerter SPVM (ligne directe: #4467)<br>• Mettre MEDIC-1 en statut rouge</div>
+            </div>
+            <div class="dt-connector dt-connector-arrow"></div>
+
+            <div class="dt-node dt-decision">
+              <div class="dt-type dec" data-fr="❓ ÉVALUATION 10 MIN APRÈS" data-en="❓ EVALUATION AFTER 10 MIN">❓ ÉVALUATION 10 MIN APRÈS</div>
+              <div class="dt-content" data-fr="Situation maîtrisée ?" data-en="Situation under control?">Situation maîtrisée ?</div>
+              <div class="dt-branches">
+                <div class="dt-branch" style="border-color:rgba(34,197,94,0.3)">
+                  <div class="dt-branch-label" style="color:var(--green)">✓ OUI</div>
+                  <div class="dt-branch-content" data-fr="Déescalader vers N1 puis N0. Rédiger rapport préliminaire." data-en="De-escalate to N1 then N0. Write preliminary report.">Déescalader vers N1 puis N0. Rédiger rapport préliminaire.</div>
+                </div>
+                <div class="dt-branch" style="border-color:rgba(244,63,94,0.3)">
+                  <div class="dt-branch-label" style="color:var(--red)">✗ NON</div>
+                  <div class="dt-branch-content" data-fr="Escalader vers N3. Déclencher évacuation totale. Transférer le commandement aux autorités." data-en="Escalate to N3. Trigger full evacuation. Transfer command to authorities.">Escalader vers N3. Déclencher évacuation totale. Transférer le commandement aux autorités.</div>
+                </div>
+              </div>
+            </div>
+            <div class="dt-connector dt-connector-arrow"></div>
+
+            <div class="dt-node dt-end">
+              <div class="dt-type end" data-fr="✅ RÉSOLUTION & RAPPORT" data-en="✅ RESOLUTION & REPORT">✅ RÉSOLUTION & RAPPORT</div>
+              <div class="dt-content" data-fr="Documenter l'incident complet — Module 6 Rétroaction IA" data-en="Document full incident — Module 6 AI Feedback">Documenter l'incident complet — Module 6 Rétroaction IA</div>
+              <div class="dt-sub" data-fr="Rapport post-incident obligatoire. Données utilisées pour calibrer les matrices ORDR.AI™." data-en="Mandatory post-incident report. Data used to calibrate ORDR.AI™ matrices.">Rapport post-incident obligatoire. Données utilisées pour calibrer les matrices ORDR.AI™.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ TAB 4 — SCÉNARIOS ════ -->
+      <div class="tab-panel" id="t4">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:rgba(139,92,246,0.1)">📚</div><span data-fr="Scénarios de crise prédéfinis" data-en="Predefined crisis scenarios">Scénarios de crise prédéfinis</span></div>
+            <button class="btn btn-primary" data-fr="+ Nouveau scénario" data-en="+ New scenario">+ Nouveau scénario</button>
+          </div>
+          <div class="card-body">
+            <div class="scenario-grid">
+              <div class="sc-card" onclick="selectScenario(this)">
+                <div class="sc-icon">🌊</div>
+                <div class="sc-name" data-fr="Mouvement de foule incontrôlé" data-en="Uncontrolled crowd movement">Mouvement de foule incontrôlé</div>
+                <div class="sc-desc" data-fr="Vague humaine, bousculade, comportement de panique. Protocole de dégagement et redirection immédiate." data-en="Human wave, stampede, panic behavior. Immediate clearance and redirection protocol.">Vague humaine, bousculade, comportement de panique. Protocole de dégagement et redirection immédiate.</div>
+                <div class="sc-meta">
+                  <span class="sc-tag" style="border-color:rgba(244,63,94,0.3);color:var(--red)" data-fr="N2–N3" data-en="L2–L3">N2–N3</span>
+                  <span class="sc-tag" style="border-color:var(--border);color:var(--text-2)" data-fr="Évacuation partielle" data-en="Partial evacuation">Évacuation partielle</span>
+                  <span class="sc-tag" style="border-color:var(--border);color:var(--text-2)" data-fr="SPVM requis" data-en="SPVM required">SPVM requis</span>
+                </div>
+              </div>
+              <div class="sc-card active-sc" onclick="selectScenario(this)">
+                <div class="sc-icon">🥊</div>
+                <div class="sc-name" data-fr="Altercation / Bagarre de masse" data-en="Altercation / Mass brawl">Altercation / Bagarre de masse</div>
+                <div class="sc-desc" data-fr="Incident impliquant 3+ individus. Intervention directe, extraction, transfert SPVM si blessés graves." data-en="Incident involving 3+ individuals. Direct intervention, extraction, SPVM transfer if seriously injured.">Incident impliquant 3+ individus. Intervention directe, extraction, transfert SPVM si blessés graves.</div>
+                <div class="sc-meta">
+                  <span class="sc-tag" style="border-color:rgba(251,146,60,0.3);color:var(--orange)" data-fr="N1–N2" data-en="L1–L2">N1–N2</span>
+                  <span class="sc-tag" style="border-color:rgba(244,63,94,0.3);color:var(--red)" data-fr="EN COURS" data-en="IN PROGRESS">EN COURS</span>
+                </div>
+              </div>
+              <div class="sc-card" onclick="selectScenario(this)">
+                <div class="sc-icon">🚑</div>
+                <div class="sc-name" data-fr="Incident médical de masse" data-en="Mass medical incident">Incident médical de masse</div>
+                <div class="sc-desc" data-fr="Malaises, overdoses ou blessures simultanées (+3 victimes). Triage, DEA, transfert ambulancier." data-en="Simultaneous fainting, overdoses or injuries (+3 victims). Triage, AED, ambulance transfer.">Malaises, overdoses ou blessures simultanées (+3 victimes). Triage, DEA, transfert ambulancier.</div>
+                <div class="sc-meta">
+                  <span class="sc-tag" style="border-color:rgba(251,146,60,0.3);color:var(--orange)" data-fr="N2" data-en="L2">N2</span>
+                  <span class="sc-tag" style="border-color:var(--border);color:var(--text-2)" data-fr="MEDIC-1 responsable" data-en="MEDIC-1 responsible">MEDIC-1 responsable</span>
+                </div>
+              </div>
+              <div class="sc-card" onclick="selectScenario(this)">
+                <div class="sc-icon">🔥</div>
+                <div class="sc-name" data-fr="Évacuation d'urgence totale" data-en="Full emergency evacuation">Évacuation d'urgence totale</div>
+                <div class="sc-desc" data-fr="Incendie, explosion ou menace grave exigeant l'évacuation complète du site. Points de rassemblement activés." data-en="Fire, explosion or serious threat requiring full site evacuation. Assembly points activated.">Incendie, explosion ou menace grave exigeant l'évacuation complète du site.</div>
+                <div class="sc-meta">
+                  <span class="sc-tag" style="border-color:rgba(244,63,94,0.3);color:var(--red)" data-fr="N3" data-en="L3">N3</span>
+                  <span class="sc-tag" style="border-color:rgba(244,63,94,0.3);color:var(--red)" data-fr="Pompiers + SPVM" data-en="Fire dept + SPVM">Pompiers + SPVM</span>
+                </div>
+              </div>
+              <div class="sc-card" onclick="selectScenario(this)">
+                <div class="sc-icon">⚡</div>
+                <div class="sc-name" data-fr="Panne électrique majeure" data-en="Major power failure">Panne électrique majeure</div>
+                <div class="sc-desc" data-fr="Coupure de courant affectant scène, éclairage ou systèmes de sécurité. Protocole lumière d'urgence et communication." data-en="Power cut affecting stage, lighting or security systems. Emergency lighting and communication protocol.">Coupure de courant affectant scène, éclairage ou systèmes de sécurité.</div>
+                <div class="sc-meta">
+                  <span class="sc-tag" style="border-color:rgba(251,146,60,0.3);color:var(--orange)" data-fr="N1–N2" data-en="L1–L2">N1–N2</span>
+                </div>
+              </div>
+              <div class="sc-card" onclick="selectScenario(this)">
+                <div class="sc-icon">🎤</div>
+                <div class="sc-name" data-fr="Incident impliquant l'artiste / VIP" data-en="Artist / VIP incident">Incident impliquant l'artiste / VIP</div>
+                <div class="sc-desc" data-fr="Agression, tentative d'intrusion scène, menace sur VIP. Protection rapprochée activée, évacuation sécurisée." data-en="Assault, stage intrusion attempt, VIP threat. Close protection activated, secure evacuation.">Agression, tentative d'intrusion scène, menace sur VIP. Protection rapprochée activée.</div>
+                <div class="sc-meta">
+                  <span class="sc-tag" style="border-color:rgba(251,146,60,0.3);color:var(--orange)" data-fr="N2" data-en="L2">N2</span>
+                  <span class="sc-tag" style="border-color:var(--border);color:var(--text-2)" data-fr="Plan VIP-2" data-en="Plan VIP-2">Plan VIP-2</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ TAB 5 — CONTACTS D'URGENCE ════ -->
+      <div class="tab-panel" id="t5">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:rgba(0,212,255,0.1)">📞</div><span data-fr="Contacts d'urgence & chaîne de commandement" data-en="Emergency contacts & command chain">Contacts d'urgence & chaîne de commandement</span></div>
+            <button class="btn btn-red-solid" onclick="blastAlert()" data-fr="📢 Alerter tous les contacts" data-en="📢 Alert all contacts">📢 Alerter tous les contacts</button>
+          </div>
+          <div class="card-body">
+            <div class="contact-grid">
+              <div class="contact-card">
+                <div class="cc-header">
+                  <div class="cc-avatar" style="background:rgba(196,224,0,0.15);color:var(--accent)">DB</div>
+                  <div><div class="cc-name">D. Blain</div><div class="cc-role" data-fr="Chef de sécurité" data-en="Security chief">Chef de sécurité</div></div>
+                </div>
+                <div class="cc-callsign">ALPHA-1 · CH-01</div>
+                <div class="cc-status"><div class="cc-dot" style="background:var(--green)"></div><span style="color:var(--green);font-size:0.7rem;font-weight:700" data-fr="En ligne · Poste de commandement" data-en="Online · Command post">En ligne · Poste de commandement</span></div>
+                <div class="cc-actions"><div class="cc-btn" data-fr="📻 Radio" data-en="📻 Radio">📻 Radio</div><div class="cc-btn" data-fr="📱 Appel" data-en="📱 Call">📱 Appel</div><div class="cc-btn" data-fr="💬 Msg" data-en="💬 Msg">💬 Msg</div></div>
+              </div>
+              <div class="contact-card">
+                <div class="cc-header">
+                  <div class="cc-avatar" style="background:rgba(139,92,246,0.15);color:var(--purple)">MT</div>
+                  <div><div class="cc-name">M. Tremblay</div><div class="cc-role" data-fr="Superviseur Scène" data-en="Stage Supervisor">Superviseur Scène</div></div>
+                </div>
+                <div class="cc-callsign">BRAVO-1 · CH-02</div>
+                <div class="cc-status"><div class="cc-dot" style="background:var(--green)"></div><span style="color:var(--green);font-size:0.7rem;font-weight:700" data-fr="En poste · Scène principale" data-en="On post · Main stage">En poste · Scène principale</span></div>
+                <div class="cc-actions"><div class="cc-btn">📻 Radio</div><div class="cc-btn">📱 Appel</div><div class="cc-btn">💬 Msg</div></div>
+              </div>
+              <div class="contact-card">
+                <div class="cc-header">
+                  <div class="cc-avatar" style="background:rgba(34,197,94,0.15);color:var(--green)">LM</div>
+                  <div><div class="cc-name">Dr L. Martin</div><div class="cc-role" data-fr="Coord. Médical" data-en="Medical Coord.">Coord. Médical</div></div>
+                </div>
+                <div class="cc-callsign">MEDIC-1 · CH-05</div>
+                <div class="cc-status"><div class="cc-dot" style="background:var(--green)"></div><span style="color:var(--green);font-size:0.7rem;font-weight:700" data-fr="En poste · Zone médicale" data-en="On post · Medical zone">En poste · Zone médicale</span></div>
+                <div class="cc-actions"><div class="cc-btn">📻 Radio</div><div class="cc-btn">📱 Appel</div><div class="cc-btn">💬 Msg</div></div>
+              </div>
+              <div class="contact-card" style="border-color:rgba(0,212,255,0.2);background:rgba(0,212,255,0.03)">
+                <div class="cc-header">
+                  <div class="cc-avatar" style="background:rgba(0,212,255,0.15);color:var(--cyan)">SP</div>
+                  <div><div class="cc-name">SPVM — PDQ 21</div><div class="cc-role" data-fr="Police de Montréal" data-en="Montreal Police">Police de Montréal</div></div>
+                </div>
+                <div class="cc-callsign" style="color:var(--cyan)">Ligne directe : (514) 555-4467</div>
+                <div class="cc-status"><div class="cc-dot" style="background:var(--cyan)"></div><span style="color:var(--cyan);font-size:0.7rem;font-weight:700" data-fr="Disponible 24/7" data-en="Available 24/7">Disponible 24/7</span></div>
+                <div class="cc-actions"><div class="cc-btn">📱 Appeler</div><div class="cc-btn" data-fr="📋 Briefing" data-en="📋 Briefing">📋 Briefing</div></div>
+              </div>
+              <div class="contact-card">
+                <div class="cc-header">
+                  <div class="cc-avatar" style="background:rgba(251,146,60,0.15);color:var(--orange)">🔥</div>
+                  <div><div class="cc-name" data-fr="Pompiers Mtl" data-en="Mtl Fire Dept">Pompiers Mtl</div><div class="cc-role" data-fr="Service incendie" data-en="Fire service">Service incendie</div></div>
+                </div>
+                <div class="cc-callsign" style="color:var(--orange)">911 / (514) 555-7800</div>
+                <div class="cc-status"><div class="cc-dot" style="background:var(--orange)"></div><span style="color:var(--orange);font-size:0.7rem;font-weight:700" data-fr="Urgence seulement" data-en="Emergency only">Urgence seulement</span></div>
+                <div class="cc-actions"><div class="cc-btn">📱 Appeler</div></div>
+              </div>
+              <div class="contact-card">
+                <div class="cc-header">
+                  <div class="cc-avatar" style="background:rgba(244,63,94,0.15);color:var(--red)">🚑</div>
+                  <div><div class="cc-name">Urgences-santé</div><div class="cc-role" data-fr="Service ambulancier" data-en="Ambulance service">Service ambulancier</div></div>
+                </div>
+                <div class="cc-callsign" style="color:var(--red)">911 / (514) 555-9000</div>
+                <div class="cc-status"><div class="cc-dot" style="background:var(--red)"></div><span style="color:var(--red);font-size:0.7rem;font-weight:700" data-fr="2 unités en attente sur site" data-en="2 units on standby on site">2 unités en attente sur site</span></div>
+                <div class="cc-actions"><div class="cc-btn">📱 Appeler</div><div class="cc-btn" data-fr="📍 Position" data-en="📍 Position">📍 Position</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ TAB 6 — RAPPORT DE CRISE ════ -->
+      <div class="tab-panel" id="t6">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:var(--accent-dim)">📄</div><span data-fr="Rapport de clôture d'incident" data-en="Incident closure report">Rapport de clôture d'incident</span></div>
+            <div class="card-actions">
+              <button class="btn btn-ghost" data-fr="Prévisualiser" data-en="Preview">Prévisualiser</button>
+              <button class="btn btn-primary" data-fr="Soumettre le rapport →" data-en="Submit report →">Soumettre le rapport →</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="report-form">
+              <div class="rf-row">
+                <div class="rf-group"><label class="rf-label" data-fr="Référence incident" data-en="Incident reference">Référence incident</label><input class="rf-input" value="INC-2026-0607-001" /></div>
+                <div class="rf-group"><label class="rf-label" data-fr="Niveau de crise atteint" data-en="Crisis level reached">Niveau de crise atteint</label><select class="rf-select"><option>N1 — Incident localisé</option><option>N2 — Incident majeur</option><option>N3 — Crise majeure</option></select></div>
+              </div>
+              <div class="rf-row">
+                <div class="rf-group"><label class="rf-label" data-fr="Heure de début d'incident" data-en="Incident start time">Heure de début d'incident</label><input class="rf-input" type="datetime-local" value="2026-06-07T13:41" /></div>
+                <div class="rf-group"><label class="rf-label" data-fr="Heure de clôture" data-en="Closure time">Heure de clôture</label><input class="rf-input" type="datetime-local" value="2026-06-07T14:15" /></div>
+              </div>
+              <div class="rf-group"><label class="rf-label" data-fr="Type d'incident" data-en="Incident type">Type d'incident</label>
+                <select class="rf-select"><option data-fr="Altercation / bagarre" data-en="Altercation / fight">Altercation / bagarre</option><option>Mouvement de foule</option><option>Incident médical</option><option>Évacuation</option><option>Autre</option></select>
+              </div>
+              <div class="rf-group"><label class="rf-label" data-fr="Zone(s) affectée(s)" data-en="Affected zone(s)">Zone(s) affectée(s)</label><input class="rf-input" value="Zone alcool (B-7), Scène principale" /></div>
+              <div class="rf-row-3">
+                <div class="rf-group"><label class="rf-label" data-fr="Nombre de blessés" data-en="Number of injured">Nombre de blessés</label><input class="rf-input" type="number" value="1" /></div>
+                <div class="rf-group"><label class="rf-label" data-fr="Agents impliqués" data-en="Agents involved">Agents impliqués</label><input class="rf-input" type="number" value="5" /></div>
+                <div class="rf-group"><label class="rf-label" data-fr="Arrestations" data-en="Arrests">Arrestations</label><input class="rf-input" type="number" value="2" /></div>
+              </div>
+              <div class="rf-group"><label class="rf-label" data-fr="Description détaillée de l'incident" data-en="Detailed incident description">Description détaillée de l'incident</label><textarea class="rf-textarea" rows="4" data-fr="À 13h41, une altercation impliquant 3 individus a éclaté au kiosque B-7 (zone alcool). Les agents BRAVO-5 et BRAVO-6 sont intervenus immédiatement. 2 arrestations effectuées. 1 blessé léger transporté au poste médical. Situation maîtrisée à 14h15." data-en="At 13:41, an altercation involving 3 individuals broke out at booth B-7 (alcohol zone). Agents BRAVO-5 and BRAVO-6 intervened immediately. 2 arrests made. 1 minor injury transported to medical post. Situation under control at 14:15.">À 13h41, une altercation impliquant 3 individus a éclaté au kiosque B-7 (zone alcool). Les agents BRAVO-5 et BRAVO-6 sont intervenus immédiatement. 2 arrestations effectuées. 1 blessé léger transporté au poste médical. Situation maîtrisée à 14h15.</textarea></div>
+              <div class="rf-group"><label class="rf-label" data-fr="Actions correctives recommandées" data-en="Recommended corrective actions">Actions correctives recommandées</label><textarea class="rf-textarea" rows="3" data-fr="Renforcer la surveillance de la zone alcool lors des prochains événements. Revoir le ratio agents/zone lors de la rétroaction IA (Module 6)." data-en="Reinforce alcohol zone surveillance at future events. Review agent/zone ratio in AI feedback (Module 6).">Renforcer la surveillance de la zone alcool lors des prochains événements. Revoir le ratio agents/zone lors de la rétroaction IA (Module 6).</textarea></div>
+              <div class="rf-row">
+                <div class="rf-group"><label class="rf-label" data-fr="Signataire — Chef de sécurité" data-en="Signatory — Security chief">Signataire — Chef de sécurité</label><input class="rf-input" value="D. Blain" /></div>
+                <div class="rf-group"><label class="rf-label" data-fr="Transmission à" data-en="Send to">Transmission à</label><select class="rf-select"><option data-fr="Client + SPVM + BackOffice" data-en="Client + SPVM + BackOffice">Client + SPVM + BackOffice</option><option data-fr="BackOffice seulement" data-en="BackOffice only">BackOffice seulement</option></select></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+
+    <div class="nav-bottom">
+      <div style="font-size:0.75rem;color:var(--text-2)"><strong style="color:var(--red)">Module 4 / 6</strong> · <span data-fr="Gestion de crise" data-en="Crisis management">Gestion de crise</span></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" onclick="location.href='03-deploiement.html'" data-fr="← Module 3" data-en="← Module 3">← Module 3</button>
+        <button class="btn btn-primary" onclick="location.href='05-backoffice.html'" data-fr="Module 5 — BackOffice →" data-en="Module 5 — BackOffice →">Module 5 — BackOffice →</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- RIGHT PANEL -->
+  <aside class="right-panel">
+    <div class="rp-header">
+      <div class="rp-title">🧠 Assistant <span class="rp-badge">ORDR.AI™</span></div>
+      <div class="rp-sub" data-fr="Gestion de crise intelligente" data-en="Intelligent crisis management">Gestion de crise intelligente</div>
+    </div>
+
+    <div style="padding:14px 16px;border-bottom:1px solid var(--border)">
+      <div style="font-size:0.65rem;font-weight:700;color:var(--text-3);letter-spacing:0.09em;text-transform:uppercase;margin-bottom:10px" data-fr="Statut de crise" data-en="Crisis status">Statut de crise</div>
+      <div id="crisis-status-panel" style="text-align:center;padding:14px;background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);border-radius:var(--r)">
+        <div style="font-size:1.5rem;margin-bottom:6px">🔵</div>
+        <div style="font-size:0.9rem;font-weight:900;color:var(--purple)" id="rp-crisis-level" data-fr="VEILLE — Niveau 0" data-en="STANDBY — Level 0">VEILLE — Niveau 0</div>
+        <div style="font-size:0.7rem;color:var(--text-2);margin-top:4px" id="rp-crisis-desc" data-fr="Aucun incident actif. Surveillance normale." data-en="No active incident. Normal surveillance.">Aucun incident actif. Surveillance normale.</div>
+      </div>
+    </div>
+
+    <div style="border-bottom:1px solid var(--border)">
+      <div class="rp-kpi-row"><span class="rp-kpi-label" data-fr="Incidents actifs" data-en="Active incidents">Incidents actifs</span><span class="rp-kpi-val" style="color:var(--red)" id="rp-incidents">1</span></div>
+      <div class="rp-kpi-row"><span class="rp-kpi-label" data-fr="Plans contingence activés" data-en="Active contingency plans">Plans contingence activés</span><span class="rp-kpi-val" style="color:var(--orange)">0</span></div>
+      <div class="rp-kpi-row"><span class="rp-kpi-label" data-fr="Actions checklist complètes" data-en="Checklist actions done">Actions checklist complètes</span><span class="rp-kpi-val" style="color:var(--accent)" id="rp-checklist-pct">0 / 12</span></div>
+      <div class="rp-kpi-row"><span class="rp-kpi-label" data-fr="Contacts notifiés" data-en="Contacts notified">Contacts notifiés</span><span class="rp-kpi-val" style="color:var(--cyan)">2 / 6</span></div>
+    </div>
+
+    <div class="ia-block">
+      <div class="ia-block-title" data-fr="Recommandations crise" data-en="Crisis recommendations">Recommandations crise</div>
+      <div class="ia-card" style="border-color:rgba(244,63,94,0.25)">
+        <div class="ia-type crit">🚨 ACTION REQUISE</div>
+        <div class="ia-msg" data-fr="Incident N1 actif en zone alcool. La liste de vérification d'urgence doit être complétée. 0/12 actions effectuées." data-en="N1 incident active in alcohol zone. Emergency checklist must be completed. 0/12 actions done.">Incident N1 actif. Liste de vérification d'urgence non complétée. 0/12 actions.</div>
+        <div class="ia-action" onclick="switchTab('t2',null,document.querySelectorAll('.tab-bar-btn')[1])" data-fr="Ouvrir la checklist →" data-en="Open checklist →">Ouvrir la checklist →</div>
+      </div>
+      <div class="ia-card">
+        <div class="ia-type warn">⚠ PRÉVENTIF</div>
+        <div class="ia-msg" data-fr="Densité scène toujours au-dessus du seuil R3. Si non résolue dans 5 min, escalade vers N2 recommandée." data-en="Stage density still above R3 threshold. If unresolved in 5 min, N2 escalation recommended.">Densité scène au-dessus de R3. Escalade vers N2 dans 5 min si non résolue.</div>
+        <div class="ia-action" onclick="activateLevel(2)" data-fr="Activer N2 →" data-en="Activate N2 →">Activer N2 →</div>
+      </div>
+      <div class="ia-card">
+        <div class="ia-type info">ℹ DÉCISIONNEL</div>
+        <div class="ia-msg" data-fr="L'arbre décisionnel ORDR.AI™ recommande d'activer le Plan B-2 Foule si la situation zone alcool persiste 10+ min." data-en="ORDR.AI™ decision tree recommends activating Plan B-2 Crowd if alcohol zone situation persists 10+ min.">L'arbre décisionnel recommande Plan B-2 Foule si situation persiste 10+ min.</div>
+        <div class="ia-action" onclick="switchTab('t3',null,document.querySelectorAll('.tab-bar-btn')[2])" data-fr="Voir l'arbre décisionnel →" data-en="View decision tree →">Voir l'arbre décisionnel →</div>
+      </div>
+    </div>
+
+    <div style="padding:14px 16px">
+      <div style="font-size:0.65rem;font-weight:700;color:var(--text-3);letter-spacing:0.09em;text-transform:uppercase;margin-bottom:10px" data-fr="Contacts rapides" data-en="Quick contacts">Contacts rapides</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <button class="btn btn-ghost" style="width:100%;text-align:left;font-size:0.72rem;justify-content:flex-start;gap:8px;display:flex;align-items:center">📻 <span data-fr="ALPHA-1 — Chef sécurité" data-en="ALPHA-1 — Security chief">ALPHA-1 — Chef sécurité</span></button>
+        <button class="btn btn-ghost" style="width:100%;text-align:left;font-size:0.72rem;justify-content:flex-start;gap:8px;display:flex;align-items:center">📻 <span data-fr="MEDIC-1 — Dr Martin" data-en="MEDIC-1 — Dr Martin">MEDIC-1 — Dr Martin</span></button>
+        <button class="btn btn-cyan" style="width:100%;font-size:0.72rem" onclick="location.href='tel:5145554467'" data-fr="📞 SPVM — (514) 555-4467" data-en="📞 SPVM — (514) 555-4467">📞 SPVM — (514) 555-4467</button>
+        <button class="btn btn-red" style="width:100%;font-size:0.72rem" data-fr="🚨 911 — Urgence absolue" data-en="🚨 911 — Absolute emergency">🚨 911 — Urgence absolue</button>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+let lang = 'fr';
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lang-toggle button').forEach(b => b.classList.toggle('active', b.dataset.l === l));
+  document.querySelectorAll('[data-fr]').forEach(el => {
+    if (!['INPUT','TEXTAREA','OPTION'].includes(el.tagName)) {
+      const v = el.dataset[l];
+      if (v !== undefined && !v.includes('<')) el.textContent = v;
+      else if (v !== undefined) el.innerHTML = v;
+    }
+  });
+}
+
+const tabIds = ['t1','t2','t3','t4','t5','t6'];
+function switchTab(id, sideItem, barBtn) {
+  tabIds.forEach(t => document.getElementById(t).classList.toggle('active', t === id));
+  document.querySelectorAll('.tab-item').forEach((el,i) => el.classList.toggle('active', tabIds[i] === id));
+  document.querySelectorAll('.tab-bar-btn').forEach((el,i) => el.classList.toggle('active', tabIds[i] === id));
+}
+
+let currentLevel = 0;
+let crisisStart = null;
+let crisisInterval = null;
+
+const levelConfig = {
+  0: { color:'var(--purple)', bg:'rgba(139,92,246,0.06)', border:'rgba(139,92,246,0.2)', icon:'🔵', fr:'VEILLE — Niveau 0', en:'STANDBY — Level 0', desc_fr:'Aucun incident actif. Surveillance normale.', desc_en:'No active incident. Normal surveillance.' },
+  1: { color:'var(--orange)', bg:'rgba(251,146,60,0.06)', border:'rgba(251,146,60,0.25)', icon:'🟠', fr:'ACTIF — Niveau 1', en:'ACTIVE — Level 1', desc_fr:'Incident localisé en cours. Intervention N1 activée.', desc_en:'Localized incident in progress. N1 intervention activated.' },
+  2: { color:'var(--orange)', bg:'rgba(251,146,60,0.08)', border:'rgba(251,146,60,0.3)', icon:'🔴', fr:'URGENT — Niveau 2', en:'URGENT — Level 2', desc_fr:'Incident majeur. Plans de contingence activés.', desc_en:'Major incident. Contingency plans activated.' },
+  3: { color:'var(--red)', bg:'rgba(244,63,94,0.1)', border:'rgba(244,63,94,0.35)', icon:'🚨', fr:'CRISE N3 — CRITIQUE', en:'CRISIS L3 — CRITICAL', desc_fr:'Crise majeure. Évacuation en cours. Coordination SPVM.', desc_en:'Major crisis. Evacuation in progress. SPVM coordination.' }
+};
+
+function activateLevel(n) {
+  currentLevel = n;
+  const cfg = levelConfig[n];
+
+  // Update all level cards
+  [1,2,3].forEach(i => {
+    const lc = document.getElementById('lc'+i);
+    const ls = document.getElementById('lcs'+i);
+    lc.className = 'level-card';
+    if (i < n) { ls.className = 'lc-status'; ls.style.cssText='background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:var(--green)'; ls.textContent = lang==='fr'?'Résolu':'Resolved'; }
+    else if (i === n && n > 0) { lc.classList.add('active-n'+i); ls.className='lc-status lcs-active'; ls.textContent='● '+(lang==='fr'?'ACTIF':'ACTIVE'); }
+    else { ls.className='lc-status lcs-inactive'; ls.textContent=lang==='fr'?'Inactif':'Inactive'; }
+  });
+
+  // Crisis panel
+  const timerBlock = document.getElementById('crisis-timer-block');
+  if (n > 0) {
+    timerBlock.style.display = 'flex';
+    if (!crisisStart) { crisisStart = Date.now(); crisisInterval = setInterval(updateTimer, 1000); }
+    const badge = document.getElementById('ct-level-badge');
+    badge.innerHTML = `<span class="phase-badge" style="border:1px solid ${cfg.color};color:${cfg.color}">N${n}</span>`;
+    document.getElementById('ct-incident-type').textContent = n>=2 ? (lang==='fr'?'Altercation / Densité critique':'Altercation / Critical density') : (lang==='fr'?'Altercation localisée':'Localized altercation');
+    document.body.classList.toggle('crisis-active', n >= 2);
+    document.querySelector('.crisis-stripe').style.display = n >= 2 ? 'block' : 'none';
+  } else {
+    timerBlock.style.display = 'none';
+    clearInterval(crisisInterval); crisisStart = null; crisisInterval = null;
+    document.body.classList.remove('crisis-active');
+    document.querySelector('.crisis-stripe').style.display = 'none';
+  }
+
+  // Badge topbar
+  const badge = document.getElementById('crisis-badge');
+  badge.className = 'badge ' + (n >= 2 ? 'badge-crisis' : 'badge-standby');
+  document.getElementById('badge-text').textContent = cfg[lang];
+  document.getElementById('sb-crisis-badge').textContent = n>0 ? 'N'+n : 'VEILLE';
+  document.getElementById('sb-crisis-badge').style.background = n >= 2 ? 'var(--red)' : n === 1 ? 'var(--orange)' : 'rgba(139,92,246,0.7)';
+
+  // Right panel
+  const rp = document.getElementById('crisis-status-panel');
+  rp.style.background = cfg.bg;
+  rp.style.borderColor = cfg.border;
+  rp.style.border = '1px solid '+cfg.border;
+  rp.children[0].textContent = cfg.icon;
+  document.getElementById('rp-crisis-level').style.color = cfg.color;
+  document.getElementById('rp-crisis-level').textContent = cfg[lang];
+  document.getElementById('rp-crisis-desc').textContent = cfg[(lang==='fr'?'desc_fr':'desc_en')];
+}
+
+function updateTimer() {
+  const elapsed = Date.now() - crisisStart;
+  const h = Math.floor(elapsed/3600000).toString().padStart(2,'0');
+  const m = Math.floor((elapsed%3600000)/60000).toString().padStart(2,'0');
+  const s = Math.floor((elapsed%60000)/1000).toString().padStart(2,'0');
+  document.getElementById('crisis-elapsed').textContent = `${h}:${m}:${s}`;
+}
+
+function closeCrisis() {
+  if (confirm(lang==='fr' ? 'Confirmer la clôture de la crise ? Un rapport sera généré.' : 'Confirm crisis closure? A report will be generated.')) {
+    activateLevel(0);
+    switchTab('t6', null, document.querySelectorAll('.tab-bar-btn')[5]);
+  }
+}
+
+let clDone = 0, clTotal = 0;
+function toggleCL(el) {
+  el.classList.toggle('done');
+  clDone = document.querySelectorAll('.cl-item.done').length;
+  clTotal = document.querySelectorAll('.cl-item').length;
+  document.getElementById('cl-progress').textContent = `${clDone} / ${clTotal} complétés`;
+  document.getElementById('rp-checklist-pct').textContent = `${clDone} / ${clTotal}`;
+}
+
+function resetChecklist() {
+  document.querySelectorAll('.cl-item').forEach(el => el.classList.remove('done'));
+  clDone = 0; clTotal = document.querySelectorAll('.cl-item').length;
+  document.getElementById('cl-progress').textContent = `0 / ${clTotal} complétés`;
+  document.getElementById('rp-checklist-pct').textContent = `0 / ${clTotal}`;
+}
+
+function selectScenario(card) {
+  document.querySelectorAll('.sc-card').forEach(c => c.classList.remove('active-sc'));
+  card.classList.add('active-sc');
+}
+
+function blastAlert() {
+  alert(lang === 'fr' ? '📢 Alerte envoyée à tous les contacts d\'urgence.' : '📢 Alert sent to all emergency contacts.');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  setLang('fr');
+  clTotal = document.querySelectorAll('.cl-item').length;
+  document.getElementById('cl-progress').textContent = `0 / ${clTotal} complétés`;
+});
+</script>
+</body>
+</html>

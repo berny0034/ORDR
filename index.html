@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ORDR.AI™ — Gestion Dynamique · Sécurité Prédictive</title>
+  <meta name="description" content="ORDR.AI™ est la plateforme IA tout-en-un pour la planification, coordination et supervision des services d'ordre événementiels." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     TOPBAR
+═══════════════════════════════════════════════════════ -->
+<header class="topbar">
+  <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Menu">
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
+
+  <div class="topbar-logo">
+    <img src="assets/logos/logo_dark.png" alt="ORDR.AI" />
+  </div>
+
+  <div class="topbar-divider"></div>
+
+  <nav class="topbar-nav">
+    <a href="#probleme" onclick="navTo('probleme');return false;">
+      <span data-lang="fr" class="visible">Le Défi</span>
+      <span data-lang="en">The Challenge</span>
+    </a>
+    <a href="#solution" onclick="navTo('solution');return false;">
+      <span data-lang="fr" class="visible">Solution</span>
+      <span data-lang="en">Solution</span>
+    </a>
+    <a href="#modules" onclick="navTo('modules');return false;">
+      <span data-lang="fr" class="visible">Modules</span>
+      <span data-lang="en">Modules</span>
+    </a>
+    <a href="#matrices" onclick="navTo('matrices');return false;">
+      <span data-lang="fr" class="visible">Matrices IA</span>
+      <span data-lang="en">AI Matrices</span>
+    </a>
+    <a href="#profils" onclick="navTo('profils');return false;">
+      <span data-lang="fr" class="visible">Profils</span>
+      <span data-lang="en">Profiles</span>
+    </a>
+    <a href="#avantages" onclick="navTo('avantages');return false;">
+      <span data-lang="fr" class="visible">Avantages</span>
+      <span data-lang="en">Advantages</span>
+    </a>
+    <a href="#tarifs" onclick="navTo('tarifs');return false;">
+      <span data-lang="fr" class="visible">Tarifs</span>
+      <span data-lang="en">Pricing</span>
+    </a>
+  </nav>
+
+  <div class="topbar-right">
+    <div class="lang-toggle">
+      <button data-l="fr" onclick="setLang('fr')" class="active">FR</button>
+      <button data-l="en" onclick="setLang('en')">EN</button>
+    </div>
+    <button class="btn-demo" onclick="navTo('contact')">
+      <span data-lang="fr" class="visible">Demander une démo</span>
+      <span data-lang="en">Request a demo</span>
+    </button>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════
+     LAYOUT
+═══════════════════════════════════════════════════════ -->
+<div class="app-layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar" id="sidebar">
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label" data-lang="fr">Navigation</div>
+      <div class="sidebar-section-label" data-lang="en" style="display:none">Navigation</div>
+
+      <div class="sidebar-item active" data-target="hero" onclick="navTo('hero')">
+        <span class="icon">🏠</span>
+        <span data-lang="fr" class="visible">Accueil</span>
+        <span data-lang="en">Home</span>
+      </div>
+      <div class="sidebar-item" data-target="probleme" onclick="navTo('probleme')">
+        <span class="icon">⚠️</span>
+        <span data-lang="fr" class="visible">Le Défi</span>
+        <span data-lang="en">The Challenge</span>
+      </div>
+      <div class="sidebar-item" data-target="solution" onclick="navTo('solution')">
+        <span class="icon">💡</span>
+        <span data-lang="fr" class="visible">Solution</span>
+        <span data-lang="en">Solution</span>
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label" data-lang="fr">Plateforme</div>
+      <div class="sidebar-section-label" data-lang="en" style="display:none">Platform</div>
+
+      <div class="sidebar-item" data-target="modules" onclick="navTo('modules')">
+        <span class="icon">🧩</span>
+        <span data-lang="fr" class="visible">Modules</span>
+        <span data-lang="en">Modules</span>
+        <span class="sidebar-badge">6</span>
+      </div>
+      <div class="sidebar-item" data-target="matrices" onclick="navTo('matrices')">
+        <span class="icon">🧠</span>
+        <span data-lang="fr" class="visible">Matrices IA</span>
+        <span data-lang="en">AI Matrices</span>
+        <span class="sidebar-badge">5</span>
+      </div>
+      <div class="sidebar-item" data-target="profils" onclick="navTo('profils')">
+        <span class="icon">👥</span>
+        <span data-lang="fr" class="visible">Profils</span>
+        <span data-lang="en">Profiles</span>
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label" data-lang="fr">Informations</div>
+      <div class="sidebar-section-label" data-lang="en" style="display:none">Information</div>
+
+      <div class="sidebar-item" data-target="avantages" onclick="navTo('avantages')">
+        <span class="icon">🏆</span>
+        <span data-lang="fr" class="visible">Avantages</span>
+        <span data-lang="en">Advantages</span>
+      </div>
+      <div class="sidebar-item" data-target="tarifs" onclick="navTo('tarifs')">
+        <span class="icon">💰</span>
+        <span data-lang="fr" class="visible">Tarifs</span>
+        <span data-lang="en">Pricing</span>
+      </div>
+      <div class="sidebar-item" data-target="contact" onclick="navTo('contact')">
+        <span class="icon">📩</span>
+        <span data-lang="fr" class="visible">Contact</span>
+        <span data-lang="en">Contact</span>
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-item" style="color:var(--accent)">
+        <span class="icon">🔴</span>
+        <span data-lang="fr" class="visible">Statut : Beta</span>
+        <span data-lang="en">Status: Beta</span>
+      </div>
+      <div class="sidebar-item">
+        <span class="icon">🇨🇦</span>
+        <span data-lang="fr" class="visible">Montréal, Québec</span>
+        <span data-lang="en">Montreal, Quebec</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main id="mainContent" class="main-content">
+
+    <!-- ═══════════════════════════════════════════════
+         HERO
+    ═══════════════════════════════════════════════ -->
+    <section id="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-grid">
+
+        <!-- Left -->
+        <div class="hero-left">
+          <div class="hero-eyebrow">
+            <span class="dot"></span>
+            <span data-lang="fr" class="visible">Plateforme IA · Sécurité Événementielle</span>
+            <span data-lang="en">AI Platform · Event Security</span>
+          </div>
+
+          <h1 class="hero-headline">
+            <span data-lang="fr" class="visible">
+              L'intelligence<br/>
+              <span class="line2">au service de<br/>l'ordre.</span>
+            </span>
+            <span data-lang="en">
+              Intelligence<br/>
+              <span class="line2">powering<br/>security.</span>
+            </span>
+          </h1>
+
+          <p class="hero-subline">
+            <span data-lang="fr" class="visible">
+              ORDR.AI™ orchestre dynamiquement vos opérations de sécurité événementielle — de la simulation prédictive au débrief post-événement — grâce à l'intelligence artificielle.
+            </span>
+            <span data-lang="en">
+              ORDR.AI™ dynamically orchestrates your event security operations — from predictive simulation to post-event debriefing — powered by artificial intelligence.
+            </span>
+          </p>
+
+          <div class="hero-ctas">
+            <button class="btn-primary" onclick="navTo('contact')">
+              <span data-lang="fr" class="visible">🚀 Demander une démo</span>
+              <span data-lang="en">🚀 Request a demo</span>
+            </button>
+            <button class="btn-secondary" onclick="navTo('modules')">
+              <span data-lang="fr" class="visible">Voir les modules →</span>
+              <span data-lang="en">See modules →</span>
+            </button>
+            <a href="app/index.html" style="display:inline-flex;align-items:center;gap:8px;padding:12px 22px;background:rgba(196,224,0,0.12);border:2px solid rgba(196,224,0,0.4);border-radius:10px;font-size:0.85rem;font-weight:800;color:#c4e000;transition:all 0.2s;text-decoration:none" onmouseover="this.style.background='rgba(196,224,0,0.22)'" onmouseout="this.style.background='rgba(196,224,0,0.12)'">
+              <span>⚡</span>
+              <span data-lang="fr" class="visible">Accéder à l'application</span>
+              <span data-lang="en">Launch application</span>
+            </a>
+          </div>
+
+          <div class="hero-kpis">
+            <div class="kpi-item">
+              <span class="kpi-value" data-target="35" data-suffix="%">0%</span>
+              <span class="kpi-label" data-lang="fr">Réduction des coûts</span>
+              <span class="kpi-label" data-lang="en">Cost reduction</span>
+            </div>
+            <div class="kpi-item">
+              <span class="kpi-value" data-target="98" data-suffix="%">0%</span>
+              <span class="kpi-label" data-lang="fr">Précision prédictive</span>
+              <span class="kpi-label" data-lang="en">Predictive accuracy</span>
+            </div>
+            <div class="kpi-item">
+              <span class="kpi-value" data-target="4.2" data-suffix="x">0x</span>
+              <span class="kpi-label" data-lang="fr">Vitesse de réaction</span>
+              <span class="kpi-label" data-lang="en">Reaction speed</span>
+            </div>
+            <div class="kpi-item">
+              <span class="kpi-value" data-target="6" data-suffix=" modules">0</span>
+              <span class="kpi-label" data-lang="fr">Modules intégrés</span>
+              <span class="kpi-label" data-lang="en">Integrated modules</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right — Dashboard Mockup -->
+        <div class="hero-visual">
+          <div class="dashboard-mockup">
+            <div class="mock-topbar">
+              <span class="mock-dot r"></span>
+              <span class="mock-dot o"></span>
+              <span class="mock-dot g"></span>
+              <div class="mock-title-bar"></div>
+              <span style="font-size:0.65rem;color:var(--accent);font-weight:700;white-space:nowrap">● LIVE</span>
+            </div>
+
+            <div class="mock-grid">
+              <div class="mock-stat">
+                <div class="mock-stat-val" style="color:var(--accent)">247</div>
+                <div class="mock-stat-lbl" data-lang="fr">Agents déployés</div>
+                <div class="mock-stat-lbl" data-lang="en">Agents deployed</div>
+              </div>
+              <div class="mock-stat">
+                <div class="mock-stat-val" style="color:var(--cyan)">R2</div>
+                <div class="mock-stat-lbl" data-lang="fr">Niveau de risque</div>
+                <div class="mock-stat-lbl" data-lang="en">Risk level</div>
+              </div>
+              <div class="mock-stat">
+                <div class="mock-stat-val" style="color:var(--green)">92%</div>
+                <div class="mock-stat-lbl" data-lang="fr">Couverture zones</div>
+                <div class="mock-stat-lbl" data-lang="en">Zone coverage</div>
+              </div>
+            </div>
+
+            <div class="mock-map">
+              <div class="mock-map-grid"></div>
+              <div class="mock-ping" style="background:var(--accent);top:30%;left:40%;color:var(--accent)"></div>
+              <div class="mock-ping" style="background:var(--cyan);top:55%;left:65%;color:var(--cyan);animation-delay:0.7s"></div>
+              <div class="mock-ping" style="background:var(--red);top:70%;left:25%;color:var(--red);animation-delay:1.3s"></div>
+              <div style="position:absolute;top:8px;left:10px;font-size:0.62rem;color:var(--text-muted);font-weight:600" data-lang="fr">Carte tactique · Festival Montréal</div>
+              <div style="position:absolute;top:8px;left:10px;font-size:0.62rem;color:var(--text-muted);font-weight:600" data-lang="en">Tactical map · Montreal Festival</div>
+            </div>
+
+            <div class="mock-alerts">
+              <div class="mock-alert warn">
+                <span>⚠</span>
+                <span data-lang="fr">Zone A3 — surcharge prévue dans 12 min</span>
+                <span data-lang="en">Zone A3 — overload predicted in 12 min</span>
+              </div>
+              <div class="mock-alert ok">
+                <span>✓</span>
+                <span data-lang="fr">Redéploiement Secteur B validé par IA</span>
+                <span data-lang="en">Sector B redeployment validated by AI</span>
+              </div>
+              <div class="mock-alert info">
+                <span>ℹ</span>
+                <span data-lang="fr">Rapport post-événement prêt · Exporter</span>
+                <span data-lang="en">Post-event report ready · Export</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════
+         PROBLÈME
+    ═══════════════════════════════════════════════ -->
+    <section id="probleme">
+      <div class="section-header fade-in">
+        <div class="section-tag">
+          <span>⚠</span>
+          <span data-lang="fr" class="visible">Le problème</span>
+          <span data-lang="en">The problem</span>
+        </div>
+        <h2 class="section-title">
+          <span data-lang="fr" class="visible">La sécurité événementielle<br/>opère encore <span class="highlight">à l'aveugle.</span></span>
+          <span data-lang="en">Event security still<br/>operates <span class="highlight">blind.</span></span>
+        </h2>
+        <p class="section-subtitle">
+          <span data-lang="fr" class="visible">Les grands événements sont planifiés avec des tableurs, des radios et des plans statiques. Les décisions sont réactives, les risques mal anticipés, les effectifs mal déployés.</span>
+          <span data-lang="en">Major events are planned with spreadsheets, radios, and static plans. Decisions are reactive, risks poorly anticipated, staff poorly deployed.</span>
+        </p>
+      </div>
+
+      <div class="problem-grid">
+        <div class="problem-card fade-in">
+          <div class="problem-icon">📋</div>
+          <div class="problem-title" data-lang="fr">Planification manuelle</div>
+          <div class="problem-title" data-lang="en">Manual planning</div>
+          <div class="problem-desc">
+            <span data-lang="fr" class="visible">Tableurs Excel, formulaires ICS papier, coordination morcelée entre agences. Aucune vision globale, aucune intelligence collective.</span>
+            <span data-lang="en">Excel spreadsheets, paper ICS forms, fragmented coordination between agencies. No global vision, no collective intelligence.</span>
+          </div>
+          <div class="problem-stat">
+            <span data-lang="fr" class="visible">↑ 60% du temps consacré à l'administration</span>
+            <span data-lang="en">↑ 60% of time spent on administration</span>
+          </div>
+        </div>
+
+        <div class="problem-card fade-in">
+          <div class="problem-icon">🔇</div>
+          <div class="problem-title" data-lang="fr">Réactivité insuffisante</div>
+          <div class="problem-title" data-lang="en">Insufficient reactivity</div>
+          <div class="problem-desc">
+            <span data-lang="fr" class="visible">Les incidents sont détectés après qu'ils se produisent. Pas de prédiction comportementale, pas d'alerte proactive, pas de redéploiement intelligent.</span>
+            <span data-lang="en">Incidents are detected after they occur. No behavioral prediction, no proactive alerts, no intelligent redeployment.</span>
+          </div>
+          <div class="problem-stat">
+            <span data-lang="fr" class="visible">↑ 3-8 min de délai moyen d'intervention</span>
+            <span data-lang="en">↑ 3-8 min average intervention delay</span>
+          </div>
+        </div>
+
+        <div class="problem-card fade-in">
+          <div class="problem-icon">💸</div>
+          <div class="problem-title" data-lang="fr">Coûts incontrôlés</div>
+          <div class="problem-title" data-lang="en">Uncontrolled costs</div>
+          <div class="problem-desc">
+            <span data-lang="fr" class="visible">Sur-effectif dans les zones calmes, sous-effectif dans les zones critiques. Aucun outil pour optimiser la répartition budgétaire en temps réel.</span>
+            <span data-lang="en">Overstaffing in calm zones, understaffing in critical areas. No tool to optimize budget allocation in real time.</span>
+          </div>
+          <div class="problem-stat">
+            <span data-lang="fr" class="visible">↑ 25-40% de surcoût opérationnel moyen</span>
+            <span data-lang="en">↑ 25-40% average operational overspend</span>
+          </div>
+        </div>
+
+        <div class="problem-card fade-in">
+          <div class="problem-icon">🗂️</div>
+          <div class="problem-title" data-lang="fr">Données silotées</div>
+          <div class="problem-title" data-lang="en">Siloed data</div>
+          <div class="problem-desc">
+            <span data-lang="fr" class="visible">Billetterie, météo, mobilité, historique d'incidents — aucune plateforme ne fusionne ces données pour produire une intelligence opérationnelle.</span>
+            <span data-lang="en">Ticketing, weather, mobility, incident history — no platform fuses this data to produce operational intelligence.</span>
+          </div>
+          <div class="problem-stat">
+            <span data-lang="fr" class="visible">↑ 5+ systèmes non connectés en moyenne</span>
+            <span data-lang="en">↑ 5+ disconnected systems on average</span>
+          </div>
+        </div>
+
+        <div class="problem-card fade-in">
+          <div class="problem-icon">📵</div>
+          <div class="problem-title" data-lang="fr">Communication fragmentée</div>
+          <div class="problem-title" data-lang="en">Fragmented communication</div>
+          <div class="problem-desc">
+            <span data-lang="fr" class="visible">Radio, téléphone, WhatsApp, papier. Les intervenants n'ont pas une vue unifiée de la situation. Les décisions se prennent sans données complètes.</span>
+            <span data-lang="en">Radio, phone, WhatsApp, paper. Responders lack a unified situational picture. Decisions are made without complete data.</span>
+          </div>
+          <div class="problem-stat">
+            <span data-lang="fr" class="visible">↑ 70% des erreurs liées à la comm. interne</span>
+            <span data-lang="en">↑ 70% of errors linked to internal comms</span>
+          </div>
+        </div>
+
+        <div class="problem-card fade-in">
+          <div class="problem-icon">📉</div>
+          <div class="problem-title" data-lang="fr">Aucun apprentissage</div>
+          <div class="problem-title" data-lang="en">No learning loop</div>
+          <div class="problem-desc">
+            <span data-lang="fr" class="visible">Chaque édition repart de zéro. Aucune capitalisation des incidents passés, aucune amélioration automatique des plans pour les futures éditions.</span>
+            <span data-lang="en">Each edition starts from scratch. No capitalization on past incidents, no automatic plan improvement for future editions.</span>
+          </div>
+          <div class="problem-stat">
+            <span data-lang="fr" class="visible">↑ Mêmes erreurs répétées édition après édition</span>
+            <span data-lang="en">↑ Same mistakes repeated edition after edition</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════
+         SOLUTION
+    ═══════════════════════════════════════════════ -->
+    <section id="solution">
+      <div class="section-header fade-in">
+        <div class="section-tag">
+          <span>💡</span>
+          <span data-lang="fr" class="visible">La solution</span>
+          <span data-lang="en">The solution</span>
+        </div>
+        <h2 class="section-title">
+          <span data-lang="fr" class="visible">Trois phases. <span class="highlight">Un seul système.</span></span>
+          <span data-lang="en">Three phases. <span class="highlight">One system.</span></span>
+        </h2>
+        <p class="section-subtitle">
+          <span data-lang="fr" class="visible">ORDR.AI™ couvre l'intégralité du cycle de vie de votre événement — avant, pendant et après — avec une intelligence continue et adaptative.</span>
+          <span data-lang="en">ORDR.AI™ covers the entire lifecycle of your event — before, during, and after — with continuous, adaptive intelligence.</span>
+        </p>
+      </div>
+
+      <div class="phases-tabs fade-in">
+        <button class="phase-tab active" data-phase="avant">
+          <span data-lang="fr" class="visible">① Avant l'événement</span>
+          <span data-lang="en">① Before the event</span>
+        </button>
+        <button class="phase-tab" data-phase="pendant">
+          <span data-lang="fr" class="visible">② Pendant l'événement</span>
+          <span data-lang="en">② During the event</span>
+        </button>
+        <button class="phase-tab" data-phase="apres">
+          <span data-lang="fr" class="visible">③ Après l'événement</span>
+          <span data-lang="en">③ After the event</span>
+        </button>
+      </div>
+
+      <!-- Phase Avant -->
+      <div class="phase-content active" data-phase="avant">
+        <div class="phase-features">
+          <div class="phase-feature fade-in">
+            <div class="phase-feature-icon">🌀</div>
+            <div class="phase-feature-text">
+              <h4 data-lang="fr">Simulation IA de flux de foule</h4>
+              <h4 data-lang="en">AI crowd flow simulation</h4>
+              <p data-lang="fr">Prévision des concentrations, heatmaps dynamiques, identification des goulets d'étranglement à partir des données historiques, météo, billetterie et mobilité.</p>
+              <p data-lang="en">Concentration forecasting, dynamic heatmaps, bottleneck identification from historical data, weather, ticketing, and mobility.</p>
+            </div>
+          </div>
+          <div class="phase-feature fade-in">
+            <div class="phase-feature-icon">🗺️</div>
+            <div class="phase-feature-text">
+              <h4 data-lang="fr">Cartographie des risques</h4>
+              <h4 data-lang="en">Risk mapping</h4>
+              <p data-lang="fr">Identification automatique des zones de tension (R1 → R3), lieux d'intérêt stratégique, plans d'évacuation, contraintes légales et réglementaires.</p>
+              <p data-lang="en">Automatic identification of tension zones (R1→R3), strategic points of interest, evacuation plans, legal and regulatory constraints.</p>
+            </div>
+          </div>
+          <div class="phase-feature fade-in">
+            <div class="phase-feature-icon">👮</div>
+            <div class="phase-feature-text">
+              <h4 data-lang="fr">Assignation intelligente des effectifs</h4>
+              <h4 data-lang="en">Intelligent staff assignment</h4>
+              <p data-lang="fr">Répartition optimale selon le risque, l'heure, les profils disponibles et les contraintes budgétaires. Génération automatique des horaires et guides de postes.</p>
+              <p data-lang="en">Optimal allocation by risk, time, available profiles, and budget constraints. Automatic generation of schedules and post guides.</p>
+            </div>
+          </div>
+          <div class="phase-feature fade-in">
+            <div class="phase-feature-icon">📄</div>
+            <div class="phase-feature-text">
+              <h4 data-lang="fr">Plans de contingence automatisés</h4>
+              <h4 data-lang="en">Automated contingency plans</h4>
+              <p data-lang="fr">Génération des scénarios de basculement (foule, météo, incident, menace). Attribution des responsabilités et niveaux d'autorisation par profil.</p>
+              <p data-lang="en">Generation of switch scenarios (crowd, weather, incident, threat). Assignment of responsibilities and authorization levels by profile.</p>
+            </div>
+          </div>
+        </div>
+        <div class="phase-visual">
+          <div class="phase-visual-title" data-lang="fr">Workflow de planification</div>
+          <div class="phase-visual-title" data-lang="en">Planning workflow</div>
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-spine">
+                <div class="timeline-dot" style="background:var(--accent)">1</div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-body">
+                <h5 data-lang="fr">Fiche événement</h5>
+                <h5 data-lang="en">Event profile</h5>
+                <p data-lang="fr">Saisie des informations, import des plans, validation des partenaires.</p>
+                <p data-lang="en">Data entry, plan import, partner validation.</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-spine">
+                <div class="timeline-dot" style="background:var(--cyan)">2</div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-body">
+                <h5 data-lang="fr">Simulation IA</h5>
+                <h5 data-lang="en">AI simulation</h5>
+                <p data-lang="fr">Génération des matrices de risque et des plans d'effectifs optimisés.</p>
+                <p data-lang="en">Generation of risk matrices and optimized staffing plans.</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-spine">
+                <div class="timeline-dot" style="background:var(--purple)">3</div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-body">
+                <h5 data-lang="fr">Validation humaine</h5>
+                <h5 data-lang="en">Human validation</h5>
+                <p data-lang="fr">Révision et ajustement par les superviseurs et partenaires externes.</p>
+                <p data-lang="en">Review and adjustment by supervisors and external partners.</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-spine">
+                <div class="timeline-dot" style="background:var(--green)">4</div>
+              </div>
+              <div class="timeline-body">
+                <h5 data-lang="fr">Plan opérationnel final</h5>
+                <h5 data-lang="en">Final operational plan</h5>
+                <p data-lang="fr">Distribution automatique des guides de postes, briefings et accès plateforme.</p>
+                <p data-lang="en">Automatic distribution of post guides, briefings, and platform access.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase Pendant -->
+      <div class="phase-content" data-phase="pendant">
+        <div class="phase-features">
+          <div class="phase-feature fade-in">
+            <div class="phase-feature-icon">🖥️</div>
+            <div class="phase-feature-text">
+              <h4 data-lang="fr">Dashboard tactique temps réel</h4>
+              <h4 data-lang="en">Real-time tactical dashboard</h4>
+              <p data-lang="fr">Carte dynamique, statuts des équipes, alertes automatiques, heatmaps en direct. Vision globale pour le commandement.</p>
+              <p data-lang="en">Dynamic map, team status, automatic alerts, live heatmaps. Global command overview.</p>
+            </div>
+          </div>
+          <div class="phase-feature fade-in">
+            <div class="phase-feature-icon">📍</div>
+            <div class="phase-feature-text">
+              <h4 data-lang="fr">Géolocalisation des effectifs</h4>
+              <h4 data-lang="en">Staff geolocation</h4>
+              <p data-lang="fr">Suivi en temps réel de chaque agent sur le terrain. Statuts, positions, disponibilités. Application mobile légère pour les agents.</p>
+              <p data-lang="en">Real-time tracking of every agent in the field. Status, position, availability. Lightweight mobile app for agents.</p>
+            </div>
+          </div>
+          <div class="phase-feature fade-in">
+            <div class="phase-feature-icon">🤖</div>
+            <div class="phase-feature-text">
+              <h4 data-lang="fr">Assistant décisionnel IA</h4>
+              <h4 data-lang="en">AI decision assistant</h4>
+              <p data-lang="fr">Recommandations proactives de redéploiement, gestion des imprévus, activation des plans de bascule (DRSP). L'IA suggère, l'humain décide.</p>
+              <p data-lang="en">Proactive redeployment recommendations, incident management, contingency plan activation. AI suggests, humans decide.</p>
+            </div>
+          </div>
+          <div class="phase-feature fade-in">
+            <div class="phase-feature-icon">🚨</div>
+            <div class="phase-feature-text">
+              <h4 data-lang="fr">Alertes prédictives</h4>
+              <h4 data-lang="en">Predictive alerts</h4>
+              <p data-lang="fr">Détection comportementale, surcharge de zones, mouvements suspects, incidents. Notification multi-niveaux selon les rôles et l'urgence.</p>
+              <p data-lang="en">Behavioral detection, zone overload, suspicious movements, incidents. Multi-level notifications by role and urgency.</p>
+            </div>
+          </div>
+        </div>
+        <div class="phase-visual">
+          <div class="phase-visual-title" data-lang="fr">Niveaux d'alerte</div>
+          <div class="phase-visual-title" data-lang="en">Alert levels</div>
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-spine">
+                <div class="timeline-dot" style="background:var(--green)">✓</div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-body">
+                <h5 data-lang="fr">Nominal — Situation stable</h5>
+                <h5 data-lang="en">Nominal — Stable situation</h5>
+                <p data-lang="fr">Couverture optimale, aucun dépassement prévu, tous les postes actifs.</p>
+                <p data-lang="en">Optimal coverage, no projected overflow, all posts active.</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-spine">
+                <div class="timeline-dot" style="background:var(--orange)">!</div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-body">
+                <h5 data-lang="fr">Vigilance — Anomalie détectée</h5>
+                <h5 data-lang="en">Watch — Anomaly detected</h5>
+                <p data-lang="fr">L'IA signale une déviation. Recommandation de surveillance renforcée.</p>
+                <p data-lang="en">AI flags a deviation. Enhanced surveillance recommended.</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-spine">
+                <div class="timeline-dot" style="background:var(--red)">!!</div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-body">
+                <h5 data-lang="fr">Critique — Action immédiate</h5>
+                <h5 data-lang="en">Critical — Immediate action</h5>
+                <p data-lang="fr">Plan de bascule activé. Redéploiement automatique proposé, validation commandant.</p>
+                <p data-lang="en">Contingency plan activated. Automatic redeployment proposed, commander validation.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase Après -->
+      <div class="phase-content" data-phase="apres">
+        <div class="phase-features">
+          <div class="phase-feature fade-in">
+            <div class="phase-feature-icon">📊</div>
+            <div class="phase-feature-text">
+              <h4 data-lang="fr">Rapport automatisé post-événement</h4>
+              <h4 data-lang="en">Automated post-event report</h4>
+              <p data-lang="fr">Analyse complète des performances, temps de réponse, couverture, anomalies. Rapport exportable pour commanditaires, municipalités ou commissions.</p>
+              <p data-lang="en">Full performance analysis, response times, coverage, anomalies. Exportable report for sponsors, municipalities, or commissions.</p>
+            </div>
+          </div>
+          <div class="phase-feature fade-in">
+            <div class="phase-feature-icon">🔁</div>
+            <div class="phase-feature-text">
+              <h4 data-lang="fr">Apprentissage continu</h4>
+              <h4 data-lang="en">Continuous learning</h4>
+              <p data-lang="fr">Chaque événement enrichit les modèles IA. Les prédictions s'affinent automatiquement pour les éditions futures.</p>
+              <p data-lang="en">Each event enriches the AI models. Predictions automatically refine for future editions.</p>
+            </div>
+          </div>
+          <div class="phase-feature fade-in">
+            <div class="phase-feature-icon">🎯</div>
+            <div class="phase-feature-text">
+              <h4 data-lang="fr">Reconstitution IA de l'incident</h4>
+              <h4 data-lang="en">AI incident reconstruction</h4>
+              <p data-lang="fr">Rejeu des événements, analyse des décisions prises, identification des points d'amélioration et indicateurs de performance (KPI).</p>
+              <p data-lang="en">Event replay, decision analysis, identification of improvement points and performance indicators (KPI).</p>
+            </div>
+          </div>
+          <div class="phase-feature fade-in">
+            <div class="phase-feature-icon">💼</div>
+            <div class="phase-feature-text">
+              <h4 data-lang="fr">Brief &amp; Débrief IA</h4>
+              <h4 data-lang="en">AI Brief &amp; Debrief</h4>
+              <p data-lang="fr">Génération automatique du brief pré-événement et du débrief post-événement. Format voix ou écrit, adapté au profil de l'utilisateur.</p>
+              <p data-lang="en">Automatic generation of pre-event brief and post-event debrief. Voice or written format, adapted to the user profile.</p>
+            </div>
+          </div>
+        </div>
+        <div class="phase-visual">
+          <div class="phase-visual-title" data-lang="fr">KPIs automatiquement mesurés</div>
+          <div class="phase-visual-title" data-lang="en">Automatically measured KPIs</div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:8px">
+              <span style="font-size:0.8rem;font-weight:600" data-lang="fr">Temps de réponse moyen</span>
+              <span style="font-size:0.8rem;font-weight:600" data-lang="en">Avg. response time</span>
+              <span style="color:var(--green);font-weight:800">2.3 min</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:rgba(196,224,0,0.08);border:1px solid rgba(196,224,0,0.2);border-radius:8px">
+              <span style="font-size:0.8rem;font-weight:600" data-lang="fr">Taux de couverture zones</span>
+              <span style="font-size:0.8rem;font-weight:600" data-lang="en">Zone coverage rate</span>
+              <span style="color:var(--accent);font-weight:800">97%</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:8px">
+              <span style="font-size:0.8rem;font-weight:600" data-lang="fr">Incidents anticipés</span>
+              <span style="font-size:0.8rem;font-weight:600" data-lang="en">Anticipated incidents</span>
+              <span style="color:var(--cyan);font-weight:800">14 / 16</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);border-radius:8px">
+              <span style="font-size:0.8rem;font-weight:600" data-lang="fr">Optimisation budgétaire</span>
+              <span style="font-size:0.8rem;font-weight:600" data-lang="en">Budget optimization</span>
+              <span style="color:var(--purple);font-weight:800">-28%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════
+         MODULES
+    ═══════════════════════════════════════════════ -->
+    <section id="modules">
+      <div class="section-header fade-in">
+        <div class="section-tag">
+          <span>🧩</span>
+          <span data-lang="fr" class="visible">Modules</span>
+          <span data-lang="en">Modules</span>
+        </div>
+        <h2 class="section-title">
+          <span data-lang="fr" class="visible"><span class="highlight">6 modules</span> intégrés nativement.</span>
+          <span data-lang="en"><span class="highlight">6 modules</span> natively integrated.</span>
+        </h2>
+        <p class="section-subtitle">
+          <span data-lang="fr" class="visible">Chaque module est conçu pour un besoin opérationnel précis, et s'intègre de façon fluide avec les autres pour former un système cohérent.</span>
+          <span data-lang="en">Each module is designed for a specific operational need, and integrates seamlessly with the others to form a coherent system.</span>
+        </p>
+      </div>
+
+      <div class="modules-grid">
+
+        <div class="module-card fade-in">
+          <div class="module-num">MODULE 01</div>
+          <div class="module-icon" style="background:rgba(196,224,0,0.1)">🌀</div>
+          <div class="module-name">Force Tactique Anticipative <span class="module-tm">™</span></div>
+          <div class="module-desc">
+            <span data-lang="fr" class="visible">Simulation IA de flux de foule, cartographie des risques, prédiction comportementale à partir de données historiques, météo, billetterie et mobilité.</span>
+            <span data-lang="en">AI crowd flow simulation, risk mapping, behavioral prediction from historical data, weather, ticketing, and mobility.</span>
+          </div>
+          <div class="module-tags">
+            <span class="tag" style="color:var(--accent);border-color:rgba(196,224,0,0.3);background:rgba(196,224,0,0.06)" data-lang="fr">Prédiction</span>
+            <span class="tag" style="color:var(--accent);border-color:rgba(196,224,0,0.3);background:rgba(196,224,0,0.06)" data-lang="en">Prediction</span>
+            <span class="tag" style="color:var(--cyan);border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.06)">Heatmap</span>
+            <span class="tag" style="color:var(--purple);border-color:rgba(139,92,246,0.3);background:rgba(139,92,246,0.06)">IA</span>
+          </div>
+        </div>
+
+        <div class="module-card fade-in">
+          <div class="module-num">MODULE 02</div>
+          <div class="module-icon" style="background:rgba(0,212,255,0.1)">👮</div>
+          <div class="module-name">Assignateur Intelligent <span class="module-tm">™</span></div>
+          <div class="module-desc">
+            <span data-lang="fr" class="visible">Répartition optimale des effectifs selon le risque, l'achalandage prévu, les profils disponibles et les contraintes budgétaires. Génération automatique des guides de postes.</span>
+            <span data-lang="en">Optimal staff allocation by risk, projected attendance, available profiles, and budget constraints. Automatic post guide generation.</span>
+          </div>
+          <div class="module-tags">
+            <span class="tag" style="color:var(--cyan);border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.06)" data-lang="fr">Optimisation</span>
+            <span class="tag" style="color:var(--cyan);border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.06)" data-lang="en">Optimization</span>
+            <span class="tag" style="color:var(--accent);border-color:rgba(196,224,0,0.3);background:rgba(196,224,0,0.06)">RH</span>
+            <span class="tag" style="color:var(--green);border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.06)" data-lang="fr">Budget</span>
+            <span class="tag" style="color:var(--green);border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.06)" data-lang="en">Budget</span>
+          </div>
+        </div>
+
+        <div class="module-card fade-in">
+          <div class="module-num">MODULE 03</div>
+          <div class="module-icon" style="background:rgba(139,92,246,0.1)">🖥️</div>
+          <div class="module-name">Dashboard Tactique <span class="module-tm">™</span></div>
+          <div class="module-desc">
+            <span data-lang="fr" class="visible">Tableau de bord opérationnel temps réel. Carte dynamique, suivi des ressources, alertes automatiques, heatmaps et statut des équipes en direct.</span>
+            <span data-lang="en">Real-time operational dashboard. Dynamic map, resource tracking, automatic alerts, heatmaps, and live team status.</span>
+          </div>
+          <div class="module-tags">
+            <span class="tag" style="color:var(--purple);border-color:rgba(139,92,246,0.3);background:rgba(139,92,246,0.06)">Live</span>
+            <span class="tag" style="color:var(--cyan);border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.06)" data-lang="fr">Cartographie</span>
+            <span class="tag" style="color:var(--cyan);border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.06)" data-lang="en">Mapping</span>
+            <span class="tag" style="color:var(--orange);border-color:rgba(251,146,60,0.3);background:rgba(251,146,60,0.06)" data-lang="fr">Alertes</span>
+            <span class="tag" style="color:var(--orange);border-color:rgba(251,146,60,0.3);background:rgba(251,146,60,0.06)" data-lang="en">Alerts</span>
+          </div>
+        </div>
+
+        <div class="module-card fade-in">
+          <div class="module-num">MODULE 04</div>
+          <div class="module-icon" style="background:rgba(251,146,60,0.1)">🤖</div>
+          <div class="module-name">Assistant Décisionnel IA <span class="module-tm">™</span></div>
+          <div class="module-desc">
+            <span data-lang="fr" class="visible">Recommandations proactives de redéploiement, gestion des imprévus, activation des plans de bascule (DRSP). L'IA propose, le commandant décide.</span>
+            <span data-lang="en">Proactive redeployment recommendations, incident management, contingency plan activation. AI proposes, the commander decides.</span>
+          </div>
+          <div class="module-tags">
+            <span class="tag" style="color:var(--orange);border-color:rgba(251,146,60,0.3);background:rgba(251,146,60,0.06)">DRSP</span>
+            <span class="tag" style="color:var(--purple);border-color:rgba(139,92,246,0.3);background:rgba(139,92,246,0.06)">IA</span>
+            <span class="tag" style="color:var(--accent);border-color:rgba(196,224,0,0.3);background:rgba(196,224,0,0.06)" data-lang="fr">Décisionnel</span>
+            <span class="tag" style="color:var(--accent);border-color:rgba(196,224,0,0.3);background:rgba(196,224,0,0.06)" data-lang="en">Decision</span>
+          </div>
+        </div>
+
+        <div class="module-card fade-in">
+          <div class="module-num">MODULE 05</div>
+          <div class="module-icon" style="background:rgba(34,197,94,0.1)">📋</div>
+          <div class="module-name">Brief &amp; Débrief IA <span class="module-tm">™</span></div>
+          <div class="module-desc">
+            <span data-lang="fr" class="visible">Génération automatique des briefings pré-opérationnels et des débrief post-événement. Format adapté au profil : voix, texte, visuel. Rapide, structuré, précis.</span>
+            <span data-lang="en">Automatic generation of pre-operational briefings and post-event debriefs. Format adapted to profile: voice, text, visual. Fast, structured, precise.</span>
+          </div>
+          <div class="module-tags">
+            <span class="tag" style="color:var(--green);border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.06)" data-lang="fr">Brief</span>
+            <span class="tag" style="color:var(--green);border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.06)" data-lang="en">Brief</span>
+            <span class="tag" style="color:var(--cyan);border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.06)" data-lang="fr">Voix</span>
+            <span class="tag" style="color:var(--cyan);border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.06)" data-lang="en">Voice</span>
+            <span class="tag" style="color:var(--purple);border-color:rgba(139,92,246,0.3);background:rgba(139,92,246,0.06)">IA</span>
+          </div>
+        </div>
+
+        <div class="module-card fade-in">
+          <div class="module-num">MODULE 06</div>
+          <div class="module-icon" style="background:rgba(228,64,251,0.1)">📈</div>
+          <div class="module-name">Analyse Post-Événement <span class="module-tm">™</span></div>
+          <div class="module-desc">
+            <span data-lang="fr" class="visible">Reconstitution IA des événements, mesure des KPIs, apprentissage automatique continu. Rapport exportable pour commanditaires, municipalités ou commissions d'enquête.</span>
+            <span data-lang="en">AI event reconstruction, KPI measurement, continuous machine learning. Exportable report for sponsors, municipalities, or inquiry commissions.</span>
+          </div>
+          <div class="module-tags">
+            <span class="tag" style="color:var(--magenta);border-color:rgba(228,64,251,0.3);background:rgba(228,64,251,0.06)" data-lang="fr">Rapport</span>
+            <span class="tag" style="color:var(--magenta);border-color:rgba(228,64,251,0.3);background:rgba(228,64,251,0.06)" data-lang="en">Report</span>
+            <span class="tag" style="color:var(--accent);border-color:rgba(196,224,0,0.3);background:rgba(196,224,0,0.06)">KPI</span>
+            <span class="tag" style="color:var(--purple);border-color:rgba(139,92,246,0.3);background:rgba(139,92,246,0.06)" data-lang="fr">ML</span>
+            <span class="tag" style="color:var(--purple);border-color:rgba(139,92,246,0.3);background:rgba(139,92,246,0.06)" data-lang="en">ML</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════
+         MATRICES
+    ═══════════════════════════════════════════════ -->
+    <section id="matrices">
+      <div class="section-header fade-in">
+        <div class="section-tag">
+          <span>🧠</span>
+          <span data-lang="fr" class="visible">Intelligence propriétaire</span>
+          <span data-lang="en">Proprietary intelligence</span>
+        </div>
+        <h2 class="section-title">
+          <span data-lang="fr" class="visible">5 Matrices IA <span class="highlight">Propriétaires.</span></span>
+          <span data-lang="en">5 Proprietary <span class="highlight">AI Matrices.</span></span>
+        </h2>
+        <p class="section-subtitle">
+          <span data-lang="fr" class="visible">Le noyau décisionnel d'ORDR.AI™ repose sur cinq matrices interconnectées, développées spécifiquement pour la sécurité événementielle.</span>
+          <span data-lang="en">The decision core of ORDR.AI™ rests on five interconnected matrices, developed specifically for event security.</span>
+        </p>
+      </div>
+
+      <div class="matrices-grid fade-in">
+        <div class="matrix-card">
+          <div class="matrix-icon">🎯</div>
+          <div class="matrix-name">Matrice de Risque <span class="matrix-tm">™</span></div>
+          <div class="matrix-desc" data-lang="fr">Score tactique R1→R3 par zone et par tranche horaire. Fondation de toutes les décisions.</div>
+          <div class="matrix-desc" data-lang="en">Tactical score R1→R3 by zone and time slot. Foundation of all decisions.</div>
+        </div>
+        <div class="matrix-card">
+          <div class="matrix-icon">👤</div>
+          <div class="matrix-name">Matrice UX Public <span class="matrix-tm">™</span></div>
+          <div class="matrix-desc" data-lang="fr">Anticipation des flux de foule et zones de tension selon la configuration du site et le type de public.</div>
+          <div class="matrix-desc" data-lang="en">Anticipation of crowd flows and tension zones based on site configuration and audience type.</div>
+        </div>
+        <div class="matrix-card">
+          <div class="matrix-icon">📍</div>
+          <div class="matrix-name">Matrice des Postes <span class="matrix-tm">™</span></div>
+          <div class="matrix-desc" data-lang="fr">Modèle de positionnement optimal des agents (statique, mobile, drone) selon le risque et la géographie.</div>
+          <div class="matrix-desc" data-lang="en">Optimal agent positioning model (static, mobile, drone) based on risk and geography.</div>
+        </div>
+        <div class="matrix-card">
+          <div class="matrix-icon">💰</div>
+          <div class="matrix-name">Matrice Budgétaire <span class="matrix-tm">™</span></div>
+          <div class="matrix-desc" data-lang="fr">Arbitrage automatique entre risques opérationnels et contraintes budgétaires. Taux, primes, surcoûts.</div>
+          <div class="matrix-desc" data-lang="en">Automatic arbitration between operational risks and budget constraints. Rates, bonuses, overruns.</div>
+        </div>
+        <div class="matrix-card">
+          <div class="matrix-icon">⚡</div>
+          <div class="matrix-name">Matrice Tactique Multi <span class="matrix-tm">™</span></div>
+          <div class="matrix-desc" data-lang="fr">Fusion multidimensionnelle des 4 matrices pour produire le Score Tactique Global ORDR.AI™.</div>
+          <div class="matrix-desc" data-lang="en">Multidimensional fusion of all 4 matrices to produce the ORDR.AI™ Global Tactical Score.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:24px" class="fade-in">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px">
+          <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:16px" data-lang="fr">Niveaux de risque — Matrice R1/R2/R3</div>
+          <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:16px" data-lang="en">Risk levels — R1/R2/R3 Matrix</div>
+          <div class="risk-levels">
+            <div class="risk-level r1">
+              <div class="rl-code">R1</div>
+              <div class="rl-name" data-lang="fr">Faible</div>
+              <div class="rl-name" data-lang="en">Low</div>
+              <div class="rl-desc" data-lang="fr">Événement contrôlé, public connu, historique stable.</div>
+              <div class="rl-desc" data-lang="en">Controlled event, known public, stable history.</div>
+            </div>
+            <div class="risk-level r2">
+              <div class="rl-code">R2</div>
+              <div class="rl-name" data-lang="fr">Modéré</div>
+              <div class="rl-name" data-lang="en">Moderate</div>
+              <div class="rl-desc" data-lang="fr">Affluence élevée, facteurs variables, vigilance accrue.</div>
+              <div class="rl-desc" data-lang="en">High attendance, variable factors, heightened vigilance.</div>
+            </div>
+            <div class="risk-level r3">
+              <div class="rl-code">R3</div>
+              <div class="rl-name" data-lang="fr">Critique</div>
+              <div class="rl-name" data-lang="en">Critical</div>
+              <div class="rl-desc" data-lang="fr">Risque élevé, plans de bascule actifs, commandement renforcé.</div>
+              <div class="rl-desc" data-lang="en">High risk, active contingency plans, enhanced command.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════
+         PROFILS
+    ═══════════════════════════════════════════════ -->
+    <section id="profils">
+      <div class="section-header fade-in">
+        <div class="section-tag">
+          <span>👥</span>
+          <span data-lang="fr" class="visible">Profils utilisateurs</span>
+          <span data-lang="en">User profiles</span>
+        </div>
+        <h2 class="section-title">
+          <span data-lang="fr" class="visible">Conçu pour <span class="highlight">chaque intervenant.</span></span>
+          <span data-lang="en">Designed for <span class="highlight">every responder.</span></span>
+        </h2>
+        <p class="section-subtitle">
+          <span data-lang="fr" class="visible">Six profils, six interfaces adaptées. De la direction stratégique à l'agent terrain, chacun a l'information dont il a besoin, quand il en a besoin.</span>
+          <span data-lang="en">Six profiles, six adapted interfaces. From strategic leadership to field agent, everyone has the information they need, when they need it.</span>
+        </p>
+      </div>
+
+      <div class="profiles-grid">
+        <div class="profile-card fade-in">
+          <div class="profile-avatar" style="background:rgba(196,224,0,0.1)">🏢</div>
+          <div class="profile-role" data-lang="fr">Promoteur / Directeur</div>
+          <div class="profile-role" data-lang="en">Promoter / Director</div>
+          <div class="profile-org" data-lang="fr">Organisateur de l'événement</div>
+          <div class="profile-org" data-lang="en">Event organizer</div>
+          <div class="profile-needs">
+            <div class="profile-need" data-lang="fr">Vision globale des coûts et des risques</div>
+            <div class="profile-need" data-lang="en">Global view of costs and risks</div>
+            <div class="profile-need" data-lang="fr">Conformité légale et autorisations</div>
+            <div class="profile-need" data-lang="en">Legal compliance and authorizations</div>
+            <div class="profile-need" data-lang="fr">Rapport exportable pour commanditaires</div>
+            <div class="profile-need" data-lang="en">Exportable report for sponsors</div>
+          </div>
+        </div>
+
+        <div class="profile-card fade-in">
+          <div class="profile-avatar" style="background:rgba(0,212,255,0.1)">🛡️</div>
+          <div class="profile-role" data-lang="fr">Responsable Sécurité</div>
+          <div class="profile-role" data-lang="en">Security Manager</div>
+          <div class="profile-org" data-lang="fr">Maître d'œuvre sécurité</div>
+          <div class="profile-org" data-lang="en">Security prime contractor</div>
+          <div class="profile-needs">
+            <div class="profile-need" data-lang="fr">Planification tactique et matrices IA</div>
+            <div class="profile-need" data-lang="en">Tactical planning and AI matrices</div>
+            <div class="profile-need" data-lang="fr">Dashboard commandement complet</div>
+            <div class="profile-need" data-lang="en">Full command dashboard</div>
+            <div class="profile-need" data-lang="fr">Activation des plans de bascule</div>
+            <div class="profile-need" data-lang="en">Contingency plan activation</div>
+          </div>
+        </div>
+
+        <div class="profile-card fade-in">
+          <div class="profile-avatar" style="background:rgba(139,92,246,0.1)">👔</div>
+          <div class="profile-role" data-lang="fr">Superviseur Terrain</div>
+          <div class="profile-role" data-lang="en">Field Supervisor</div>
+          <div class="profile-org" data-lang="fr">Chef d'équipe opérationnel</div>
+          <div class="profile-org" data-lang="en">Operational team leader</div>
+          <div class="profile-needs">
+            <div class="profile-need" data-lang="fr">Carte dynamique et affectations</div>
+            <div class="profile-need" data-lang="en">Dynamic map and assignments</div>
+            <div class="profile-need" data-lang="fr">Alertes contextuelles en temps réel</div>
+            <div class="profile-need" data-lang="en">Real-time contextual alerts</div>
+            <div class="profile-need" data-lang="fr">Communication équipe simplifiée</div>
+            <div class="profile-need" data-lang="en">Simplified team communication</div>
+          </div>
+        </div>
+
+        <div class="profile-card fade-in">
+          <div class="profile-avatar" style="background:rgba(34,197,94,0.1)">🦺</div>
+          <div class="profile-role" data-lang="fr">Agent de Sécurité</div>
+          <div class="profile-role" data-lang="en">Security Agent</div>
+          <div class="profile-org" data-lang="fr">Mobile, point fixe ou drone</div>
+          <div class="profile-org" data-lang="en">Mobile, fixed post, or drone</div>
+          <div class="profile-needs">
+            <div class="profile-need" data-lang="fr">Fiche mission et guide de poste</div>
+            <div class="profile-need" data-lang="en">Mission brief and post guide</div>
+            <div class="profile-need" data-lang="fr">Application mobile légère (mode réseau limité)</div>
+            <div class="profile-need" data-lang="en">Lightweight mobile app (limited network mode)</div>
+            <div class="profile-need" data-lang="fr">Rapport express par QR ou voix</div>
+            <div class="profile-need" data-lang="en">Quick report via QR or voice</div>
+          </div>
+        </div>
+
+        <div class="profile-card fade-in">
+          <div class="profile-avatar" style="background:rgba(251,146,60,0.1)">🚔</div>
+          <div class="profile-role" data-lang="fr">Cellule Interservices</div>
+          <div class="profile-role" data-lang="en">Multi-Agency Cell</div>
+          <div class="profile-org" data-lang="fr">SPVM, SQ, Urgences santé</div>
+          <div class="profile-org" data-lang="en">Police, Fire, Emergency services</div>
+          <div class="profile-needs">
+            <div class="profile-need" data-lang="fr">Interface DRSP — coordination publique</div>
+            <div class="profile-need" data-lang="en">DRSP interface — public coordination</div>
+            <div class="profile-need" data-lang="fr">Accès lecture seule sécurisé</div>
+            <div class="profile-need" data-lang="en">Secure read-only access</div>
+            <div class="profile-need" data-lang="fr">Partage de situation en temps réel</div>
+            <div class="profile-need" data-lang="en">Real-time situation sharing</div>
+          </div>
+        </div>
+
+        <div class="profile-card fade-in">
+          <div class="profile-avatar" style="background:rgba(228,64,251,0.1)">📊</div>
+          <div class="profile-role" data-lang="fr">Analyste Post-Événement</div>
+          <div class="profile-role" data-lang="en">Post-Event Analyst</div>
+          <div class="profile-org" data-lang="fr">Rétroaction et optimisation continue</div>
+          <div class="profile-org" data-lang="en">Feedback and continuous optimization</div>
+          <div class="profile-needs">
+            <div class="profile-need" data-lang="fr">Module de rétroaction et KPIs complets</div>
+            <div class="profile-need" data-lang="en">Full feedback module and KPIs</div>
+            <div class="profile-need" data-lang="fr">Reconstitution IA des événements</div>
+            <div class="profile-need" data-lang="en">AI event reconstruction</div>
+            <div class="profile-need" data-lang="fr">Export rapport — PDF, Excel, présentations</div>
+            <div class="profile-need" data-lang="en">Report export — PDF, Excel, presentations</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════
+         AVANTAGES CONCURRENTIELS
+    ═══════════════════════════════════════════════ -->
+    <section id="avantages">
+      <div class="section-header fade-in">
+        <div class="section-tag">
+          <span>🏆</span>
+          <span data-lang="fr" class="visible">Positionnement</span>
+          <span data-lang="en">Positioning</span>
+        </div>
+        <h2 class="section-title">
+          <span data-lang="fr" class="visible">Une catégorie <span class="highlight">à créer.</span></span>
+          <span data-lang="en">A category <span class="highlight">to create.</span></span>
+        </h2>
+        <p class="section-subtitle">
+          <span data-lang="fr" class="visible">Aucune solution existante n'offre l'intégration complète prédiction + temps réel + débrief IA pour la sécurité événementielle. ORDR.AI™ comble ce vide stratégique.</span>
+          <span data-lang="en">No existing solution offers full predictive + real-time + AI debrief integration for event security. ORDR.AI™ fills this strategic gap.</span>
+        </p>
+      </div>
+
+      <div class="fade-in" style="overflow-x:auto">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th style="text-align:left" data-lang="fr">Fonctionnalité</th>
+              <th style="text-align:left" data-lang="en">Feature</th>
+              <th class="ordr">ORDR.AI™</th>
+              <th>TrackTik</th>
+              <th>CrowdVision</th>
+              <th>Palantir</th>
+              <th>RollKall</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-lang="fr">Simulation IA de foule</td>
+              <td data-lang="en">AI crowd simulation</td>
+              <td class="ordr"><span class="check">✓</span></td>
+              <td><span class="cross">✗</span></td>
+              <td><span class="check">✓</span></td>
+              <td><span class="partial">Partiel</span></td>
+              <td><span class="cross">✗</span></td>
+            </tr>
+            <tr>
+              <td data-lang="fr">Assignation intelligente des effectifs</td>
+              <td data-lang="en">Intelligent staff assignment</td>
+              <td class="ordr"><span class="check">✓</span></td>
+              <td><span class="partial">Partiel</span></td>
+              <td><span class="cross">✗</span></td>
+              <td><span class="cross">✗</span></td>
+              <td><span class="check">✓</span></td>
+            </tr>
+            <tr>
+              <td data-lang="fr">Dashboard tactique temps réel</td>
+              <td data-lang="en">Real-time tactical dashboard</td>
+              <td class="ordr"><span class="check">✓</span></td>
+              <td><span class="check">✓</span></td>
+              <td><span class="partial">Partiel</span></td>
+              <td><span class="check">✓</span></td>
+              <td><span class="partial">Partiel</span></td>
+            </tr>
+            <tr>
+              <td data-lang="fr">Assistant décisionnel IA</td>
+              <td data-lang="en">AI decision assistant</td>
+              <td class="ordr"><span class="check">✓</span></td>
+              <td><span class="cross">✗</span></td>
+              <td><span class="cross">✗</span></td>
+              <td><span class="partial">Partiel</span></td>
+              <td><span class="cross">✗</span></td>
+            </tr>
+            <tr>
+              <td data-lang="fr">Analyse post-événement IA</td>
+              <td data-lang="en">AI post-event analysis</td>
+              <td class="ordr"><span class="check">✓</span></td>
+              <td><span class="cross">✗</span></td>
+              <td><span class="partial">Partiel</span></td>
+              <td><span class="check">✓</span></td>
+              <td><span class="cross">✗</span></td>
+            </tr>
+            <tr>
+              <td data-lang="fr">App mobile agent terrain</td>
+              <td data-lang="en">Field agent mobile app</td>
+              <td class="ordr"><span class="check">✓</span></td>
+              <td><span class="check">✓</span></td>
+              <td><span class="cross">✗</span></td>
+              <td><span class="cross">✗</span></td>
+              <td><span class="check">✓</span></td>
+            </tr>
+            <tr>
+              <td data-lang="fr">Intégration multi-agences (police, urgences)</td>
+              <td data-lang="en">Multi-agency integration (police, emergency)</td>
+              <td class="ordr"><span class="check">✓</span></td>
+              <td><span class="partial">Partiel</span></td>
+              <td><span class="cross">✗</span></td>
+              <td><span class="check">✓</span></td>
+              <td><span class="cross">✗</span></td>
+            </tr>
+            <tr>
+              <td data-lang="fr">Modèle SaaS événementiel</td>
+              <td data-lang="en">Event SaaS model</td>
+              <td class="ordr"><span class="check">✓</span></td>
+              <td><span class="check">✓</span></td>
+              <td><span class="partial">Partiel</span></td>
+              <td><span class="cross">✗</span></td>
+              <td><span class="check">✓</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════
+         TARIFS
+    ═══════════════════════════════════════════════ -->
+    <section id="tarifs">
+      <div class="section-header fade-in">
+        <div class="section-tag">
+          <span>💰</span>
+          <span data-lang="fr" class="visible">Tarifs</span>
+          <span data-lang="en">Pricing</span>
+        </div>
+        <h2 class="section-title">
+          <span data-lang="fr" class="visible">Flexible. <span class="highlight">Scalable.</span></span>
+          <span data-lang="en">Flexible. <span class="highlight">Scalable.</span></span>
+        </h2>
+        <p class="section-subtitle">
+          <span data-lang="fr" class="visible">Un modèle adapté à chaque type d'organisation — de l'événement unique au contrat annuel multi-sites.</span>
+          <span data-lang="en">A model adapted to every type of organization — from single events to multi-site annual contracts.</span>
+        </p>
+      </div>
+
+      <div class="pricing-grid fade-in">
+
+        <div class="pricing-card">
+          <div class="pricing-plan" data-lang="fr">Événement unique</div>
+          <div class="pricing-plan" data-lang="en">Single event</div>
+          <div class="pricing-price"><sup>$</sup>1<span style="font-size:1rem">500</span></div>
+          <div class="pricing-period" data-lang="fr">par événement · jusqu'à 500 agents</div>
+          <div class="pricing-period" data-lang="en">per event · up to 500 agents</div>
+          <div class="pricing-desc">
+            <span data-lang="fr" class="visible">Idéal pour les organisations qui veulent tester ORDR.AI™ sur un événement pilote avant de s'engager.</span>
+            <span data-lang="en">Ideal for organizations wanting to test ORDR.AI™ on a pilot event before committing.</span>
+          </div>
+          <div class="pricing-features">
+            <div class="pricing-feature"><span class="chk">✓</span><span data-lang="fr">Modules planification + dashboard</span><span data-lang="en">Planning + dashboard modules</span></div>
+            <div class="pricing-feature"><span class="chk">✓</span><span data-lang="fr">Matrices IA R1/R2/R3</span><span data-lang="en">AI Matrices R1/R2/R3</span></div>
+            <div class="pricing-feature"><span class="chk">✓</span><span data-lang="fr">Rapport post-événement</span><span data-lang="en">Post-event report</span></div>
+            <div class="pricing-feature"><span class="chk">✓</span><span data-lang="fr">Support en ligne 24/7</span><span data-lang="en">24/7 online support</span></div>
+          </div>
+          <button class="btn-plan outline" onclick="navTo('contact')">
+            <span data-lang="fr" class="visible">Commencer</span>
+            <span data-lang="en">Get started</span>
+          </button>
+        </div>
+
+        <div class="pricing-card featured">
+          <div class="pricing-badge" data-lang="fr">Le plus populaire</div>
+          <div class="pricing-badge" data-lang="en" style="display:none">Most popular</div>
+          <div class="pricing-plan" style="color:var(--accent)" data-lang="fr">Abonnement annuel</div>
+          <div class="pricing-plan" style="color:var(--accent)" data-lang="en">Annual subscription</div>
+          <div class="pricing-price" style="color:var(--accent)"><sup>$</sup>12<span style="font-size:1rem">000</span></div>
+          <div class="pricing-period" data-lang="fr">par an · événements illimités · jusqu'à 1000 agents</div>
+          <div class="pricing-period" data-lang="en">per year · unlimited events · up to 1,000 agents</div>
+          <div class="pricing-desc">
+            <span data-lang="fr" class="visible">Pour les agences de sécurité et organisateurs avec plusieurs événements par an. Tous les modules inclus.</span>
+            <span data-lang="en">For security agencies and organizers with multiple events per year. All modules included.</span>
+          </div>
+          <div class="pricing-features">
+            <div class="pricing-feature"><span class="chk">✓</span><span data-lang="fr">Tous les modules ORDR.AI™</span><span data-lang="en">All ORDR.AI™ modules</span></div>
+            <div class="pricing-feature"><span class="chk">✓</span><span data-lang="fr">App mobile agents terrain</span><span data-lang="en">Field agent mobile app</span></div>
+            <div class="pricing-feature"><span class="chk">✓</span><span data-lang="fr">Intégration API (billetterie, météo, mobilité)</span><span data-lang="en">API integration (ticketing, weather, mobility)</span></div>
+            <div class="pricing-feature"><span class="chk">✓</span><span data-lang="fr">Support opérationnel 24/7 pendant événements</span><span data-lang="en">24/7 operational support during events</span></div>
+            <div class="pricing-feature"><span class="chk">✓</span><span data-lang="fr">Formation UX équipes incluse</span><span data-lang="en">UX team training included</span></div>
+            <div class="pricing-feature"><span class="chk">✓</span><span data-lang="fr">Apprentissage continu inter-événements</span><span data-lang="en">Continuous inter-event learning</span></div>
+          </div>
+          <button class="btn-plan filled" onclick="navTo('contact')">
+            <span data-lang="fr" class="visible">Demander une démo</span>
+            <span data-lang="en">Request a demo</span>
+          </button>
+        </div>
+
+        <div class="pricing-card">
+          <div class="pricing-plan" data-lang="fr">Entreprise / White Label</div>
+          <div class="pricing-plan" data-lang="en">Enterprise / White Label</div>
+          <div class="pricing-price" style="font-size:1.4rem;padding-top:8px" data-lang="fr">Sur mesure</div>
+          <div class="pricing-price" style="font-size:1.4rem;padding-top:8px" data-lang="en">Custom</div>
+          <div class="pricing-period" data-lang="fr">devis personnalisé · multi-sites · illimité</div>
+          <div class="pricing-period" data-lang="en">custom quote · multi-site · unlimited</div>
+          <div class="pricing-desc">
+            <span data-lang="fr" class="visible">Pour les municipalités, corps policiers et grandes agences souhaitant une solution branded ou une intégration profonde.</span>
+            <span data-lang="en">For municipalities, police services, and large agencies seeking a branded solution or deep integration.</span>
+          </div>
+          <div class="pricing-features">
+            <div class="pricing-feature"><span class="chk">✓</span><span data-lang="fr">Solution white label personnalisée</span><span data-lang="en">Custom white label solution</span></div>
+            <div class="pricing-feature"><span class="chk">✓</span><span data-lang="fr">Intégration systèmes CAD/RMS existants</span><span data-lang="en">Existing CAD/RMS system integration</span></div>
+            <div class="pricing-feature"><span class="chk">✓</span><span data-lang="fr">Infrastructure infonuagique dédiée</span><span data-lang="en">Dedicated cloud infrastructure</span></div>
+            <div class="pricing-feature"><span class="chk">✓</span><span data-lang="fr">Accompagnement terrain personnalisé</span><span data-lang="en">Personalized field support</span></div>
+            <div class="pricing-feature"><span class="chk">✓</span><span data-lang="fr">SLA prioritaire + gestionnaire dédié</span><span data-lang="en">Priority SLA + dedicated manager</span></div>
+          </div>
+          <button class="btn-plan outline" onclick="navTo('contact')">
+            <span data-lang="fr" class="visible">Nous contacter</span>
+            <span data-lang="en">Contact us</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════
+         CONTACT
+    ═══════════════════════════════════════════════ -->
+    <section id="contact">
+      <div class="section-header fade-in">
+        <div class="section-tag">
+          <span>🚀</span>
+          <span data-lang="fr" class="visible">Passez à l'action</span>
+          <span data-lang="en">Take action</span>
+        </div>
+        <h2 class="section-title">
+          <span data-lang="fr" class="visible">Prêt à <span class="highlight">transformer</span><br/>votre sécurité événementielle ?</span>
+          <span data-lang="en">Ready to <span class="highlight">transform</span><br/>your event security?</span>
+        </h2>
+      </div>
+
+      <div class="contact-grid fade-in">
+        <div class="contact-info">
+          <div class="contact-item">
+            <div class="contact-icon">🗓️</div>
+            <div>
+              <h4 data-lang="fr">Demander une démonstration</h4>
+              <h4 data-lang="en">Request a demonstration</h4>
+              <p data-lang="fr">Planifiez une session de 45 minutes avec notre équipe. Nous adaptons la démo à votre contexte opérationnel.</p>
+              <p data-lang="en">Schedule a 45-minute session with our team. We tailor the demo to your operational context.</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">🤝</div>
+            <div>
+              <h4 data-lang="fr">Programme pilote</h4>
+              <h4 data-lang="en">Pilot program</h4>
+              <p data-lang="fr">Déployez ORDR.AI™ sur votre prochain événement à tarif pilote. Feedback terrain bienvenu.</p>
+              <p data-lang="en">Deploy ORDR.AI™ on your next event at pilot pricing. Field feedback welcome.</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">🌐</div>
+            <div>
+              <h4 data-lang="fr">Partenariat stratégique</h4>
+              <h4 data-lang="en">Strategic partnership</h4>
+              <p data-lang="fr">SPVM, SQ, Evenko, villes intelligentes — contactez-nous pour explorer les opportunités de partenariat.</p>
+              <p data-lang="en">SPVM, SQ, Evenko, smart cities — contact us to explore partnership opportunities.</p>
+            </div>
+          </div>
+          <div style="margin-top:8px;padding:20px;background:var(--accent-dim);border:1px solid var(--border-accent);border-radius:var(--radius)">
+            <div style="font-size:0.75rem;font-weight:700;color:var(--accent);margin-bottom:8px;letter-spacing:0.05em" data-lang="fr">📍 Basé à Montréal, Québec</div>
+            <div style="font-size:0.75rem;font-weight:700;color:var(--accent);margin-bottom:8px;letter-spacing:0.05em" data-lang="en">📍 Based in Montreal, Quebec</div>
+            <div style="font-size:0.8rem;color:var(--text-secondary)" data-lang="fr">Disponible pour déploiement en Amérique du Nord et à l'international.</div>
+            <div style="font-size:0.8rem;color:var(--text-secondary)" data-lang="en">Available for deployment across North America and internationally.</div>
+          </div>
+        </div>
+
+        <div class="contact-form">
+          <div style="font-size:0.95rem;font-weight:700;margin-bottom:20px" data-lang="fr">Formulaire de contact</div>
+          <div style="font-size:0.95rem;font-weight:700;margin-bottom:20px" data-lang="en">Contact form</div>
+          <form id="demoForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label data-lang="fr">Prénom *</label>
+                <label data-lang="en">First name *</label>
+                <input type="text" required placeholder="Dominik" />
+              </div>
+              <div class="form-group">
+                <label data-lang="fr">Nom *</label>
+                <label data-lang="en">Last name *</label>
+                <input type="text" required placeholder="Blain" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label data-lang="fr">Courriel professionnel *</label>
+              <label data-lang="en">Professional email *</label>
+              <input type="email" required placeholder="d.blain@organisation.com" />
+            </div>
+            <div class="form-group">
+              <label data-lang="fr">Organisation *</label>
+              <label data-lang="en">Organization *</label>
+              <input type="text" required placeholder="SPVM / Festival X / Garda..." />
+            </div>
+            <div class="form-group">
+              <label data-lang="fr">Type d'organisation</label>
+              <label data-lang="en">Organization type</label>
+              <select>
+                <option value="" data-lang="fr">Sélectionner...</option>
+                <option value="" data-lang="en">Select...</option>
+                <option data-lang="fr">Service de police municipal</option>
+                <option data-lang="en">Municipal police service</option>
+                <option data-lang="fr">Agence de sécurité privée</option>
+                <option data-lang="en">Private security agency</option>
+                <option data-lang="fr">Organisateur d'événements</option>
+                <option data-lang="en">Event organizer</option>
+                <option data-lang="fr">Municipalité / Ville intelligente</option>
+                <option data-lang="en">Municipality / Smart city</option>
+                <option data-lang="fr">Autre</option>
+                <option data-lang="en">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label data-lang="fr">Message (optionnel)</label>
+              <label data-lang="en">Message (optional)</label>
+              <textarea rows="3" placeholder="Décrivez votre prochain événement, vos besoins..."></textarea>
+            </div>
+            <button type="submit" class="btn-plan filled" style="margin-top:4px">
+              <span data-lang="fr" class="visible">🚀 Demander une démo</span>
+              <span data-lang="en">🚀 Request a demo</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════
+         FOOTER
+    ═══════════════════════════════════════════════ -->
+    <footer>
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="assets/logos/logo_dark.png" alt="ORDR.AI" />
+          <p data-lang="fr">Orchestration dynamique de la sécurité événementielle par l'intelligence artificielle. Conçu à Montréal, pour le monde.</p>
+          <p data-lang="en">Dynamic orchestration of event security through artificial intelligence. Built in Montreal, for the world.</p>
+          <div style="margin-top:14px;display:flex;gap:10px">
+            <a href="#" style="width:32px;height:32px;background:rgba(255,255,255,0.06);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;transition:background 0.2s" onmouseover="this.style.background='rgba(196,224,0,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">in</a>
+            <a href="#" style="width:32px;height:32px;background:rgba(255,255,255,0.06);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;transition:background 0.2s" onmouseover="this.style.background='rgba(196,224,0,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">𝕏</a>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h5 data-lang="fr">Plateforme</h5>
+          <h5 data-lang="en">Platform</h5>
+          <ul>
+            <li><a href="#" onclick="navTo('modules');return false;" data-lang="fr">Modules</a><a href="#" onclick="navTo('modules');return false;" data-lang="en">Modules</a></li>
+            <li><a href="#" onclick="navTo('matrices');return false;" data-lang="fr">Matrices IA</a><a href="#" onclick="navTo('matrices');return false;" data-lang="en">AI Matrices</a></li>
+            <li><a href="#" onclick="navTo('solution');return false;" data-lang="fr">Les 3 phases</a><a href="#" onclick="navTo('solution');return false;" data-lang="en">The 3 phases</a></li>
+            <li><a href="#" onclick="navTo('profils');return false;" data-lang="fr">Profils utilisateurs</a><a href="#" onclick="navTo('profils');return false;" data-lang="en">User profiles</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5 data-lang="fr">Entreprise</h5>
+          <h5 data-lang="en">Company</h5>
+          <ul>
+            <li><a href="#" data-lang="fr">À propos</a><a href="#" data-lang="en">About</a></li>
+            <li><a href="#" data-lang="fr">Équipe</a><a href="#" data-lang="en">Team</a></li>
+            <li><a href="#" data-lang="fr">Partenaires</a><a href="#" data-lang="en">Partners</a></li>
+            <li><a href="#" onclick="navTo('contact');return false;" data-lang="fr">Contact</a><a href="#" onclick="navTo('contact');return false;" data-lang="en">Contact</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5 data-lang="fr">Légal</h5>
+          <h5 data-lang="en">Legal</h5>
+          <ul>
+            <li><a href="#" data-lang="fr">Confidentialité</a><a href="#" data-lang="en">Privacy</a></li>
+            <li><a href="#" data-lang="fr">Conditions d'utilisation</a><a href="#" data-lang="en">Terms of use</a></li>
+            <li><a href="#" data-lang="fr">Sécurité des données</a><a href="#" data-lang="en">Data security</a></li>
+            <li><a href="#" data-lang="fr">Conformité LPRPDE</a><a href="#" data-lang="en">PIPEDA compliance</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>
+          <span class="footer-tm">ORDR.AI™</span>
+          <span data-lang="fr"> — Gestion Dynamique · Sécurité Prédictive</span>
+          <span data-lang="en"> — Dynamic Management · Predictive Security</span>
+        </div>
+        <div data-lang="fr">© 2025 ORDR.AI™. Tous droits réservés. Montréal, Québec 🇨🇦</div>
+        <div data-lang="en">© 2025 ORDR.AI™. All rights reserved. Montreal, Quebec 🇨🇦</div>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<script src="js/main.js?v=2"></script>
+</body>
+</html>

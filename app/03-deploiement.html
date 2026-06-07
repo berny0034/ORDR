@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ORDR.AI™ — Déploiement dynamique</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:#07070f; --bg-sidebar:#0b0b16; --bg-card:#111120; --bg-input:#16162a; --bg-hover:#1a1a2e;
+      --border:rgba(255,255,255,0.07); --border-accent:rgba(196,224,0,0.3);
+      --accent:#c4e000; --accent-dim:rgba(196,224,0,0.10);
+      --cyan:#00d4ff; --cyan-dim:rgba(0,212,255,0.10);
+      --purple:#8b5cf6; --purple-dim:rgba(139,92,246,0.10);
+      --red:#f43f5e; --orange:#fb923c; --green:#22c55e;
+      --text:#eeeef8; --text-2:#8892a4; --text-3:#4a5568;
+      --topbar-h:56px; --sidebar-w:220px; --right-w:300px;
+      --font:'Inter',system-ui,sans-serif; --r:8px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{font-size:14px} body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+    a{text-decoration:none;color:inherit} input,select,textarea,button{font-family:var(--font)}
+
+    /* TOPBAR */
+    .topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar-h);background:rgba(7,7,15,0.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:14px;z-index:1000}
+    .topbar-logo img{height:30px}
+    .topbar-divider{width:1px;height:24px;background:var(--border);flex-shrink:0}
+    .breadcrumb{display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text-2)}
+    .breadcrumb .active{color:var(--accent);font-weight:700}
+    .breadcrumb .sep{opacity:0.4}
+    .topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+    .lang-toggle{display:flex;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;overflow:hidden;font-size:0.72rem}
+    .lang-toggle button{padding:4px 11px;background:transparent;border:none;color:var(--text-2);cursor:pointer;font-weight:700;transition:all 0.2s}
+    .lang-toggle button.active{background:var(--accent);color:#000}
+    .badge{display:flex;align-items:center;gap:5px;font-size:0.68rem;font-weight:700;padding:4px 10px;border-radius:20px}
+    .badge-live{background:rgba(244,63,94,0.12);border:1px solid rgba(244,63,94,0.35);color:var(--red)}
+    .badge .dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 1.2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+    .avatar{width:30px;height:30px;border-radius:50%;background:var(--accent-dim);border:2px solid var(--border-accent);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;color:var(--accent)}
+
+    /* LAYOUT */
+    .app{display:flex;padding-top:var(--topbar-h);min-height:100vh}
+
+    /* SIDEBAR */
+    .sidebar{position:fixed;top:var(--topbar-h);left:0;width:var(--sidebar-w);height:calc(100vh - var(--topbar-h));background:var(--bg-sidebar);border-right:1px solid var(--border);overflow-y:auto;z-index:900;display:flex;flex-direction:column}
+    .sb-section{padding:14px 14px 6px}
+    .sb-label{font-size:0.62rem;font-weight:700;color:var(--text-3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
+    .mod-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;cursor:pointer;margin-bottom:2px;color:var(--text-2);font-size:0.78rem;font-weight:500;transition:all 0.2s}
+    .mod-item:hover{background:rgba(255,255,255,0.04);color:var(--text)}
+    .mod-item.active{background:var(--accent-dim);color:var(--accent)}
+    .mod-item .mn{font-size:0.65rem;font-weight:800;color:var(--text-3);width:14px;flex-shrink:0}
+    .mod-item.active .mn{color:var(--accent)}
+    .mod-item .mi{font-size:0.9rem;width:18px;text-align:center;flex-shrink:0}
+    .mod-item .mbadge{margin-left:auto;background:var(--red);color:#fff;font-size:0.58rem;font-weight:800;padding:2px 6px;border-radius:10px;animation:pulse 1.2s infinite}
+    .mod-item.done .mn::after{content:'✓';color:var(--green);display:block;font-size:0.6rem}
+    .sb-sep{height:1px;background:var(--border);margin:8px 12px}
+
+    /* Live status sidebar */
+    .sb-live{padding:10px 14px}
+    .live-stat-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)}
+    .live-stat-row:last-child{border:none}
+    .live-stat-label{font-size:0.72rem;color:var(--text-2)}
+    .live-stat-val{font-size:0.78rem;font-weight:800}
+
+    /* Tab nav sidebar */
+    .tab-nav{padding:8px 14px;flex:1}
+    .tab-item{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px;cursor:pointer;margin-bottom:2px;font-size:0.77rem;transition:all 0.2s;color:var(--text-2)}
+    .tab-item:hover{background:rgba(255,255,255,0.04);color:var(--text)}
+    .tab-item.active{background:var(--accent-dim);color:var(--accent);font-weight:700}
+    .tab-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.62rem;font-weight:800;flex-shrink:0;color:var(--text-3)}
+    .tab-item.active .tab-dot{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+
+    /* MAIN */
+    .main{margin-left:var(--sidebar-w);margin-right:var(--right-w);flex:1;display:flex;flex-direction:column;min-width:0}
+
+    /* Page header */
+    .page-header{padding:20px 28px 0;border-bottom:1px solid var(--border);background:rgba(7,7,15,0.7);backdrop-filter:blur(8px);position:sticky;top:var(--topbar-h);z-index:50}
+    .page-title-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+    .page-title{font-size:1.4rem;font-weight:900;letter-spacing:-0.02em}
+    .page-title .hl{color:var(--accent)} .page-title .hl-red{color:var(--red)}
+    .page-sub{font-size:0.78rem;color:var(--text-2);margin-top:2px}
+    .page-actions{display:flex;gap:8px;align-items:center}
+    .btn{padding:7px 14px;border-radius:7px;font-size:0.78rem;font-weight:700;cursor:pointer;border:none;transition:all 0.2s}
+    .btn-ghost{background:transparent;color:var(--text-2);border:1px solid var(--border)}
+    .btn-ghost:hover{color:var(--text);border-color:rgba(255,255,255,0.2)}
+    .btn-primary{background:var(--accent);color:#000}
+    .btn-primary:hover{background:#d4f000;transform:translateY(-1px)}
+    .btn-cyan{background:rgba(0,212,255,0.12);color:var(--cyan);border:1px solid rgba(0,212,255,0.25)}
+    .btn-red{background:rgba(244,63,94,0.12);color:var(--red);border:1px solid rgba(244,63,94,0.3)}
+    .btn-red:hover{background:rgba(244,63,94,0.22)}
+    .btn-orange{background:rgba(251,146,60,0.12);color:var(--orange);border:1px solid rgba(251,146,60,0.3)}
+
+    /* Tab bar */
+    .tab-bar{display:flex;gap:0}
+    .tab-bar-btn{padding:10px 18px;background:transparent;border:none;cursor:pointer;font-size:0.8rem;font-weight:600;color:var(--text-2);border-bottom:2px solid transparent;transition:all 0.2s}
+    .tab-bar-btn:hover{color:var(--text)}
+    .tab-bar-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+    /* CONTENT */
+    .content{padding:20px 28px 80px;display:flex;flex-direction:column;gap:18px}
+
+    /* Cards */
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r)}
+    .card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border)}
+    .card-title{display:flex;align-items:center;gap:10px;font-size:0.88rem;font-weight:800}
+    .card-icon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0}
+    .card-body{padding:18px}
+    .card-actions{display:flex;gap:6px;align-items:center}
+
+    /* Tab panels */
+    .tab-panel{display:none} .tab-panel.active{display:flex;flex-direction:column;gap:18px}
+
+    /* ── TAB 1 — CARTE LIVE ── */
+    .live-map-wrap{position:relative;height:460px;background:var(--bg-input);border-radius:var(--r);overflow:hidden;border:1px solid var(--border)}
+    .lm-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:40px 40px}
+    /* Zones sur la carte */
+    .lm-zone{position:absolute;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s;user-select:none;flex-direction:column;gap:3px}
+    .lm-zone:hover{filter:brightness(1.25);z-index:5}
+    .lm-zone-label{font-size:0.65rem;font-weight:800;text-align:center;line-height:1.2}
+    .lm-zone-count{font-size:0.6rem;background:rgba(0,0,0,0.4);padding:2px 6px;border-radius:10px}
+    /* Agents sur la carte */
+    .agent-dot{position:absolute;width:12px;height:12px;border-radius:50%;cursor:pointer;z-index:4;transition:all 0.5s;border:2px solid rgba(255,255,255,0.3)}
+    .agent-dot:hover{transform:scale(1.5);z-index:10}
+    .agent-dot.on-post{background:var(--accent);box-shadow:0 0 8px var(--accent)}
+    .agent-dot.patrol{background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:patrol-move 4s infinite alternate}
+    .agent-dot.break{background:var(--orange);box-shadow:0 0 6px var(--orange)}
+    .agent-dot.alert{background:var(--red);box-shadow:0 0 10px var(--red);animation:pulse-dot 0.8s infinite}
+    .agent-dot.supervisor{background:var(--purple);box-shadow:0 0 10px var(--purple);width:16px;height:16px;border-color:rgba(139,92,246,0.5)}
+    @keyframes patrol-move{0%{transform:translate(0,0)}50%{transform:translate(8px,-5px)}100%{transform:translate(0,0)}}
+    @keyframes pulse-dot{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:0.7}}
+    /* Heatmap overlay */
+    .heatmap-overlay{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 0.4s}
+    .heatmap-overlay.visible{opacity:0.55}
+    /* Alert flash */
+    .alert-zone{animation:alert-flash 1s infinite}
+    @keyframes alert-flash{0%,100%{filter:brightness(1)}50%{filter:brightness(1.6)}}
+    /* Map toolbar */
+    .map-toolbar{position:absolute;top:12px;left:12px;display:flex;flex-direction:column;gap:5px;z-index:6}
+    .mt-btn{background:rgba(7,7,15,0.85);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:0.68rem;font-weight:700;color:var(--text-2);cursor:pointer;transition:all 0.2s;white-space:nowrap}
+    .mt-btn:hover,.mt-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(196,224,0,0.06)}
+    .map-legend{position:absolute;bottom:12px;left:12px;background:rgba(7,7,15,0.88);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:5px;z-index:6}
+    .ml-item{display:flex;align-items:center;gap:8px;font-size:0.67rem;color:var(--text-2)}
+    .ml-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1.5px solid rgba(255,255,255,0.2)}
+    /* Agent tooltip */
+    .agent-tip{position:absolute;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:0.72rem;pointer-events:none;z-index:20;min-width:130px;display:none}
+    .agent-tip.show{display:block}
+    .at-name{font-weight:800;margin-bottom:3px}
+    .at-status{font-size:0.65rem;color:var(--text-3)}
+    /* Live timer */
+    .map-clock{position:absolute;top:12px;right:12px;background:rgba(7,7,15,0.88);border:1px solid var(--border);border-radius:8px;padding:7px 12px;z-index:6;text-align:center}
+    .mc-time{font-size:1.1rem;font-weight:900;color:var(--accent);font-variant-numeric:tabular-nums;letter-spacing:0.02em}
+    .mc-label{font-size:0.58rem;color:var(--text-3);margin-top:1px}
+
+    /* ── KPI ROW ── */
+    .kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+    .kpi-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center;cursor:pointer;transition:all 0.2s}
+    .kpi-card:hover{border-color:rgba(255,255,255,0.12)}
+    .kpi-val{font-size:1.5rem;font-weight:900;line-height:1;margin-bottom:4px}
+    .kpi-lbl{font-size:0.65rem;color:var(--text-2);font-weight:600;line-height:1.3}
+    .kpi-sub{font-size:0.6rem;color:var(--text-3);margin-top:3px}
+
+    /* ── TAB 2 — REGISTRE AGENTS ── */
+    .agents-toolbar{display:flex;gap:8px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+    .search-input{background:var(--bg-input);border:1px solid var(--border);border-radius:7px;padding:7px 12px;color:var(--text);font-size:0.78rem;min-width:200px}
+    .search-input:focus{outline:none;border-color:var(--accent)}
+    .filter-sel{background:var(--bg-input);border:1px solid var(--border);border-radius:7px;padding:7px 10px;color:var(--text);font-size:0.78rem;cursor:pointer}
+    .filter-sel:focus{outline:none;border-color:var(--accent)}
+    .agents-table{width:100%;border-collapse:collapse}
+    .agents-table th{padding:9px 14px;text-align:left;font-size:0.65rem;font-weight:700;color:var(--text-3);letter-spacing:0.08em;text-transform:uppercase;border-bottom:2px solid var(--border)}
+    .agents-table td{padding:9px 14px;border-bottom:1px solid var(--border);font-size:0.79rem;vertical-align:middle}
+    .agents-table tr:last-child td{border:none}
+    .agents-table tr:hover td{background:rgba(255,255,255,0.015)}
+    .status-pill{padding:3px 10px;border-radius:20px;font-size:0.65rem;font-weight:800;border:1px solid}
+    .sp-post{background:rgba(196,224,0,0.08);border-color:rgba(196,224,0,0.25);color:var(--accent)}
+    .sp-patrol{background:rgba(0,212,255,0.08);border-color:rgba(0,212,255,0.25);color:var(--cyan)}
+    .sp-break{background:rgba(251,146,60,0.08);border-color:rgba(251,146,60,0.25);color:var(--orange)}
+    .sp-alert{background:rgba(244,63,94,0.1);border-color:rgba(244,63,94,0.3);color:var(--red);animation:pulse 1s infinite}
+    .sp-transit{background:rgba(139,92,246,0.08);border-color:rgba(139,92,246,0.25);color:var(--purple)}
+    .agent-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:800;flex-shrink:0}
+    .agent-row-name{display:flex;align-items:center;gap:8px;font-weight:700}
+    .zone-tag{padding:3px 8px;border-radius:5px;font-size:0.67rem;font-weight:700;background:rgba(255,255,255,0.05);border:1px solid var(--border)}
+    .reassign-btn{background:transparent;border:1px solid var(--border);border-radius:6px;padding:4px 9px;font-size:0.67rem;font-weight:700;color:var(--text-2);cursor:pointer;transition:all 0.2s}
+    .reassign-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .callsign{font-family:monospace;font-size:0.78rem;color:var(--cyan);font-weight:800}
+
+    /* ── TAB 3 — QUARTS ── */
+    .shift-timeline{display:flex;flex-direction:column;gap:0}
+    .shift-header-row{display:grid;grid-template-columns:140px repeat(8,1fr);gap:0;padding:0 18px;margin-bottom:4px}
+    .sh-hour{font-size:0.65rem;color:var(--text-3);text-align:center;font-weight:700}
+    .shift-row{display:grid;grid-template-columns:140px repeat(8,1fr);gap:0;padding:4px 18px;border-bottom:1px solid var(--border);align-items:center;min-height:44px}
+    .shift-row:hover{background:rgba(255,255,255,0.015)}
+    .shift-agent-name{font-size:0.77rem;font-weight:700;display:flex;align-items:center;gap:7px}
+    .shift-block{position:relative;height:28px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:800;cursor:pointer;transition:all 0.2s;overflow:hidden;white-space:nowrap}
+    .shift-block:hover{filter:brightness(1.2)}
+    .sb-post{background:rgba(196,224,0,0.2);border:1px solid rgba(196,224,0,0.4);color:var(--accent)}
+    .sb-break{background:rgba(251,146,60,0.12);border:1px dashed rgba(251,146,60,0.3);color:var(--orange)}
+    .sb-off{background:rgba(255,255,255,0.03);border:1px dashed var(--border);color:var(--text-3)}
+    .sb-patrol{background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.3);color:var(--cyan)}
+    .now-line{position:absolute;top:0;bottom:0;width:2px;background:var(--red);z-index:3}
+    .now-label{font-size:0.58rem;color:var(--red);font-weight:800;text-align:center;margin-bottom:3px}
+
+    /* ── TAB 4 — ALERTES ── */
+    .alert-feed{display:flex;flex-direction:column;gap:0}
+    .alert-item{display:flex;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:all 0.2s}
+    .alert-item:hover{background:rgba(255,255,255,0.02)}
+    .alert-item:last-child{border:none}
+    .alert-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+    .ai-crit{background:rgba(244,63,94,0.12);border:1px solid rgba(244,63,94,0.3)}
+    .ai-warn{background:rgba(251,146,60,0.12);border:1px solid rgba(251,146,60,0.3)}
+    .ai-info{background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2)}
+    .ai-ok{background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2)}
+    .alert-content{flex:1}
+    .alert-title{font-size:0.82rem;font-weight:800;margin-bottom:2px}
+    .alert-desc{font-size:0.73rem;color:var(--text-2);line-height:1.5;margin-bottom:5px}
+    .alert-meta{display:flex;gap:10px;font-size:0.65rem;color:var(--text-3)}
+    .alert-meta span{display:flex;align-items:center;gap:3px}
+    .alert-actions{display:flex;gap:6px;margin-top:8px}
+    .alert-time{font-size:0.68rem;color:var(--text-3);white-space:nowrap;flex-shrink:0;margin-top:2px}
+
+    /* ── TAB 5 — RÉAFFECTATION ── */
+    .reassign-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .zone-pool{background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+    .zp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .zp-name{font-size:0.82rem;font-weight:800;display:flex;align-items:center;gap:7px}
+    .zp-count{font-size:0.72rem;color:var(--text-2)}
+    .agent-chip{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:7px;margin-bottom:6px;cursor:grab;transition:all 0.2s}
+    .agent-chip:hover{border-color:var(--accent);background:rgba(196,224,0,0.04)}
+    .agent-chip:last-child{margin-bottom:0}
+    .ac-name{font-size:0.77rem;font-weight:700;flex:1}
+    .ac-badge{font-size:0.62rem;font-weight:800;padding:2px 7px;border-radius:10px}
+    .ac-drop-zone{background:rgba(196,224,0,0.04);border:2px dashed rgba(196,224,0,0.25);border-radius:8px;padding:14px;text-align:center;font-size:0.75rem;color:var(--text-3);min-height:60px;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+    .ac-drop-zone.drag-over{border-color:var(--accent);background:rgba(196,224,0,0.08);color:var(--accent)}
+    .ia-reco-strip{background:rgba(196,224,0,0.04);border:1px solid rgba(196,224,0,0.12);border-radius:8px;padding:12px 16px;font-size:0.77rem;color:var(--text-2);display:flex;align-items:flex-start;gap:10px;margin-bottom:14px}
+
+    /* ── TAB 6 — COMM ── */
+    .comm-layout{display:grid;grid-template-columns:1fr 300px;gap:16px}
+    .comm-messages{display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto;padding-right:4px}
+    .msg-bubble{display:flex;gap:10px;align-items:flex-start}
+    .msg-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:800;flex-shrink:0}
+    .msg-body{background:var(--bg-input);border:1px solid var(--border);border-radius:0 8px 8px 8px;padding:10px 12px;max-width:480px;flex:1}
+    .msg-sender{font-size:0.65rem;font-weight:800;color:var(--accent);margin-bottom:3px}
+    .msg-text{font-size:0.78rem;color:var(--text-2);line-height:1.5}
+    .msg-time{font-size:0.6rem;color:var(--text-3);margin-top:4px}
+    .msg-mine .msg-body{background:var(--accent-dim);border-color:rgba(196,224,0,0.2);border-radius:8px 0 8px 8px;margin-left:auto}
+    .msg-mine .msg-sender{color:var(--text-2)}
+    .msg-urgent .msg-body{background:rgba(244,63,94,0.08);border-color:rgba(244,63,94,0.25)}
+    .msg-urgent .msg-sender{color:var(--red)}
+    .comm-input-row{display:flex;gap:8px;padding:12px 0 0;border-top:1px solid var(--border);margin-top:8px}
+    .comm-input{background:var(--bg-input);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-size:0.8rem;flex:1;resize:none}
+    .comm-input:focus{outline:none;border-color:var(--accent)}
+    .channel-panel{background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r)}
+    .ch-header{padding:10px 14px;border-bottom:1px solid var(--border);font-size:0.72rem;font-weight:800}
+    .ch-item{display:flex;align-items:center;gap:9px;padding:8px 14px;cursor:pointer;transition:all 0.2s;border-bottom:1px solid var(--border)}
+    .ch-item:hover{background:rgba(255,255,255,0.03)}
+    .ch-item.active{background:var(--accent-dim)}
+    .ch-item:last-child{border:none}
+    .ch-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .ch-name{font-size:0.77rem;font-weight:700;flex:1}
+    .ch-count{font-size:0.62rem;color:var(--text-3)}
+
+    /* Nav bottom */
+    .nav-bottom{display:flex;justify-content:space-between;align-items:center;padding:14px 28px;border-top:1px solid var(--border);position:sticky;bottom:0;background:rgba(7,7,15,0.96);backdrop-filter:blur(8px)}
+
+    /* RIGHT PANEL */
+    .right-panel{position:fixed;top:var(--topbar-h);right:0;width:var(--right-w);height:calc(100vh - var(--topbar-h));background:var(--bg-sidebar);border-left:1px solid var(--border);overflow-y:auto;z-index:900;display:flex;flex-direction:column}
+    .rp-header{padding:14px 16px;border-bottom:1px solid var(--border)}
+    .rp-title{font-size:0.8rem;font-weight:800;display:flex;align-items:center;gap:7px;margin-bottom:3px}
+    .rp-badge{background:var(--accent-dim);border:1px solid var(--border-accent);color:var(--accent);font-size:0.62rem;font-weight:800;padding:2px 7px;border-radius:10px}
+    .rp-sub{font-size:0.7rem;color:var(--text-2)}
+    .rp-kpi-row{display:flex;justify-content:space-between;align-items:center;padding:7px 16px;border-bottom:1px solid var(--border)}
+    .rp-kpi-row:last-child{border:none}
+    .rp-kpi-label{font-size:0.72rem;color:var(--text-2)}
+    .rp-kpi-val{font-size:0.8rem;font-weight:800}
+    .ia-block{padding:14px 16px;border-bottom:1px solid var(--border)}
+    .ia-block-title{font-size:0.65rem;font-weight:700;color:var(--text-3);letter-spacing:0.09em;text-transform:uppercase;margin-bottom:10px}
+    .ia-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:11px;margin-bottom:8px;cursor:pointer;transition:all 0.2s}
+    .ia-card:last-child{margin-bottom:0}
+    .ia-card:hover{border-color:var(--border-accent)}
+    .ia-type{font-size:0.6rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
+    .ia-type.warn{color:var(--orange)} .ia-type.info{color:var(--cyan)} .ia-type.crit{color:var(--red)} .ia-type.ok{color:var(--green)}
+    .ia-msg{font-size:0.73rem;color:var(--text-2);line-height:1.5}
+    .ia-action{margin-top:6px;font-size:0.68rem;font-weight:700;color:var(--accent);cursor:pointer}
+
+    /* Alert counter in right panel */
+    .alert-counter{padding:14px 16px;border-bottom:1px solid var(--border)}
+    .ac-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .ac-item{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:10px;text-align:center}
+    .ac-val{font-size:1.2rem;font-weight:900;margin-bottom:2px}
+    .ac-lbl{font-size:0.62rem;color:var(--text-2);font-weight:600}
+
+    ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-logo"><img src="../assets/logos/logo_dark.png" alt="ORDR.AI" /></div>
+  <div class="topbar-divider"></div>
+  <div class="breadcrumb">
+    <span>ORDR.AI™</span><span class="sep">/</span>
+    <a href="02-planification.html" data-fr="Planification" data-en="Planning">Planification</a><span class="sep">/</span>
+    <span class="active" data-fr="Déploiement dynamique" data-en="Dynamic deployment">Déploiement dynamique</span>
+  </div>
+  <div class="topbar-right">
+    <div class="badge badge-live"><span class="dot"></span><span data-fr="LIVE · J-0" data-en="LIVE · D-0">LIVE · J-0</span></div>
+    <div class="lang-toggle">
+      <button onclick="setLang('fr')" class="active" data-l="fr">FR</button>
+      <button onclick="setLang('en')" data-l="en">EN</button>
+    </div>
+    <div class="avatar">AB</div>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-section">
+      <div class="sb-label">Modules</div>
+      <div class="mod-item done" onclick="location.href='01-profil-evenement.html'"><span class="mn">1</span><span class="mi">🎯</span><span data-fr="Évaluation du risque" data-en="Risk assessment">Évaluation du risque</span></div>
+      <div class="mod-item done" onclick="location.href='02-planification.html'"><span class="mn">2</span><span class="mi">📋</span><span data-fr="Planification" data-en="Planning">Planification</span></div>
+      <div class="mod-item active"><span class="mn">3</span><span class="mi">🗺️</span><span data-fr="Déploiement" data-en="Deployment">Déploiement</span><span class="mbadge">LIVE</span></div>
+      <div class="mod-item"><span class="mn">4</span><span class="mi">🚨</span><span data-fr="Gestion de crise" data-en="Crisis mgmt">Gestion de crise</span></div>
+      <div class="mod-item"><span class="mn">5</span><span class="mi">💼</span><span>BackOffice</span></div>
+      <div class="mod-item"><span class="mn">6</span><span class="mi">📈</span><span data-fr="Rétroaction IA" data-en="AI Feedback">Rétroaction IA</span></div>
+    </div>
+    <div class="sb-sep"></div>
+    <div class="sb-section">
+      <div class="sb-label" data-fr="Statut live" data-en="Live status">Statut live</div>
+      <div class="sb-live">
+        <div class="live-stat-row"><span class="live-stat-label" data-fr="Agents actifs" data-en="Active agents">Agents actifs</span><span class="live-stat-val" style="color:var(--accent)">62</span></div>
+        <div class="live-stat-row"><span class="live-stat-label" data-fr="En pause" data-en="On break">En pause</span><span class="live-stat-val" style="color:var(--orange)">8</span></div>
+        <div class="live-stat-row"><span class="live-stat-label" data-fr="En transit" data-en="In transit">En transit</span><span class="live-stat-val" style="color:var(--purple)">4</span></div>
+        <div class="live-stat-row"><span class="live-stat-label" data-fr="Alertes actives" data-en="Active alerts">Alertes actives</span><span class="live-stat-val" style="color:var(--red)">2</span></div>
+        <div class="live-stat-row"><span class="live-stat-label" data-fr="Achalandage actuel" data-en="Current attendance">Achalandage actuel</span><span class="live-stat-val" style="color:var(--cyan)">7 840</span></div>
+      </div>
+    </div>
+    <div class="sb-sep"></div>
+    <div class="tab-nav">
+      <div class="sb-label" data-fr="Vues déploiement" data-en="Deployment views">Vues déploiement</div>
+      <div class="tab-item active" onclick="switchTab('t1',this)"><div class="tab-dot">1</div><span data-fr="Carte LIVE" data-en="LIVE Map">Carte LIVE</span></div>
+      <div class="tab-item" onclick="switchTab('t2',this)"><div class="tab-dot">2</div><span data-fr="Registre agents" data-en="Agent roster">Registre agents</span></div>
+      <div class="tab-item" onclick="switchTab('t3',this)"><div class="tab-dot">3</div><span data-fr="Gestion des quarts" data-en="Shift management">Gestion des quarts</span></div>
+      <div class="tab-item" onclick="switchTab('t4',this)"><div class="tab-dot">4</div><span data-fr="Alertes & incidents" data-en="Alerts & incidents">Alertes & incidents</span></div>
+      <div class="tab-item" onclick="switchTab('t5',this)"><div class="tab-dot">5</div><span data-fr="Réaffectation IA" data-en="AI reassignment">Réaffectation IA</span></div>
+      <div class="tab-item" onclick="switchTab('t6',this)"><div class="tab-dot">6</div><span data-fr="Communications" data-en="Communications">Communications</span></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="page-header">
+      <div class="page-title-row">
+        <div>
+          <div class="page-title">Déploiement <span class="hl">dynamique</span> <span class="hl-red" style="font-size:0.75rem;border:1px solid rgba(244,63,94,0.3);border-radius:20px;padding:3px 10px;font-weight:700;vertical-align:middle">● LIVE</span></div>
+          <div class="page-sub" data-fr="Module 3 · Supervision en temps réel · Festival du Parc 2026" data-en="Module 3 · Real-time supervision · Parc Festival 2026">Module 3 · Supervision en temps réel · Festival du Parc 2026</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-red" onclick="triggerAlert()" data-fr="🚨 Déclencher alerte" data-en="🚨 Trigger alert">🚨 Déclencher alerte</button>
+          <button class="btn btn-orange" data-fr="📢 Message global" data-en="📢 Broadcast">📢 Message global</button>
+          <button class="btn btn-primary" data-fr="🧠 Optimiser IA" data-en="🧠 AI optimize">🧠 Optimiser IA</button>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <button class="tab-bar-btn active" onclick="switchTab('t1',null,this)" data-fr="① Carte LIVE" data-en="① LIVE Map">① Carte LIVE</button>
+        <button class="tab-bar-btn" onclick="switchTab('t2',null,this)" data-fr="② Registre" data-en="② Roster">② Registre</button>
+        <button class="tab-bar-btn" onclick="switchTab('t3',null,this)" data-fr="③ Quarts" data-en="③ Shifts">③ Quarts</button>
+        <button class="tab-bar-btn" onclick="switchTab('t4',null,this)" data-fr="④ Alertes" data-en="④ Alerts">④ Alertes <span id="alert-badge" style="background:var(--red);color:#fff;font-size:0.58rem;font-weight:800;padding:1px 6px;border-radius:10px;margin-left:3px">2</span></button>
+        <button class="tab-bar-btn" onclick="switchTab('t5',null,this)" data-fr="⑤ Réaffectation" data-en="⑤ Reassign">⑤ Réaffectation</button>
+        <button class="tab-bar-btn" onclick="switchTab('t6',null,this)" data-fr="⑥ Comm" data-en="⑥ Comm">⑥ Comm</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ════ TAB 1 — CARTE LIVE ════ -->
+      <div class="tab-panel active" id="t1">
+
+        <!-- KPIs -->
+        <div class="kpi-row">
+          <div class="kpi-card"><div class="kpi-val" style="color:var(--accent)" id="kpi-actifs">62</div><div class="kpi-lbl" data-fr="Agents actifs" data-en="Active agents">Agents actifs</div><div class="kpi-sub" data-fr="sur 76 déployés" data-en="of 76 deployed">sur 76 déployés</div></div>
+          <div class="kpi-card"><div class="kpi-val" style="color:var(--cyan)" id="kpi-attendance">7 840</div><div class="kpi-lbl" data-fr="Personnes présentes" data-en="Persons on site">Personnes présentes</div><div class="kpi-sub">/ 12 000 max</div></div>
+          <div class="kpi-card"><div class="kpi-val" style="color:var(--orange)" id="kpi-breaks">8</div><div class="kpi-lbl" data-fr="En pause" data-en="On break">En pause</div><div class="kpi-sub" data-fr="rotation toutes 2h" data-en="rotating every 2h">rotation toutes 2h</div></div>
+          <div class="kpi-card"><div class="kpi-val" style="color:var(--red)" id="kpi-alerts">2</div><div class="kpi-lbl" data-fr="Alertes actives" data-en="Active alerts">Alertes actives</div><div class="kpi-sub" data-fr="R2 → intervention en cours" data-en="R2 → intervention ongoing">R2 → intervention en cours</div></div>
+          <div class="kpi-card"><div class="kpi-val" style="color:var(--green)">2.3</div><div class="kpi-lbl" data-fr="Ratio agents/1000 pers" data-en="Agents/1000 persons ratio">Agents/1000 pers</div><div class="kpi-sub" data-fr="cible ≥ 2.0" data-en="target ≥ 2.0">cible ≥ 2.0 ✓</div></div>
+          <div class="kpi-card"><div class="kpi-val" style="color:var(--purple)">14:22</div><div class="kpi-lbl" data-fr="Prochain quart" data-en="Next shift change">Prochain quart</div><div class="kpi-sub" data-fr="dans 38 min" data-en="in 38 min">dans 38 min</div></div>
+        </div>
+
+        <!-- Map -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:rgba(0,212,255,0.1)">🗺️</div><span data-fr="Carte tactique temps réel" data-en="Real-time tactical map">Carte tactique temps réel</span></div>
+            <div class="card-actions">
+              <button class="mt-btn active" onclick="toggleLayer('agents',this)" data-fr="Agents" data-en="Agents">Agents</button>
+              <button class="mt-btn" onclick="toggleLayer('heatmap',this)" data-fr="Heatmap" data-en="Heatmap">Heatmap</button>
+              <button class="mt-btn" onclick="toggleLayer('evac',this)" data-fr="Évacuation" data-en="Evacuation">Évacuation</button>
+              <button class="btn btn-ghost" style="font-size:0.7rem" data-fr="Plein écran ⛶" data-en="Fullscreen ⛶">Plein écran ⛶</button>
+            </div>
+          </div>
+          <div style="padding:14px">
+            <div class="live-map-wrap" id="liveMap" onclick="mapClick(event)">
+              <div class="lm-bg"></div>
+
+              <!-- Heatmap SVG overlay -->
+              <svg class="heatmap-overlay" id="heatmapLayer" viewBox="0 0 700 460" preserveAspectRatio="none">
+                <defs>
+                  <radialGradient id="hg1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#f43f5e" stop-opacity="0.8"/><stop offset="100%" stop-color="#f43f5e" stop-opacity="0"/></radialGradient>
+                  <radialGradient id="hg2" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fb923c" stop-opacity="0.6"/><stop offset="100%" stop-color="#fb923c" stop-opacity="0"/></radialGradient>
+                  <radialGradient id="hg3" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fb923c" stop-opacity="0.5"/><stop offset="100%" stop-color="#fb923c" stop-opacity="0"/></radialGradient>
+                </defs>
+                <ellipse cx="320" cy="160" rx="100" ry="70" fill="url(#hg1)"/>
+                <ellipse cx="150" cy="310" rx="80" ry="55" fill="url(#hg2)"/>
+                <ellipse cx="420" cy="260" rx="70" ry="50" fill="url(#hg3)"/>
+              </svg>
+
+              <!-- Zones -->
+              <div class="lm-zone" id="zone-scene" style="top:22%;left:34%;width:23%;height:20%;background:rgba(244,63,94,0.14);border:2px solid rgba(244,63,94,0.45);color:var(--red)" onclick="selectZone('scene',event)">
+                <div class="lm-zone-label">🎤 Scène principale</div>
+                <div class="lm-zone-count">15 agents · R3</div>
+              </div>
+              <div class="lm-zone" id="zone-accueil" style="top:63%;left:12%;width:20%;height:16%;background:rgba(251,146,60,0.12);border:2px solid rgba(251,146,60,0.38);color:var(--orange)" onclick="selectZone('accueil',event)">
+                <div class="lm-zone-label">🚪 Accueil</div>
+                <div class="lm-zone-count">15 agents · R2</div>
+              </div>
+              <div class="lm-zone" id="zone-vip" style="top:14%;left:66%;width:16%;height:14%;background:rgba(139,92,246,0.12);border:2px solid rgba(139,92,246,0.38);color:var(--purple)" onclick="selectZone('vip',event)">
+                <div class="lm-zone-label">⭐ VIP</div>
+                <div class="lm-zone-count">9 agents · R2</div>
+              </div>
+              <div class="lm-zone" id="zone-med" style="top:72%;left:63%;width:15%;height:13%;background:rgba(34,197,94,0.1);border:2px solid rgba(34,197,94,0.3);color:var(--green)" onclick="selectZone('med',event)">
+                <div class="lm-zone-label">💊 Médical</div>
+                <div class="lm-zone-count">6 agents · R1</div>
+              </div>
+              <div class="lm-zone alert-zone" id="zone-alcool" style="top:47%;left:26%;width:18%;height:14%;background:rgba(251,146,60,0.16);border:2px solid rgba(251,146,60,0.5);color:var(--orange)" onclick="selectZone('alcool',event)">
+                <div class="lm-zone-label">🍺 Zone alcool</div>
+                <div class="lm-zone-count">⚠ 9 agents · ALERTE</div>
+              </div>
+              <div class="lm-zone" style="top:5%;left:5%;width:12%;height:10%;background:rgba(196,224,0,0.07);border:1px dashed rgba(196,224,0,0.2);color:var(--accent)" >
+                <div class="lm-zone-label" style="font-size:0.58rem">🏠 Commande</div>
+              </div>
+
+              <!-- Agent dots — supervisors -->
+              <div class="agent-dot supervisor" style="top:29%;left:45%" onmouseenter="showTip(this,'M. Tremblay','Superviseur · Scène')" onmouseleave="hideTip()"></div>
+              <div class="agent-dot supervisor" style="top:67%;left:20%" onmouseenter="showTip(this,'S. Côté','Superviseur · Accueil')" onmouseleave="hideTip()"></div>
+
+              <!-- Agent dots — on post -->
+              <div class="agent-dot on-post" style="top:26%;left:37%" onmouseenter="showTip(this,'P. Gagnon','En poste · Scène')" onmouseleave="hideTip()"></div>
+              <div class="agent-dot on-post" style="top:31%;left:52%" onmouseenter="showTip(this,'A. Roy','En poste · Scène')" onmouseleave="hideTip()"></div>
+              <div class="agent-dot on-post" style="top:24%;left:41%" onmouseenter="showTip(this,'J. Morin','En poste · Scène')" onmouseleave="hideTip()"></div>
+              <div class="agent-dot on-post" style="top:35%;left:38%" onmouseenter="showTip(this,'K. Baril','En poste · Scène')" onmouseleave="hideTip()"></div>
+              <div class="agent-dot on-post" style="top:66%;left:14%" onmouseenter="showTip(this,'L. Fortin','En poste · Accueil')" onmouseleave="hideTip()"></div>
+              <div class="agent-dot on-post" style="top:70%;left:28%" onmouseenter="showTip(this,'D. Pelletier','En poste · Accueil')" onmouseleave="hideTip()"></div>
+              <div class="agent-dot on-post" style="top:17%;left:68%" onmouseenter="showTip(this,'J. Lebeau','En poste · VIP')" onmouseleave="hideTip()"></div>
+              <div class="agent-dot on-post" style="top:75%;left:66%" onmouseenter="showTip(this,'Dr L. Martin','En poste · Médical')" onmouseleave="hideTip()"></div>
+
+              <!-- Patrol -->
+              <div class="agent-dot patrol" style="top:55%;left:42%" onmouseenter="showTip(this,'R. Simard','Patrouille · Zone alcool')" onmouseleave="hideTip()"></div>
+              <div class="agent-dot patrol" style="top:60%;left:48%" onmouseenter="showTip(this,'N. Gendron','Patrouille · Zone alcool')" onmouseleave="hideTip()"></div>
+              <div class="agent-dot patrol" style="top:43%;left:10%" onmouseenter="showTip(this,'B. Larose','Patrouille · Périmètre')" onmouseleave="hideTip()"></div>
+              <div class="agent-dot patrol" style="top:48%;left:82%" onmouseenter="showTip(this,'C. Audet','Patrouille · Périmètre')" onmouseleave="hideTip()"></div>
+
+              <!-- Break -->
+              <div class="agent-dot break" style="top:8%;left:7%" onmouseenter="showTip(this,'F. Bélisle','En pause · Commande')" onmouseleave="hideTip()"></div>
+              <div class="agent-dot break" style="top:11%;left:10%" onmouseenter="showTip(this,'M. Vézina','En pause · Commande')" onmouseleave="hideTip()"></div>
+
+              <!-- Alert dot -->
+              <div class="agent-dot alert" style="top:51%;left:30%" onmouseenter="showTip(this,'T. Mercure','⚠ ALERTE · Zone alcool')" onmouseleave="hideTip()"></div>
+              <div class="agent-dot alert" style="top:54%;left:33%" onmouseenter="showTip(this,'V. Côté','⚠ ALERTE · Zone alcool')" onmouseleave="hideTip()"></div>
+
+              <!-- Tooltip -->
+              <div class="agent-tip" id="agentTip">
+                <div class="at-name" id="tip-name">Agent</div>
+                <div class="at-status" id="tip-status">En poste</div>
+              </div>
+
+              <!-- Map toolbar -->
+              <div class="map-toolbar">
+                <button class="mt-btn" data-fr="+ Poste" data-en="+ Post">+ Poste</button>
+                <button class="mt-btn" data-fr="Zones" data-en="Zones">Zones</button>
+                <button class="mt-btn" data-fr="Itinéraires" data-en="Routes">Itinéraires</button>
+              </div>
+
+              <!-- Clock -->
+              <div class="map-clock"><div class="mc-time" id="map-clock">13:44:22</div><div class="mc-label">HEURE LOCALE</div></div>
+
+              <!-- Legend -->
+              <div class="map-legend">
+                <div class="ml-item"><div class="ml-dot" style="background:var(--purple)"></div><span data-fr="Superviseur" data-en="Supervisor">Superviseur</span></div>
+                <div class="ml-item"><div class="ml-dot" style="background:var(--accent)"></div><span data-fr="En poste" data-en="On post">En poste</span></div>
+                <div class="ml-item"><div class="ml-dot" style="background:var(--cyan)"></div><span data-fr="Patrouille" data-en="Patrol">Patrouille</span></div>
+                <div class="ml-item"><div class="ml-dot" style="background:var(--orange)"></div><span data-fr="En pause" data-en="On break">En pause</span></div>
+                <div class="ml-item"><div class="ml-dot" style="background:var(--red)"></div><span data-fr="⚠ Alerte" data-en="⚠ Alert">⚠ Alerte</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ TAB 2 — REGISTRE AGENTS ════ -->
+      <div class="tab-panel" id="t2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:var(--accent-dim)">👮</div><span data-fr="Registre des agents déployés" data-en="Deployed agent roster">Registre des agents déployés</span></div>
+            <div class="card-actions">
+              <span style="font-size:0.72rem;color:var(--text-2)" data-fr="76 agents · 62 actifs" data-en="76 agents · 62 active">76 agents · 62 actifs</span>
+              <button class="btn btn-ghost" data-fr="Exporter CSV" data-en="Export CSV">Exporter CSV</button>
+            </div>
+          </div>
+          <div class="agents-toolbar">
+            <input type="text" class="search-input" placeholder="Rechercher un agent…" />
+            <select class="filter-sel"><option data-fr="Tous statuts" data-en="All statuses">Tous statuts</option><option data-fr="En poste" data-en="On post">En poste</option><option data-fr="Patrouille" data-en="Patrol">Patrouille</option><option data-fr="En pause" data-en="On break">En pause</option><option data-fr="Alerte" data-en="Alert">Alerte</option></select>
+            <select class="filter-sel"><option data-fr="Toutes les zones" data-en="All zones">Toutes les zones</option><option data-fr="Scène principale" data-en="Main stage">Scène principale</option><option>VIP</option><option data-fr="Accueil" data-en="Entry">Accueil</option></select>
+            <select class="filter-sel"><option data-fr="Tous rôles" data-en="All roles">Tous rôles</option><option data-fr="Superviseur" data-en="Supervisor">Superviseur</option><option data-fr="Agent fixe" data-en="Fixed agent">Agent fixe</option><option data-fr="Patrouille" data-en="Patrol">Patrouille</option></select>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="agents-table">
+              <thead><tr>
+                <th data-fr="Agent" data-en="Agent">Agent</th>
+                <th data-fr="Indicatif" data-en="Callsign">Indicatif</th>
+                <th data-fr="Rôle" data-en="Role">Rôle</th>
+                <th data-fr="Zone assignée" data-en="Assigned zone">Zone assignée</th>
+                <th data-fr="Statut" data-en="Status">Statut</th>
+                <th data-fr="Dernière activité" data-en="Last activity">Dernière activité</th>
+                <th data-fr="Quart actuel" data-en="Current shift">Quart actuel</th>
+                <th></th>
+              </tr></thead>
+              <tbody>
+                <tr>
+                  <td><div class="agent-row-name"><div class="agent-avatar" style="background:rgba(139,92,246,0.15);color:var(--purple)">MT</div>M. Tremblay</div></td>
+                  <td><span class="callsign">BRAVO-1</span></td>
+                  <td data-fr="Superviseur" data-en="Supervisor">Superviseur</td>
+                  <td><span class="zone-tag">Scène principale</span></td>
+                  <td><span class="status-pill sp-post" data-fr="En poste" data-en="On post">En poste</span></td>
+                  <td style="color:var(--text-2);font-size:0.72rem">13:41</td>
+                  <td style="font-size:0.72rem;color:var(--text-2)">12h00 – 20h00</td>
+                  <td><button class="reassign-btn" data-fr="Réaffecter" data-en="Reassign">Réaffecter</button></td>
+                </tr>
+                <tr>
+                  <td><div class="agent-row-name"><div class="agent-avatar" style="background:rgba(244,63,94,0.12);color:var(--red)">TM</div>T. Mercure</div></td>
+                  <td><span class="callsign">BRAVO-5</span></td>
+                  <td data-fr="Agent fixe" data-en="Fixed agent">Agent fixe</td>
+                  <td><span class="zone-tag" style="border-color:rgba(251,146,60,0.3);color:var(--orange)">Zone alcool</span></td>
+                  <td><span class="status-pill sp-alert">⚠ Alerte</span></td>
+                  <td style="color:var(--red);font-size:0.72rem">13:44 — en cours</td>
+                  <td style="font-size:0.72rem;color:var(--text-2)">12h00 – 20h00</td>
+                  <td><button class="reassign-btn" style="border-color:rgba(244,63,94,0.3);color:var(--red)" data-fr="Intervenir →" data-en="Intervene →">Intervenir →</button></td>
+                </tr>
+                <tr>
+                  <td><div class="agent-row-name"><div class="agent-avatar" style="background:rgba(196,224,0,0.12);color:var(--accent)">SC</div>S. Côté</div></td>
+                  <td><span class="callsign">CHARLIE-1</span></td>
+                  <td data-fr="Superviseur" data-en="Supervisor">Superviseur</td>
+                  <td><span class="zone-tag">Zone d'accueil</span></td>
+                  <td><span class="status-pill sp-post" data-fr="En poste" data-en="On post">En poste</span></td>
+                  <td style="color:var(--text-2);font-size:0.72rem">13:38</td>
+                  <td style="font-size:0.72rem;color:var(--text-2)">08h00 – 16h00</td>
+                  <td><button class="reassign-btn" data-fr="Réaffecter" data-en="Reassign">Réaffecter</button></td>
+                </tr>
+                <tr>
+                  <td><div class="agent-row-name"><div class="agent-avatar" style="background:rgba(0,212,255,0.12);color:var(--cyan)">RS</div>R. Simard</div></td>
+                  <td><span class="callsign">BRAVO-7</span></td>
+                  <td data-fr="Patrouille" data-en="Patrol">Patrouille</td>
+                  <td><span class="zone-tag" style="border-color:rgba(251,146,60,0.3);color:var(--orange)">Zone alcool</span></td>
+                  <td><span class="status-pill sp-patrol" data-fr="Patrouille" data-en="Patrol">Patrouille</span></td>
+                  <td style="color:var(--text-2);font-size:0.72rem">13:40</td>
+                  <td style="font-size:0.72rem;color:var(--text-2)">12h00 – 20h00</td>
+                  <td><button class="reassign-btn" data-fr="Réaffecter" data-en="Reassign">Réaffecter</button></td>
+                </tr>
+                <tr>
+                  <td><div class="agent-row-name"><div class="agent-avatar" style="background:rgba(251,146,60,0.12);color:var(--orange)">FB</div>F. Bélisle</div></td>
+                  <td><span class="callsign">DELTA-3</span></td>
+                  <td data-fr="Agent fixe" data-en="Fixed agent">Agent fixe</td>
+                  <td><span class="zone-tag">Périmètre</span></td>
+                  <td><span class="status-pill sp-break" data-fr="En pause" data-en="On break">En pause</span></td>
+                  <td style="color:var(--text-2);font-size:0.72rem">13:30</td>
+                  <td style="font-size:0.72rem;color:var(--text-2)">08h00 – 16h00</td>
+                  <td><button class="reassign-btn" data-fr="Rappeler" data-en="Recall">Rappeler</button></td>
+                </tr>
+                <tr>
+                  <td><div class="agent-row-name"><div class="agent-avatar" style="background:rgba(139,92,246,0.12);color:var(--purple)">JL</div>J. Lebeau</div></td>
+                  <td><span class="callsign">ECHO-1</span></td>
+                  <td data-fr="Agent VIP" data-en="VIP agent">Agent VIP</td>
+                  <td><span class="zone-tag" style="border-color:rgba(139,92,246,0.3);color:var(--purple)">Zone VIP</span></td>
+                  <td><span class="status-pill sp-post" data-fr="En poste" data-en="On post">En poste</span></td>
+                  <td style="color:var(--text-2);font-size:0.72rem">13:44</td>
+                  <td style="font-size:0.72rem;color:var(--text-2)">12h00 – 22h00</td>
+                  <td><button class="reassign-btn" data-fr="Réaffecter" data-en="Reassign">Réaffecter</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ TAB 3 — QUARTS ════ -->
+      <div class="tab-panel" id="t3">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:rgba(196,224,0,0.1)">🕐</div><span data-fr="Gestion des quarts de travail" data-en="Shift management">Gestion des quarts de travail</span></div>
+            <div class="card-actions">
+              <button class="btn btn-ghost" data-fr="Générer quarts auto" data-en="Auto-generate shifts">Générer quarts auto</button>
+              <button class="btn btn-primary" data-fr="+ Nouveau quart" data-en="+ New shift">+ Nouveau quart</button>
+            </div>
+          </div>
+          <div style="padding:14px 0">
+            <div class="shift-header-row">
+              <div></div>
+              <div class="sh-hour">08h</div><div class="sh-hour">10h</div>
+              <div class="sh-hour">12h</div><div class="sh-hour">14h</div>
+              <div class="sh-hour">16h</div><div class="sh-hour">18h</div>
+              <div class="sh-hour">20h</div><div class="sh-hour">22h</div>
+            </div>
+            <!-- Now line indicator -->
+            <div style="position:relative">
+              <div style="position:absolute;left:calc(140px + (5/14)*100%);top:0;bottom:0;width:2px;background:var(--red);z-index:5;pointer-events:none">
+                <div style="position:absolute;top:-14px;left:-16px;font-size:0.55rem;color:var(--red);font-weight:800;white-space:nowrap">▼ 13:44</div>
+              </div>
+              <div class="shift-timeline" style="position:relative">
+                <div class="shift-row">
+                  <div class="shift-agent-name"><div class="agent-avatar" style="background:rgba(139,92,246,0.15);color:var(--purple);width:22px;height:22px;font-size:0.6rem">MT</div>M. Tremblay</div>
+                  <div class="shift-block sb-off" style="grid-column:2/4"></div>
+                  <div class="shift-block sb-post" style="grid-column:4/9" data-fr="Scène — BRAVO-1" data-en="Stage — BRAVO-1">Scène — BRAVO-1</div>
+                  <div class="shift-block sb-off" style="grid-column:9"></div>
+                </div>
+                <div class="shift-row">
+                  <div class="shift-agent-name"><div class="agent-avatar" style="background:rgba(196,224,0,0.12);color:var(--accent);width:22px;height:22px;font-size:0.6rem">SC</div>S. Côté</div>
+                  <div class="shift-block sb-post" style="grid-column:2/5" data-fr="Accueil — CHARLIE-1" data-en="Entry — CHARLIE-1">Accueil — CHARLIE-1</div>
+                  <div class="shift-block sb-break" style="grid-column:5">Pause</div>
+                  <div class="shift-block sb-post" style="grid-column:6/9" data-fr="Accueil" data-en="Entry">Accueil</div>
+                  <div class="shift-block sb-off" style="grid-column:9"></div>
+                </div>
+                <div class="shift-row">
+                  <div class="shift-agent-name"><div class="agent-avatar" style="background:rgba(0,212,255,0.12);color:var(--cyan);width:22px;height:22px;font-size:0.6rem">RS</div>R. Simard</div>
+                  <div class="shift-block sb-off" style="grid-column:2/4"></div>
+                  <div class="shift-block sb-patrol" style="grid-column:4/7" data-fr="Patrouille alcool" data-en="Alcohol patrol">Patrouille alcool</div>
+                  <div class="shift-block sb-break" style="grid-column:7">Pause</div>
+                  <div class="shift-block sb-patrol" style="grid-column:8/9" data-fr="Patrouille" data-en="Patrol">Patrouille</div>
+                </div>
+                <div class="shift-row">
+                  <div class="shift-agent-name"><div class="agent-avatar" style="background:rgba(251,146,60,0.12);color:var(--orange);width:22px;height:22px;font-size:0.6rem">FB</div>F. Bélisle</div>
+                  <div class="shift-block sb-post" style="grid-column:2/4" data-fr="Périmètre" data-en="Perimeter">Périmètre</div>
+                  <div class="shift-block sb-break" style="grid-column:4">Pause</div>
+                  <div class="shift-block sb-post" style="grid-column:5/9" data-fr="Périmètre" data-en="Perimeter">Périmètre</div>
+                </div>
+                <div class="shift-row">
+                  <div class="shift-agent-name"><div class="agent-avatar" style="background:rgba(139,92,246,0.12);color:var(--purple);width:22px;height:22px;font-size:0.6rem">JL</div>J. Lebeau</div>
+                  <div class="shift-block sb-off" style="grid-column:2/4"></div>
+                  <div class="shift-block sb-post" style="grid-column:4/9" data-fr="Zone VIP — ECHO-1" data-en="VIP Zone — ECHO-1">Zone VIP — ECHO-1</div>
+                </div>
+                <div class="shift-row">
+                  <div class="shift-agent-name"><div class="agent-avatar" style="background:rgba(34,197,94,0.12);color:var(--green);width:22px;height:22px;font-size:0.6rem">LM</div>Dr L. Martin</div>
+                  <div class="shift-block sb-post" style="grid-column:2/9" style="background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);color:var(--green)" data-fr="Poste médical — MEDIC-1" data-en="Medical post — MEDIC-1">Poste médical — MEDIC-1</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ TAB 4 — ALERTES ════ -->
+      <div class="tab-panel" id="t4">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:rgba(244,63,94,0.12)">🚨</div><span data-fr="Alertes & incidents actifs" data-en="Active alerts & incidents">Alertes & incidents actifs</span></div>
+            <div class="card-actions">
+              <button class="btn btn-red" onclick="triggerAlert()" data-fr="+ Créer alerte" data-en="+ Create alert">+ Créer alerte</button>
+            </div>
+          </div>
+          <div class="alert-feed">
+            <div class="alert-item">
+              <div class="alert-icon ai-crit">🥊</div>
+              <div class="alert-content">
+                <div class="alert-title" style="color:var(--red)" data-fr="INCIDENT ACTIF — Altercation zone alcool" data-en="ACTIVE INCIDENT — Altercation alcohol zone">INCIDENT ACTIF — Altercation zone alcool</div>
+                <div class="alert-desc" data-fr="Bagarre signalée entre 3 individus au kiosque B-7. T. Mercure et V. Côté en intervention. Renfort demandé automatiquement par ORDR.AI™." data-en="Fight reported between 3 individuals at booth B-7. T. Mercure and V. Côté intervening. Reinforcement automatically requested by ORDR.AI™.">Bagarre signalée entre 3 individus au kiosque B-7. T. Mercure et V. Côté en intervention. Renfort demandé automatiquement par ORDR.AI™.</div>
+                <div class="alert-meta"><span>📍 Zone alcool</span><span>👮 2 agents</span><span>⏱ Il y a 3 min</span><span>📡 BRAVO-5, BRAVO-6</span></div>
+                <div class="alert-actions">
+                  <button class="btn btn-red" style="font-size:0.7rem;padding:5px 12px" data-fr="Envoyer renforts →" data-en="Send reinforcements →">Envoyer renforts →</button>
+                  <button class="btn btn-ghost" style="font-size:0.7rem;padding:5px 12px" data-fr="Voir sur la carte" data-en="View on map">Voir sur la carte</button>
+                  <button class="btn btn-orange" style="font-size:0.7rem;padding:5px 12px" data-fr="Activer Plan B-2" data-en="Activate Plan B-2">Activer Plan B-2</button>
+                </div>
+              </div>
+              <div class="alert-time">13:41</div>
+            </div>
+            <div class="alert-item">
+              <div class="alert-icon ai-warn">⚠️</div>
+              <div class="alert-content">
+                <div class="alert-title" style="color:var(--orange)" data-fr="DENSITÉ CRITIQUE — Scène principale" data-en="CRITICAL DENSITY — Main stage">DENSITÉ CRITIQUE — Scène principale</div>
+                <div class="alert-desc" data-fr="Densité mesurée à 4.2 pers/m² (seuil R3 : 4.0). ORDR.AI™ recommande l'activation du couloir de dégagement nord et la redirection du flux via la Zone B." data-en="Density measured at 4.2 pers/m² (R3 threshold: 4.0). ORDR.AI™ recommends activating the north clearance corridor and redirecting flow through Zone B.">Densité mesurée à 4.2 pers/m² (seuil R3 : 4.0). ORDR.AI™ recommande l'activation du couloir de dégagement nord.</div>
+                <div class="alert-meta"><span>📍 Scène principale</span><span>🤖 IA détectée</span><span>⏱ Il y a 7 min</span></div>
+                <div class="alert-actions">
+                  <button class="btn btn-orange" style="font-size:0.7rem;padding:5px 12px" data-fr="Activer couloir nord" data-en="Activate north corridor">Activer couloir nord</button>
+                  <button class="btn btn-ghost" style="font-size:0.7rem;padding:5px 12px" data-fr="Ignorer" data-en="Dismiss">Ignorer</button>
+                </div>
+              </div>
+              <div class="alert-time">13:37</div>
+            </div>
+            <div class="alert-item" style="opacity:0.6">
+              <div class="alert-icon ai-ok">✅</div>
+              <div class="alert-content">
+                <div class="alert-title" data-fr="RÉSOLU — File d'attente entrée E-3" data-en="RESOLVED — Queue at entry E-3">RÉSOLU — File d'attente entrée E-3</div>
+                <div class="alert-desc" data-fr="Ouverture du portail 4B activée par S. Côté. File réduite à 12 min (seuil : 45 min)." data-en="Gate 4B opening activated by S. Côté. Queue reduced to 12 min (threshold: 45 min).">Ouverture du portail 4B activée par S. Côté. File réduite à 12 min.</div>
+                <div class="alert-meta"><span>📍 Zone accueil</span><span>⏱ Il y a 22 min</span><span style="color:var(--green)">✓ Résolu</span></div>
+              </div>
+              <div class="alert-time">13:22</div>
+            </div>
+            <div class="alert-item" style="opacity:0.6">
+              <div class="alert-icon ai-info">ℹ️</div>
+              <div class="alert-content">
+                <div class="alert-title" data-fr="INFO — Prochain changement de quart dans 38 min" data-en="INFO — Next shift change in 38 min">INFO — Prochain changement de quart dans 38 min</div>
+                <div class="alert-desc" data-fr="8 agents concernés. Passation de consignes recommandée 10 min avant." data-en="8 agents concerned. Handover briefing recommended 10 min prior.">8 agents concernés. Passation de consignes recommandée 10 min avant.</div>
+                <div class="alert-meta"><span>🕐 14h22</span><span>👮 8 agents</span></div>
+              </div>
+              <div class="alert-time">13:00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ TAB 5 — RÉAFFECTATION IA ════ -->
+      <div class="tab-panel" id="t5">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:rgba(196,224,0,0.1)">🧠</div><span data-fr="Réaffectation intelligente des agents" data-en="AI-powered agent reassignment">Réaffectation intelligente des agents</span></div>
+            <button class="btn btn-primary" onclick="applyIA()" data-fr="✓ Appliquer recommandations IA" data-en="✓ Apply AI recommendations">✓ Appliquer recommandations IA</button>
+          </div>
+          <div class="card-body">
+            <div class="ia-reco-strip">
+              <span style="font-size:1rem">🧠</span>
+              <div>
+                <div style="font-weight:800;color:var(--accent);margin-bottom:3px" data-fr="ORDR.AI™ recommande 3 réaffectations immédiates" data-en="ORDR.AI™ recommends 3 immediate reassignments">ORDR.AI™ recommande 3 réaffectations immédiates</div>
+                <div data-fr="Suite à l'altercation zone alcool et la densité critique scène principale, l'IA optimise la couverture en temps réel." data-en="Following the alcohol zone altercation and critical stage density, AI optimizes coverage in real time.">Suite à l'altercation zone alcool et la densité critique scène principale, l'IA optimise la couverture en temps réel.</div>
+              </div>
+            </div>
+            <div class="reassign-grid">
+              <div class="zone-pool">
+                <div class="zp-header">
+                  <div class="zp-name"><div style="width:10px;height:10px;background:var(--orange);border-radius:2px"></div>Zone alcool <span class="risk-pill" style="background:rgba(244,63,94,0.1);border:1px solid rgba(244,63,94,0.3);color:var(--red);font-size:0.6rem;padding:2px 7px;border-radius:20px;font-weight:800">CRITIQUE</span></div>
+                  <div class="zp-count" data-fr="9 → 12 agents requis" data-en="9 → 12 agents needed">9 → 12 agents requis</div>
+                </div>
+                <div class="agent-chip">
+                  <div class="agent-avatar" style="background:rgba(244,63,94,0.12);color:var(--red);width:24px;height:24px;font-size:0.65rem">TM</div>
+                  <span class="ac-name">T. Mercure</span><span class="callsign" style="font-size:0.68rem">BRAVO-5</span>
+                  <span class="ac-badge" style="background:rgba(244,63,94,0.1);color:var(--red)">⚠ Alerte</span>
+                </div>
+                <div class="agent-chip">
+                  <div class="agent-avatar" style="background:rgba(0,212,255,0.12);color:var(--cyan);width:24px;height:24px;font-size:0.65rem">RS</div>
+                  <span class="ac-name">R. Simard</span><span class="callsign" style="font-size:0.68rem">BRAVO-7</span>
+                  <span class="ac-badge" style="background:rgba(0,212,255,0.1);color:var(--cyan)">Patrouille</span>
+                </div>
+                <div class="ac-drop-zone" data-fr="← Déposer un agent ici" data-en="← Drop an agent here">← Déposer un agent ici (3 manquants)</div>
+              </div>
+              <div class="zone-pool">
+                <div class="zp-header">
+                  <div class="zp-name"><div style="width:10px;height:10px;background:var(--orange);border-radius:2px"></div>Réserve tactique <span style="font-size:0.65rem;color:var(--text-3);font-weight:500" data-fr="disponibles" data-en="available">disponibles</span></div>
+                  <div class="zp-count" data-fr="15 agents en réserve" data-en="15 agents in reserve">15 agents en réserve</div>
+                </div>
+                <div class="agent-chip" style="cursor:grab" draggable="true">
+                  <div class="agent-avatar" style="background:rgba(196,224,0,0.12);color:var(--accent);width:24px;height:24px;font-size:0.65rem">PG</div>
+                  <span class="ac-name">P. Gagné</span><span class="callsign" style="font-size:0.68rem">FOXTROT-1</span>
+                  <span class="ac-badge" style="background:rgba(196,224,0,0.1);color:var(--accent)" data-fr="Réserve" data-en="Reserve">Réserve</span>
+                </div>
+                <div class="agent-chip" style="cursor:grab" draggable="true">
+                  <div class="agent-avatar" style="background:rgba(196,224,0,0.12);color:var(--accent);width:24px;height:24px;font-size:0.65rem">AL</div>
+                  <span class="ac-name">A. Lachance</span><span class="callsign" style="font-size:0.68rem">FOXTROT-2</span>
+                  <span class="ac-badge" style="background:rgba(196,224,0,0.1);color:var(--accent)" data-fr="Réserve" data-en="Reserve">Réserve</span>
+                </div>
+                <div class="agent-chip" style="cursor:grab;border-color:rgba(196,224,0,0.3);background:rgba(196,224,0,0.04)" draggable="true">
+                  <div class="agent-avatar" style="background:rgba(196,224,0,0.15);color:var(--accent);width:24px;height:24px;font-size:0.65rem">MV</div>
+                  <span class="ac-name">M. Vézina</span><span class="callsign" style="font-size:0.68rem">FOXTROT-3</span>
+                  <span class="ac-badge" style="background:var(--accent-dim);color:var(--accent)" data-fr="🧠 IA suggère" data-en="🧠 AI suggests">🧠 IA suggère</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ TAB 6 — COMMUNICATIONS ════ -->
+      <div class="tab-panel" id="t6">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:rgba(0,212,255,0.1)">📡</div><span data-fr="Centre de communications" data-en="Communications center">Centre de communications</span></div>
+          </div>
+          <div class="card-body">
+            <div class="comm-layout">
+              <div style="display:flex;flex-direction:column">
+                <div class="comm-messages">
+                  <div class="msg-bubble msg-urgent">
+                    <div class="agent-avatar" style="background:rgba(244,63,94,0.15);color:var(--red);width:28px;height:28px;font-size:0.62rem">TM</div>
+                    <div class="msg-body">
+                      <div class="msg-sender">T. Mercure · BRAVO-5</div>
+                      <div class="msg-text" data-fr="Bagarre au kiosque B-7 zone alcool, besoin de renforts IMMÉDIAT, 3 individus impliqués" data-en="Fight at booth B-7 alcohol zone, need reinforcement IMMEDIATELY, 3 individuals involved">Bagarre au kiosque B-7 zone alcool, besoin de renforts IMMÉDIAT, 3 individus impliqués</div>
+                      <div class="msg-time">13:41:07</div>
+                    </div>
+                  </div>
+                  <div class="msg-bubble">
+                    <div class="agent-avatar" style="background:rgba(139,92,246,0.15);color:var(--purple);width:28px;height:28px;font-size:0.62rem">MT</div>
+                    <div class="msg-body">
+                      <div class="msg-sender">M. Tremblay · BRAVO-1</div>
+                      <div class="msg-text" data-fr="Reçu BRAVO-5. J'envoie BRAVO-8 et BRAVO-9 en renfort. Restez en position." data-en="Received BRAVO-5. Sending BRAVO-8 and BRAVO-9 as reinforcement. Stay in position.">Reçu BRAVO-5. J'envoie BRAVO-8 et BRAVO-9 en renfort. Restez en position.</div>
+                      <div class="msg-time">13:41:22</div>
+                    </div>
+                  </div>
+                  <div class="msg-bubble msg-mine">
+                    <div class="agent-avatar" style="background:var(--accent-dim);color:var(--accent);width:28px;height:28px;font-size:0.62rem">AB</div>
+                    <div class="msg-body">
+                      <div class="msg-sender">A. Bernard · ALPHA-1 (Vous)</div>
+                      <div class="msg-text" data-fr="OK reçu. Activer Plan B-2 Foule si la situation dégénère. MEDIC-1 en alerte." data-en="OK received. Activate Plan B-2 Crowd if situation deteriorates. MEDIC-1 on standby.">OK reçu. Activer Plan B-2 Foule si la situation dégénère. MEDIC-1 en alerte.</div>
+                      <div class="msg-time">13:41:45</div>
+                    </div>
+                  </div>
+                  <div class="msg-bubble">
+                    <div class="agent-avatar" style="background:rgba(0,212,255,0.12);color:var(--cyan);width:28px;height:28px;font-size:0.62rem">🤖</div>
+                    <div class="msg-body" style="background:rgba(196,224,0,0.05);border-color:rgba(196,224,0,0.15)">
+                      <div class="msg-sender" style="color:var(--accent)">🧠 ORDR.AI™ Assistant</div>
+                      <div class="msg-text" data-fr="Alerte automatique : densité zone scène atteint 4.2/m². Recommandation : redirection flux nord activée. Probabilité d'escalade : 34%." data-en="Automatic alert: stage zone density reaches 4.2/m². Recommendation: north flow redirection activated. Escalation probability: 34%.">Alerte automatique : densité zone scène atteint 4.2/m². Recommandation : redirection flux nord activée. Probabilité d'escalade : 34%.</div>
+                      <div class="msg-time">13:42:01 · IA</div>
+                    </div>
+                  </div>
+                  <div class="msg-bubble">
+                    <div class="agent-avatar" style="background:rgba(34,197,94,0.12);color:var(--green);width:28px;height:28px;font-size:0.62rem">LM</div>
+                    <div class="msg-body">
+                      <div class="msg-sender">Dr L. Martin · MEDIC-1</div>
+                      <div class="msg-text" data-fr="Poste médical prêt. Civière et kit bouchage disponibles. En attente." data-en="Medical post ready. Stretcher and wound kit available. Standing by.">Poste médical prêt. Civière et kit bouchage disponibles. En attente.</div>
+                      <div class="msg-time">13:42:15</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="comm-input-row">
+                  <select class="filter-sel" style="flex-shrink:0"><option>CH-01 (Global)</option><option>CH-02 (Scène)</option><option>CH-03 (Accueil)</option><option>CH-04 (Périm.)</option><option>CH-05 (Médical)</option></select>
+                  <textarea class="comm-input" rows="2" placeholder="Message radio (Ctrl+Entrée pour envoyer)…"></textarea>
+                  <button class="btn btn-primary" style="flex-shrink:0" onclick="sendMsg()">Envoyer ▶</button>
+                </div>
+              </div>
+              <div class="channel-panel">
+                <div class="ch-header">📡 Canaux actifs</div>
+                <div class="ch-item active"><div class="ch-dot" style="background:var(--accent)"></div><div class="ch-name">CH-01 Global</div><div class="ch-count">76</div></div>
+                <div class="ch-item"><div class="ch-dot" style="background:var(--red)"></div><div class="ch-name">CH-02 Scène</div><div class="ch-count">15</div></div>
+                <div class="ch-item"><div class="ch-dot" style="background:var(--cyan)"></div><div class="ch-name">CH-03 Accueil</div><div class="ch-count">15</div></div>
+                <div class="ch-item"><div class="ch-dot" style="background:var(--purple)"></div><div class="ch-name">CH-04 Périmètre</div><div class="ch-count">7</div></div>
+                <div class="ch-item"><div class="ch-dot" style="background:var(--orange)"></div><div class="ch-name">CH-05 Médical</div><div class="ch-count">6</div></div>
+                <div class="ch-item"><div class="ch-dot" style="background:var(--text-3)"></div><div class="ch-name">CH-06 VIP</div><div class="ch-count">9</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+
+    <div class="nav-bottom">
+      <div style="font-size:0.75rem;color:var(--text-2)"><strong style="color:var(--accent)">Module 3 / 6</strong> · <span data-fr="Déploiement dynamique" data-en="Dynamic deployment">Déploiement dynamique</span></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" onclick="location.href='02-planification.html'" data-fr="← Module 2" data-en="← Module 2">← Module 2</button>
+        <button class="btn btn-primary" onclick="location.href='04-crise.html'" data-fr="Module 4 — Gestion de crise →" data-en="Module 4 — Crisis management →">Module 4 — Gestion de crise →</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- RIGHT PANEL -->
+  <aside class="right-panel">
+    <div class="rp-header">
+      <div class="rp-title">🧠 Assistant <span class="rp-badge">ORDR.AI™</span></div>
+      <div class="rp-sub" data-fr="Supervision en temps réel" data-en="Real-time supervision">Supervision en temps réel</div>
+    </div>
+
+    <div class="alert-counter">
+      <div class="ia-block-title" style="margin-bottom:8px" data-fr="Tableau de bord LIVE" data-en="LIVE Dashboard">Tableau de bord LIVE</div>
+      <div class="ac-grid">
+        <div class="ac-item" style="border-color:rgba(244,63,94,0.3)"><div class="ac-val" style="color:var(--red)">2</div><div class="ac-lbl" data-fr="Alertes actives" data-en="Active alerts">Alertes actives</div></div>
+        <div class="ac-item" style="border-color:rgba(196,224,0,0.2)"><div class="ac-val" style="color:var(--accent)">62</div><div class="ac-lbl" data-fr="Agents actifs" data-en="Active agents">Agents actifs</div></div>
+        <div class="ac-item"><div class="ac-val" style="color:var(--cyan)">7 840</div><div class="ac-lbl" data-fr="Présents" data-en="On site">Présents</div></div>
+        <div class="ac-item"><div class="ac-val" style="color:var(--orange)">65%</div><div class="ac-lbl" data-fr="Capacité" data-en="Capacity">Capacité</div></div>
+      </div>
+    </div>
+
+    <div style="padding:0 16px;border-bottom:1px solid var(--border)">
+      <div class="rp-kpi-row" style="padding:7px 0"><span class="rp-kpi-label" data-fr="Achalandage actuel" data-en="Current attendance">Achalandage actuel</span><span class="rp-kpi-val" style="color:var(--cyan)">7 840</span></div>
+      <div class="rp-kpi-row" style="padding:7px 0"><span class="rp-kpi-label" data-fr="Ratio agents/1000" data-en="Agents/1000 ratio">Ratio agents/1000</span><span class="rp-kpi-val" style="color:var(--green)">2.3 ✓</span></div>
+      <div class="rp-kpi-row" style="padding:7px 0"><span class="rp-kpi-label" data-fr="Prochain quart" data-en="Next shift change">Prochain quart</span><span class="rp-kpi-val" style="color:var(--orange)">14:22</span></div>
+      <div class="rp-kpi-row" style="padding:7px 0;border:none"><span class="rp-kpi-label" data-fr="Pic attendu" data-en="Expected peak">Pic attendu</span><span class="rp-kpi-val" style="color:var(--text)">17h30</span></div>
+    </div>
+
+    <div class="ia-block">
+      <div class="ia-block-title" data-fr="Recommandations temps réel" data-en="Real-time recommendations">Recommandations temps réel</div>
+      <div class="ia-card" style="border-color:rgba(244,63,94,0.3)">
+        <div class="ia-type crit">🚨 CRITIQUE</div>
+        <div class="ia-msg" data-fr="Altercation zone alcool en cours. 3 agents en renfort suggérés depuis la réserve tactique (FOXTROT-1, 2, 3)." data-en="Alcohol zone altercation ongoing. 3 reserve agents suggested (FOXTROT-1, 2, 3).">Altercation zone alcool. 3 agents en renfort suggérés depuis la réserve (FOXTROT-1, 2, 3).</div>
+        <div class="ia-action" onclick="switchTab('t5',null,document.querySelectorAll('.tab-bar-btn')[4])" data-fr="Réaffecter maintenant →" data-en="Reassign now →">Réaffecter maintenant →</div>
+      </div>
+      <div class="ia-card">
+        <div class="ia-type warn">⚠ ATTENTION</div>
+        <div class="ia-msg" data-fr="Densité scène atteint 4.2/m². Activer dégagement nord pour réduire la pression en 8 min." data-en="Stage density reaches 4.2/m². Activate north clearance to reduce pressure in 8 min.">Densité scène 4.2/m². Activer dégagement nord pour réduire la pression en 8 min.</div>
+        <div class="ia-action" data-fr="Activer couloir nord →" data-en="Activate north corridor →">Activer couloir nord →</div>
+      </div>
+      <div class="ia-card">
+        <div class="ia-type info">ℹ PRÉVISION</div>
+        <div class="ia-msg" data-fr="Le pic d'achalandage est prévu à 17h30. Déclenchez le renfort de quart 30 min à l'avance pour éviter un sous-effectif." data-en="Attendance peak expected at 17:30. Trigger shift reinforcement 30 min early to avoid understaffing.">Pic prévu 17h30. Déclenchez le renfort de quart 30 min à l'avance.</div>
+      </div>
+    </div>
+
+    <div class="ia-block" style="border:none">
+      <div class="ia-block-title" data-fr="Zones sous surveillance" data-en="Monitored zones">Zones sous surveillance</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:0.73rem;color:var(--text-2);display:flex;align-items:center;gap:5px"><div style="width:7px;height:7px;background:var(--red);border-radius:50%;animation:pulse 1s infinite"></div>Zone alcool</span>
+          <span style="font-size:0.73rem;font-weight:800;color:var(--red)" data-fr="ALERTE" data-en="ALERT">ALERTE</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:0.73rem;color:var(--text-2);display:flex;align-items:center;gap:5px"><div style="width:7px;height:7px;background:var(--orange);border-radius:50%"></div>Scène principale</span>
+          <span style="font-size:0.73rem;font-weight:800;color:var(--orange)">4.2/m²</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:0.73rem;color:var(--text-2);display:flex;align-items:center;gap:5px"><div style="width:7px;height:7px;background:var(--cyan);border-radius:50%"></div>Zone accueil</span>
+          <span style="font-size:0.73rem;font-weight:800;color:var(--cyan)">Normal</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0">
+          <span style="font-size:0.73rem;color:var(--text-2);display:flex;align-items:center;gap:5px"><div style="width:7px;height:7px;background:var(--green);border-radius:50%"></div>Zone médicale</span>
+          <span style="font-size:0.73rem;font-weight:800;color:var(--green)">Normal</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+let lang = 'fr';
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lang-toggle button').forEach(b => b.classList.toggle('active', b.dataset.l === l));
+  document.querySelectorAll('[data-fr]').forEach(el => {
+    if (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA' && el.tagName !== 'OPTION') {
+      const v = el.dataset[l];
+      if (v !== undefined) el.textContent = v;
+    }
+  });
+}
+
+const tabIds = ['t1','t2','t3','t4','t5','t6'];
+function switchTab(id, sideItem, barBtn) {
+  tabIds.forEach(t => document.getElementById(t).classList.toggle('active', t === id));
+  document.querySelectorAll('.tab-item').forEach((el,i) => el.classList.toggle('active', tabIds[i] === id));
+  document.querySelectorAll('.tab-bar-btn').forEach((el,i) => el.classList.toggle('active', tabIds[i] === id));
+}
+
+function toggleLayer(layer, btn) {
+  btn.classList.toggle('active');
+  if (layer === 'heatmap') {
+    const h = document.getElementById('heatmapLayer');
+    h.classList.toggle('visible');
+  }
+}
+
+function showTip(dot, name, status) {
+  const tip = document.getElementById('agentTip');
+  tip.classList.add('show');
+  document.getElementById('tip-name').textContent = name;
+  document.getElementById('tip-status').textContent = status;
+  const mapRect = dot.closest('.live-map-wrap').getBoundingClientRect();
+  const dotRect = dot.getBoundingClientRect();
+  tip.style.left = (dotRect.left - mapRect.left + 16) + 'px';
+  tip.style.top = (dotRect.top - mapRect.top - 10) + 'px';
+}
+function hideTip() { document.getElementById('agentTip').classList.remove('show'); }
+
+function selectZone(zone, e) {
+  e.stopPropagation();
+  const zoneMap = { scene:'Scène principale',alcool:'Zone alcool',accueil:'Zone d\'accueil',vip:'Zone VIP',med:'Zone médicale' };
+  if (zone === 'alcool') { switchTab('t4',null,document.querySelectorAll('.tab-bar-btn')[3]); }
+}
+function mapClick(e) { /* future: place agent */ }
+
+let alertOn = false;
+function triggerAlert() {
+  if (alertOn) return;
+  alertOn = true;
+  const btn = document.querySelector('.btn-red');
+  const orig = btn.textContent;
+  btn.textContent = '🚨 ALERTE DÉCLENCHÉE';
+  btn.style.background = 'rgba(244,63,94,0.3)';
+  const zoneScene = document.getElementById('zone-scene');
+  zoneScene.classList.add('alert-zone');
+  setTimeout(() => {
+    btn.textContent = orig;
+    btn.style.background = '';
+    alertOn = false;
+    zoneScene.classList.remove('alert-zone');
+  }, 5000);
+}
+
+function applyIA() {
+  alert(lang === 'fr' ? 'Réaffectation appliquée : FOXTROT-1, 2, 3 → Zone alcool. Mise à jour de la carte en cours...' : 'Reassignment applied: FOXTROT-1, 2, 3 → Alcohol zone. Updating map...');
+}
+
+function sendMsg() {
+  const inp = document.querySelector('.comm-input');
+  if (!inp.value.trim()) return;
+  const messages = document.querySelector('.comm-messages');
+  const div = document.createElement('div');
+  div.className = 'msg-bubble msg-mine';
+  div.innerHTML = `<div class="agent-avatar" style="background:var(--accent-dim);color:var(--accent);width:28px;height:28px;font-size:0.62rem">AB</div><div class="msg-body"><div class="msg-sender">A. Bernard · ALPHA-1 (Vous)</div><div class="msg-text">${inp.value}</div><div class="msg-time">${new Date().toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</div></div>`;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+  inp.value = '';
+}
+
+// Live clock
+function updateClock() {
+  const now = new Date();
+  document.getElementById('map-clock').textContent = now.toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+setInterval(updateClock, 1000);
+
+document.addEventListener('DOMContentLoaded', () => { setLang('fr'); updateClock(); });
+</script>
+</body>
+</html>

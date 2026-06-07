@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ORDR.AI™ — Planification opérationnelle</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:#07070f; --bg-sidebar:#0b0b16; --bg-card:#111120; --bg-input:#16162a; --bg-hover:#1a1a2e;
+      --border:rgba(255,255,255,0.07); --border-accent:rgba(196,224,0,0.3);
+      --accent:#c4e000; --accent-dim:rgba(196,224,0,0.10);
+      --cyan:#00d4ff; --cyan-dim:rgba(0,212,255,0.10);
+      --purple:#8b5cf6; --purple-dim:rgba(139,92,246,0.10);
+      --red:#f43f5e; --orange:#fb923c; --green:#22c55e;
+      --text:#eeeef8; --text-2:#8892a4; --text-3:#4a5568;
+      --topbar-h:56px; --sidebar-w:220px; --right-w:300px;
+      --font:'Inter',system-ui,sans-serif; --r:8px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{font-size:14px} body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+    a{text-decoration:none;color:inherit} input,select,textarea,button{font-family:var(--font)}
+
+    /* TOPBAR */
+    .topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar-h);background:rgba(7,7,15,0.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:14px;z-index:1000}
+    .topbar-logo img{height:30px}
+    .topbar-divider{width:1px;height:24px;background:var(--border);flex-shrink:0}
+    .breadcrumb{display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text-2)}
+    .breadcrumb .active{color:var(--accent);font-weight:700}
+    .breadcrumb .sep{opacity:0.4}
+    .topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+    .lang-toggle{display:flex;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;overflow:hidden;font-size:0.72rem}
+    .lang-toggle button{padding:4px 11px;background:transparent;border:none;color:var(--text-2);cursor:pointer;font-weight:700;transition:all 0.2s}
+    .lang-toggle button.active{background:var(--accent);color:#000}
+    .badge{display:flex;align-items:center;gap:5px;font-size:0.68rem;font-weight:700;padding:4px 10px;border-radius:20px}
+    .badge-ok{background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.25);color:var(--green)}
+    .badge-warn{background:rgba(251,146,60,0.12);border:1px solid rgba(251,146,60,0.25);color:var(--orange)}
+    .badge .dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+    .avatar{width:30px;height:30px;border-radius:50%;background:var(--accent-dim);border:2px solid var(--border-accent);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;color:var(--accent)}
+
+    /* LAYOUT */
+    .app{display:flex;padding-top:var(--topbar-h);min-height:100vh}
+
+    /* SIDEBAR */
+    .sidebar{position:fixed;top:var(--topbar-h);left:0;width:var(--sidebar-w);height:calc(100vh - var(--topbar-h));background:var(--bg-sidebar);border-right:1px solid var(--border);overflow-y:auto;z-index:900;display:flex;flex-direction:column}
+    .sb-section{padding:14px 14px 6px}
+    .sb-label{font-size:0.62rem;font-weight:700;color:var(--text-3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
+    .mod-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;cursor:pointer;margin-bottom:2px;color:var(--text-2);font-size:0.78rem;font-weight:500;transition:all 0.2s}
+    .mod-item:hover{background:rgba(255,255,255,0.04);color:var(--text)}
+    .mod-item.active{background:var(--accent-dim);color:var(--accent)}
+    .mod-item .mn{font-size:0.65rem;font-weight:800;color:var(--text-3);width:14px;flex-shrink:0}
+    .mod-item.active .mn{color:var(--accent)}
+    .mod-item .mi{font-size:0.9rem;width:18px;text-align:center;flex-shrink:0}
+    .mod-item .mbadge{margin-left:auto;background:var(--accent);color:#000;font-size:0.58rem;font-weight:800;padding:2px 6px;border-radius:10px}
+    .mod-item.done .mi::after{content:' ✓'}
+    .sb-sep{height:1px;background:var(--border);margin:8px 12px}
+
+    /* Tab nav inside sidebar */
+    .tab-nav{padding:8px 14px;flex:1}
+    .tab-item{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px;cursor:pointer;margin-bottom:2px;font-size:0.77rem;transition:all 0.2s;color:var(--text-2)}
+    .tab-item:hover{background:rgba(255,255,255,0.04);color:var(--text)}
+    .tab-item.active{background:var(--accent-dim);color:var(--accent);font-weight:700}
+    .tab-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.62rem;font-weight:800;flex-shrink:0;color:var(--text-3)}
+    .tab-item.active .tab-dot{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+
+    /* MAIN */
+    .main{margin-left:var(--sidebar-w);margin-right:var(--right-w);flex:1;display:flex;flex-direction:column;min-width:0}
+
+    /* Page header */
+    .page-header{padding:20px 28px 0;border-bottom:1px solid var(--border);background:rgba(7,7,15,0.7);backdrop-filter:blur(8px);position:sticky;top:var(--topbar-h);z-index:50}
+    .page-title-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+    .page-title{font-size:1.4rem;font-weight:900;letter-spacing:-0.02em}
+    .page-title .hl{color:var(--accent)}
+    .page-sub{font-size:0.78rem;color:var(--text-2);margin-top:2px}
+    .page-actions{display:flex;gap:8px;align-items:center}
+    .btn{padding:7px 14px;border-radius:7px;font-size:0.78rem;font-weight:700;cursor:pointer;border:none;transition:all 0.2s}
+    .btn-ghost{background:transparent;color:var(--text-2);border:1px solid var(--border)}
+    .btn-ghost:hover{color:var(--text);border-color:rgba(255,255,255,0.2)}
+    .btn-primary{background:var(--accent);color:#000}
+    .btn-primary:hover{background:#d4f000;transform:translateY(-1px)}
+    .btn-cyan{background:rgba(0,212,255,0.12);color:var(--cyan);border:1px solid rgba(0,212,255,0.25)}
+    .btn-cyan:hover{background:rgba(0,212,255,0.2)}
+
+    /* Tab bar */
+    .tab-bar{display:flex;gap:0;border-bottom:none}
+    .tab-bar-btn{padding:10px 18px;background:transparent;border:none;cursor:pointer;font-size:0.8rem;font-weight:600;color:var(--text-2);border-bottom:2px solid transparent;transition:all 0.2s}
+    .tab-bar-btn:hover{color:var(--text)}
+    .tab-bar-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+    /* CONTENT */
+    .content{padding:24px 28px 80px;display:flex;flex-direction:column;gap:20px}
+
+    /* Cards */
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r)}
+    .card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border)}
+    .card-title{display:flex;align-items:center;gap:10px;font-size:0.88rem;font-weight:800}
+    .card-icon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0}
+    .card-body{padding:18px}
+    .card-actions{display:flex;gap:6px;align-items:center}
+
+    /* Risk profile band */
+    .risk-band{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px 18px}
+    .rb-item{text-align:center;padding:12px;border-radius:var(--r);border:1px solid}
+    .rb-val{font-size:1.5rem;font-weight:900;line-height:1;margin-bottom:3px}
+    .rb-label{font-size:0.68rem;color:var(--text-2);font-weight:600}
+    .rb-r2{background:rgba(251,146,60,0.08);border-color:rgba(251,146,60,0.25);color:var(--orange)}
+    .rb-green{background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.25);color:var(--green)}
+    .rb-cyan{background:rgba(0,212,255,0.08);border-color:rgba(0,212,255,0.25);color:var(--cyan)}
+    .rb-accent{background:var(--accent-dim);border-color:var(--border-accent);color:var(--accent)}
+    .ai-readonly{background:rgba(196,224,0,0.04);border:1px solid rgba(196,224,0,0.12);border-radius:6px;padding:10px 14px;font-size:0.75rem;color:var(--text-2);display:flex;align-items:flex-start;gap:8px;margin:0 18px 14px}
+    .ai-readonly .ai-ic{color:var(--accent);flex-shrink:0}
+
+    /* Zone table */
+    .zone-table{width:100%;border-collapse:collapse}
+    .zone-table th{padding:9px 12px;text-align:left;font-size:0.68rem;font-weight:700;color:var(--text-3);letter-spacing:0.07em;text-transform:uppercase;border-bottom:2px solid var(--border);white-space:nowrap}
+    .zone-table td{padding:8px 12px;border-bottom:1px solid var(--border);font-size:0.8rem;vertical-align:middle}
+    .zone-table tr:last-child td{border:none}
+    .zone-table tr:hover td{background:rgba(255,255,255,0.02)}
+    .zone-table input[type=number]{background:var(--bg-input);border:1px solid var(--border);border-radius:5px;padding:5px 8px;color:var(--text);font-size:0.8rem;width:70px;text-align:center}
+    .zone-table input[type=number]:focus{outline:none;border-color:var(--accent)}
+    .zone-table select{background:var(--bg-input);border:1px solid var(--border);border-radius:5px;padding:5px 8px;color:var(--text);font-size:0.78rem;cursor:pointer}
+    .zone-table select:focus{outline:none;border-color:var(--accent)}
+    .risk-pill{padding:3px 10px;border-radius:20px;font-size:0.68rem;font-weight:700;border:1px solid}
+    .rp-r1{background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.3);color:var(--green)}
+    .rp-r2{background:rgba(251,146,60,0.1);border-color:rgba(251,146,60,0.3);color:var(--orange)}
+    .rp-r3{background:rgba(244,63,94,0.1);border-color:rgba(244,63,94,0.3);color:var(--red)}
+    .zone-name{display:flex;align-items:center;gap:8px;font-weight:600}
+    .zone-color{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+    .zone-total{font-weight:800;color:var(--accent)}
+    .add-zone-row td{padding:6px 12px}
+    .btn-add-row{background:transparent;border:1px dashed var(--border);border-radius:6px;padding:5px 12px;color:var(--text-3);font-size:0.75rem;cursor:pointer;transition:all 0.2s;width:100%}
+    .btn-add-row:hover{border-color:var(--accent);color:var(--accent)}
+    .total-row td{background:rgba(196,224,0,0.04);font-weight:700;color:var(--text);border-top:2px solid var(--border-accent)}
+
+    /* Material grid */
+    .mat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .mat-card{background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+    .mat-card-title{font-size:0.72rem;font-weight:700;color:var(--text-2);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+    .mat-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)}
+    .mat-row:last-child{border:none}
+    .mat-label{font-size:0.77rem;color:var(--text-2)}
+    .mat-input{background:var(--bg-card);border:1px solid var(--border);border-radius:5px;padding:4px 8px;color:var(--text);font-size:0.78rem;width:70px;text-align:center}
+    .mat-input:focus{outline:none;border-color:var(--accent)}
+    .mat-unit{font-size:0.68rem;color:var(--text-3);margin-left:4px}
+
+    /* Map zones */
+    .map-ops{position:relative;border-radius:var(--r);overflow:hidden;background:var(--bg-input);border:1px solid var(--border);height:320px}
+    .map-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.04) 1px,transparent 1px);background-size:30px 30px}
+    .map-controls{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:6px;z-index:2}
+    .map-ctrl-btn{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:0.72rem;font-weight:700;color:var(--text-2);cursor:pointer;transition:all 0.2s;white-space:nowrap}
+    .map-ctrl-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .map-ctrl-btn.active{background:var(--accent-dim);border-color:var(--border-accent);color:var(--accent)}
+    /* Zone overlays on map */
+    .map-zone{position:absolute;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;cursor:pointer;transition:all 0.2s;user-select:none}
+    .map-zone:hover{filter:brightness(1.2)}
+    .map-legend{position:absolute;bottom:12px;left:12px;background:rgba(7,7,15,0.85);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:5px}
+    .legend-item{display:flex;align-items:center;gap:7px;font-size:0.68rem;color:var(--text-2)}
+    .legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+    .priority-tag{position:absolute;top:4px;left:4px;font-size:0.58rem;font-weight:800;padding:2px 6px;border-radius:10px}
+
+    /* Org chart */
+    .orgchart{display:flex;flex-direction:column;align-items:center;gap:0;padding:20px}
+    .org-level{display:flex;justify-content:center;gap:20px;position:relative;width:100%}
+    .org-node{background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;min-width:120px}
+    .org-node:hover{border-color:var(--border-accent)}
+    .org-node.top-node{background:var(--accent-dim);border-color:var(--border-accent)}
+    .org-node .on-role{font-size:0.65rem;font-weight:700;color:var(--text-3);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:3px}
+    .org-node .on-name{font-size:0.8rem;font-weight:800;color:var(--text);margin-bottom:2px}
+    .org-node .on-callsign{font-size:0.68rem;color:var(--accent);font-weight:700}
+    .org-node.top-node .on-role{color:var(--accent)}
+    .org-connector{height:24px;display:flex;justify-content:center;position:relative}
+    .org-connector::before{content:'';position:absolute;top:0;left:50%;width:2px;height:100%;background:var(--border)}
+    .org-h-line{height:2px;background:var(--border);width:calc(100% - 140px);position:absolute;top:0}
+    .btn-add-node{background:transparent;border:2px dashed var(--border);border-radius:var(--r);padding:10px 16px;color:var(--text-3);font-size:0.75rem;cursor:pointer;transition:all 0.2s;min-width:100px}
+    .btn-add-node:hover{border-color:var(--accent);color:var(--accent)}
+
+    /* Radio table */
+    .radio-table{width:100%;border-collapse:collapse}
+    .radio-table th{padding:8px 12px;text-align:left;font-size:0.68rem;font-weight:700;color:var(--text-3);letter-spacing:0.07em;text-transform:uppercase;border-bottom:2px solid var(--border)}
+    .radio-table td{padding:7px 12px;border-bottom:1px solid var(--border);font-size:0.8rem}
+    .radio-table tr:last-child td{border:none}
+    .callsign-badge{background:var(--bg-input);border:1px solid var(--border);border-radius:5px;padding:4px 10px;font-size:0.8rem;font-weight:800;color:var(--cyan);font-family:monospace;cursor:pointer;transition:all 0.2s}
+    .callsign-badge:hover{border-color:var(--cyan);background:var(--cyan-dim)}
+    .radio-table input[type=text]{background:var(--bg-input);border:1px solid var(--border);border-radius:5px;padding:5px 8px;color:var(--text);font-size:0.78rem;width:100%}
+    .radio-table input[type=text]:focus{outline:none;border-color:var(--accent)}
+    .channel-sel{background:var(--bg-input);border:1px solid var(--border);border-radius:5px;padding:5px 8px;color:var(--text);font-size:0.78rem;cursor:pointer}
+    .channel-sel:focus{outline:none;border-color:var(--accent)}
+
+    /* Contingency link */
+    .cont-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .cont-card{background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:10px}
+    .cont-zone-name{font-size:0.82rem;font-weight:800;display:flex;align-items:center;gap:8px}
+    .cont-select-wrap select{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-size:0.78rem;width:100%;cursor:pointer}
+    .cont-select-wrap select:focus{outline:none;border-color:var(--accent)}
+    .cont-file-link{display:flex;align-items:center;gap:7px;padding:6px 10px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:6px;font-size:0.72rem;color:var(--green);cursor:pointer}
+    .cont-file-link:hover{background:rgba(34,197,94,0.14)}
+
+    /* Summary */
+    .summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .sum-card{background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center}
+    .sum-val{font-size:1.8rem;font-weight:900;margin-bottom:4px;letter-spacing:-0.02em}
+    .sum-label{font-size:0.72rem;color:var(--text-2);font-weight:600}
+    .sum-sub{font-size:0.68rem;color:var(--text-3);margin-top:2px}
+
+    /* Tab panels */
+    .tab-panel{display:none} .tab-panel.active{display:flex;flex-direction:column;gap:20px}
+
+    /* Nav bottom */
+    .nav-bottom{display:flex;justify-content:space-between;align-items:center;padding:14px 28px;border-top:1px solid var(--border);position:sticky;bottom:0;background:rgba(7,7,15,0.96);backdrop-filter:blur(8px)}
+    .nav-info{font-size:0.75rem;color:var(--text-2)}
+    .nav-info strong{color:var(--accent)}
+
+    /* RIGHT PANEL */
+    .right-panel{position:fixed;top:var(--topbar-h);right:0;width:var(--right-w);height:calc(100vh - var(--topbar-h));background:var(--bg-sidebar);border-left:1px solid var(--border);overflow-y:auto;z-index:900;display:flex;flex-direction:column}
+    .rp-header{padding:14px 16px;border-bottom:1px solid var(--border)}
+    .rp-title{font-size:0.8rem;font-weight:800;display:flex;align-items:center;gap:7px;margin-bottom:3px}
+    .rp-badge{background:var(--accent-dim);border:1px solid var(--border-accent);color:var(--accent);font-size:0.62rem;font-weight:800;padding:2px 7px;border-radius:10px}
+    .rp-sub{font-size:0.7rem;color:var(--text-2)}
+
+    /* Risk summary in panel */
+    .rp-risk-summary{padding:14px 16px;border-bottom:1px solid var(--border)}
+    .rps-title{font-size:0.65rem;font-weight:700;color:var(--text-3);letter-spacing:0.09em;text-transform:uppercase;margin-bottom:10px}
+    .rps-score{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .rps-circle{width:56px;height:56px;border-radius:50%;border:3px solid var(--orange);background:rgba(251,146,60,0.08);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+    .rps-val{font-size:1.2rem;font-weight:900;color:var(--orange);line-height:1}
+    .rps-info{flex:1}
+    .rps-level{font-size:0.85rem;font-weight:800;color:var(--orange);margin-bottom:2px}
+    .rps-desc{font-size:0.7rem;color:var(--text-2);line-height:1.4}
+    .rp-kpi-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)}
+    .rp-kpi-row:last-child{border:none}
+    .rp-kpi-label{font-size:0.72rem;color:var(--text-2)}
+    .rp-kpi-val{font-size:0.8rem;font-weight:800}
+
+    /* IA suggestions */
+    .ia-block{padding:14px 16px;border-bottom:1px solid var(--border)}
+    .ia-block-title{font-size:0.65rem;font-weight:700;color:var(--text-3);letter-spacing:0.09em;text-transform:uppercase;margin-bottom:10px}
+    .ia-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:11px;margin-bottom:8px;cursor:pointer;transition:all 0.2s}
+    .ia-card:last-child{margin-bottom:0}
+    .ia-card:hover{border-color:var(--border-accent)}
+    .ia-type{font-size:0.6rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
+    .ia-type.warn{color:var(--orange)} .ia-type.info{color:var(--cyan)} .ia-type.ok{color:var(--green)}
+    .ia-msg{font-size:0.73rem;color:var(--text-2);line-height:1.5}
+    .ia-action{margin-top:5px;font-size:0.68rem;font-weight:700;color:var(--accent)}
+
+    /* Coverage gauge */
+    .cov-block{padding:14px 16px}
+    .cov-block-title{font-size:0.65rem;font-weight:700;color:var(--text-3);letter-spacing:0.09em;text-transform:uppercase;margin-bottom:10px}
+    .cov-item{margin-bottom:10px}
+    .cov-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+    .cov-zone{font-size:0.75rem;color:var(--text-2);display:flex;align-items:center;gap:6px}
+    .cov-pct{font-size:0.75rem;font-weight:800}
+    .cov-bar{height:4px;background:var(--border);border-radius:4px;overflow:hidden}
+    .cov-fill{height:100%;border-radius:4px;transition:width 0.5s ease}
+
+    ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-logo"><img src="../assets/logos/logo_dark.png" alt="ORDR.AI" /></div>
+  <div class="topbar-divider"></div>
+  <div class="breadcrumb">
+    <span>ORDR.AI™</span><span class="sep">/</span>
+    <a href="01-profil-evenement.html">Profil événement</a><span class="sep">/</span>
+    <span class="active" id="bc-active">Planification opérationnelle</span>
+  </div>
+  <div class="topbar-right">
+    <div class="badge badge-warn"><span class="dot"></span><span id="lbl-status">En cours</span></div>
+    <div class="lang-toggle">
+      <button onclick="setLang('fr')" class="active" data-l="fr">FR</button>
+      <button onclick="setLang('en')" data-l="en">EN</button>
+    </div>
+    <div class="avatar">AB</div>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-section">
+      <div class="sb-label" data-fr="Modules" data-en="Modules">Modules</div>
+      <div class="mod-item done" onclick="location.href='01-profil-evenement.html'">
+        <span class="mn">1</span><span class="mi">🎯</span>
+        <span data-fr="Évaluation du risque" data-en="Risk assessment">Évaluation du risque</span>
+      </div>
+      <div class="mod-item active">
+        <span class="mn">2</span><span class="mi">📋</span>
+        <span data-fr="Planification" data-en="Planning">Planification</span>
+        <span class="mbadge" data-fr="Actif" data-en="Active">Actif</span>
+      </div>
+      <div class="mod-item"><span class="mn">3</span><span class="mi">🗺️</span><span data-fr="Déploiement" data-en="Deployment">Déploiement</span></div>
+      <div class="mod-item"><span class="mn">4</span><span class="mi">🚨</span><span data-fr="Gestion de crise" data-en="Crisis mgmt">Gestion de crise</span></div>
+      <div class="mod-item"><span class="mn">5</span><span class="mi">💼</span><span>BackOffice</span></div>
+      <div class="mod-item"><span class="mn">6</span><span class="mi">📈</span><span data-fr="Rétroaction IA" data-en="AI Feedback">Rétroaction IA</span></div>
+    </div>
+    <div class="sb-sep"></div>
+    <div class="tab-nav">
+      <div class="sb-label" data-fr="Étapes planification" data-en="Planning steps">Étapes planification</div>
+      <div class="tab-item active" onclick="switchTab('t1',this)">
+        <div class="tab-dot">1</div><span data-fr="Profil de risque" data-en="Risk profile">Profil de risque</span>
+      </div>
+      <div class="tab-item" onclick="switchTab('t2',this)">
+        <div class="tab-dot">2</div><span data-fr="Effectifs par zone" data-en="Staff by zone">Effectifs par zone</span>
+      </div>
+      <div class="tab-item" onclick="switchTab('t3',this)">
+        <div class="tab-dot">3</div><span data-fr="Ressources matérielles" data-en="Material resources">Ressources matérielles</span>
+      </div>
+      <div class="tab-item" onclick="switchTab('t4',this)">
+        <div class="tab-dot">4</div><span data-fr="Carte de couverture" data-en="Coverage map">Carte de couverture</span>
+      </div>
+      <div class="tab-item" onclick="switchTab('t5',this)">
+        <div class="tab-dot">5</div><span data-fr="Organigramme" data-en="Org chart">Organigramme</span>
+      </div>
+      <div class="tab-item" onclick="switchTab('t6',this)">
+        <div class="tab-dot">6</div><span data-fr="Indicatifs radio" data-en="Radio callsigns">Indicatifs radio</span>
+      </div>
+      <div class="tab-item" onclick="switchTab('t7',this)">
+        <div class="tab-dot">7</div><span data-fr="Plans de contingence" data-en="Contingency plans">Plans de contingence</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="page-title-row">
+        <div>
+          <div class="page-title" data-fr="Planification <span class='hl'>opérationnelle</span>" data-en="<span class='hl'>Operational</span> planning">Planification <span class="hl">opérationnelle</span></div>
+          <div class="page-sub" id="page-sub" data-fr="Module 2 · Alignez ressources, responsabilités et plans de contingence" data-en="Module 2 · Align resources, responsibilities and contingency plans">Module 2 · Alignez ressources, responsabilités et plans de contingence</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-ghost" data-fr="Enregistrer" data-en="Save">Enregistrer</button>
+          <button class="btn btn-cyan" onclick="switchTab('t2', document.querySelectorAll('.tab-item')[1])" data-fr="Continuer →" data-en="Continue →">Continuer →</button>
+          <button class="btn btn-primary" onclick="location.href='03-deploiement.html'" data-fr="Module suivant ▶" data-en="Next module ▶">Module suivant ▶</button>
+        </div>
+      </div>
+      <div class="tab-bar" id="tabBar">
+        <button class="tab-bar-btn active" onclick="switchTab('t1',null,this)" data-fr="① Profil" data-en="① Profile">① Profil</button>
+        <button class="tab-bar-btn" onclick="switchTab('t2',null,this)" data-fr="② Effectifs" data-en="② Staffing">② Effectifs</button>
+        <button class="tab-bar-btn" onclick="switchTab('t3',null,this)" data-fr="③ Matériel" data-en="③ Material">③ Matériel</button>
+        <button class="tab-bar-btn" onclick="switchTab('t4',null,this)" data-fr="④ Carte" data-en="④ Map">④ Carte</button>
+        <button class="tab-bar-btn" onclick="switchTab('t5',null,this)" data-fr="⑤ Organigramme" data-en="⑤ Org chart">⑤ Organigramme</button>
+        <button class="tab-bar-btn" onclick="switchTab('t6',null,this)" data-fr="⑥ Radio" data-en="⑥ Radio">⑥ Radio</button>
+        <button class="tab-bar-btn" onclick="switchTab('t7',null,this)" data-fr="⑦ Contingence" data-en="⑦ Contingency">⑦ Contingence</button>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- ═══ TAB 1 — PROFIL DE RISQUE ═══ -->
+      <div class="tab-panel active" id="t1">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <div class="card-icon" style="background:rgba(251,146,60,0.1)">🎯</div>
+              <div>
+                <div data-fr="Profil de risque consolidé" data-en="Consolidated risk profile">Profil de risque consolidé</div>
+                <div style="font-size:0.68rem;color:var(--text-2);font-weight:500;margin-top:1px" data-fr="Auto-calculé par ORDR.AI™ · Lecture seule" data-en="Auto-calculated by ORDR.AI™ · Read only">Auto-calculé par ORDR.AI™ · Lecture seule</div>
+              </div>
+            </div>
+            <span class="risk-pill rp-r2">R2 — Modéré</span>
+          </div>
+          <div class="risk-band">
+            <div class="rb-item rb-r2">
+              <div class="rb-val">47</div>
+              <div class="rb-label" data-fr="Score tactique global" data-en="Global tactical score">Score tactique global</div>
+            </div>
+            <div class="rb-item rb-cyan">
+              <div class="rb-val">12 000</div>
+              <div class="rb-label" data-fr="Achalandage estimé" data-en="Est. attendance">Achalandage estimé</div>
+            </div>
+            <div class="rb-item rb-accent">
+              <div class="rb-val">96</div>
+              <div class="rb-label" data-fr="Agents recommandés" data-en="Recommended agents">Agents recommandés</div>
+            </div>
+            <div class="rb-item rb-green">
+              <div class="rb-val">Festival</div>
+              <div class="rb-label" data-fr="Type d'événement" data-en="Event type">Type d'événement</div>
+            </div>
+          </div>
+          <div class="ai-readonly">
+            <span class="ai-ic">🧠</span>
+            <span data-fr="Sur la base du profil saisi, ORDR.AI™ recommande un déploiement de niveau R2 avec activation préventive des plans de contingence pour les zones de forte densité. La Matrice de Risque™ indique un risque modéré principalement lié à l'achalandage estimé et à la consommation d'alcool prévue." data-en="Based on the entered profile, ORDR.AI™ recommends an R2-level deployment with preventive activation of contingency plans for high-density zones. The Risk Matrix™ indicates moderate risk primarily linked to estimated attendance and planned alcohol consumption.">Sur la base du profil saisi, ORDR.AI™ recommande un déploiement de niveau R2 avec activation préventive des plans de contingence pour les zones de forte densité. La Matrice de Risque™ indique un risque modéré principalement lié à l'achalandage estimé et à la consommation d'alcool prévue.</span>
+          </div>
+        </div>
+
+        <div class="summary-grid">
+          <div class="sum-card">
+            <div class="sum-val" style="color:var(--accent)">96</div>
+            <div class="sum-label" data-fr="Agents requis total" data-en="Total required agents">Agents requis total</div>
+            <div class="sum-sub" data-fr="Terrain + entrées + superviseurs + réserve" data-en="Field + entry + supervisors + reserve">Terrain + entrées + superviseurs + réserve</div>
+          </div>
+          <div class="sum-card">
+            <div class="sum-val" style="color:var(--cyan)">8</div>
+            <div class="sum-label" data-fr="Zones à couvrir" data-en="Zones to cover">Zones à couvrir</div>
+            <div class="sum-sub" data-fr="Dont 3 zones prioritaires R2/R3" data-en="Including 3 priority R2/R3 zones">Dont 3 zones prioritaires R2/R3</div>
+          </div>
+          <div class="sum-card">
+            <div class="sum-val" style="color:var(--orange)">5</div>
+            <div class="sum-label" data-fr="Plans de contingence" data-en="Contingency plans">Plans de contingence</div>
+            <div class="sum-sub" data-fr="À associer aux zones critiques" data-en="To be linked to critical zones">À associer aux zones critiques</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:var(--accent-dim)">📊</div><span data-fr="Matrice Tactique Multidimensionnelle ORDR.AI™" data-en="ORDR.AI™ Multidimensional Tactical Matrix">Matrice Tactique Multidimensionnelle ORDR.AI™</span></div>
+          </div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px">
+              <div style="text-align:center;padding:12px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r)">
+                <div style="font-size:1.2rem;margin-bottom:5px">🎯</div>
+                <div style="font-size:0.72rem;font-weight:800;color:var(--accent);margin-bottom:2px" data-fr="Risque" data-en="Risk">Risque</div>
+                <div style="font-size:1rem;font-weight:900;color:var(--orange)">47/100</div>
+              </div>
+              <div style="text-align:center;padding:12px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r)">
+                <div style="font-size:1.2rem;margin-bottom:5px">👤</div>
+                <div style="font-size:0.72rem;font-weight:800;color:var(--accent);margin-bottom:2px" data-fr="Public" data-en="Public">Public</div>
+                <div style="font-size:1rem;font-weight:900;color:var(--cyan)">Mixte</div>
+              </div>
+              <div style="text-align:center;padding:12px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r)">
+                <div style="font-size:1.2rem;margin-bottom:5px">📍</div>
+                <div style="font-size:0.72rem;font-weight:800;color:var(--accent);margin-bottom:2px" data-fr="Postes" data-en="Posts">Postes</div>
+                <div style="font-size:1rem;font-weight:900;color:var(--purple)">22</div>
+              </div>
+              <div style="text-align:center;padding:12px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r)">
+                <div style="font-size:1.2rem;margin-bottom:5px">💰</div>
+                <div style="font-size:0.72rem;font-weight:800;color:var(--accent);margin-bottom:2px" data-fr="Budget" data-en="Budget">Budget</div>
+                <div style="font-size:1rem;font-weight:900;color:var(--green)">85k$</div>
+              </div>
+              <div style="text-align:center;padding:12px;background:var(--accent-dim);border:1px solid var(--border-accent);border-radius:var(--r)">
+                <div style="font-size:1.2rem;margin-bottom:5px">⚡</div>
+                <div style="font-size:0.72rem;font-weight:800;color:var(--accent);margin-bottom:2px" data-fr="Score Global" data-en="Global Score">Score Global</div>
+                <div style="font-size:1rem;font-weight:900;color:var(--accent)">R2</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ TAB 2 — EFFECTIFS PAR ZONE ═══ -->
+      <div class="tab-panel" id="t2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <div class="card-icon" style="background:rgba(0,212,255,0.1)">👮</div>
+              <span data-fr="Dimensionnement des effectifs par zone" data-en="Staffing by zone">Dimensionnement des effectifs par zone</span>
+            </div>
+            <div class="card-actions">
+              <button class="btn btn-ghost" onclick="addZone()" data-fr="+ Ajouter une zone" data-en="+ Add zone">+ Ajouter une zone</button>
+              <button class="btn btn-cyan" data-fr="🧠 Optimiser via IA" data-en="🧠 AI optimize">🧠 Optimiser via IA</button>
+            </div>
+          </div>
+          <div class="ai-readonly">
+            <span class="ai-ic">🧠</span>
+            <span data-fr="Effectifs auto-calculés selon la Matrice des Postes™ et la Matrice de Risque™. Ajustez manuellement selon vos contraintes opérationnelles." data-en="Staff auto-calculated from the Posts Matrix™ and Risk Matrix™. Adjust manually based on your operational constraints.">Effectifs auto-calculés selon la Matrice des Postes™ et la Matrice de Risque™. Ajustez manuellement selon vos contraintes opérationnelles.</span>
+          </div>
+          <div style="overflow-x:auto;padding:0 0 14px">
+            <table class="zone-table" id="zone-table">
+              <thead>
+                <tr>
+                  <th data-fr="Zone" data-en="Zone">Zone</th>
+                  <th data-fr="Priorité" data-en="Priority">Priorité</th>
+                  <th data-fr="Agents fixes" data-en="Fixed agents">Agents fixes</th>
+                  <th data-fr="Patrouilles" data-en="Patrols">Patrouilles</th>
+                  <th data-fr="Superviseur" data-en="Supervisor">Superviseur</th>
+                  <th data-fr="Spécialisés" data-en="Specialized">Spécialisés</th>
+                  <th data-fr="Total zone" data-en="Zone total">Total zone</th>
+                  <th data-fr="Plan B" data-en="Plan B">Plan B</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="zone-tbody">
+                <tr>
+                  <td><div class="zone-name"><div class="zone-color" style="background:#c4e000"></div>Scène principale</div></td>
+                  <td><span class="risk-pill rp-r3">R3</span></td>
+                  <td><input type="number" value="8" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td><input type="number" value="4" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td><input type="number" value="1" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td><input type="number" value="2" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td class="zone-total">15</td>
+                  <td><select class="channel-sel"><option>Plan B-1 Évacuation</option><option>Plan B-2 Foule</option><option data-fr="Aucun" data-en="None">Aucun</option></select></td>
+                  <td><button onclick="this.closest('tr').remove();calcTotals()" style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:0.8rem" title="Supprimer">✕</button></td>
+                </tr>
+                <tr>
+                  <td><div class="zone-name"><div class="zone-color" style="background:#00d4ff"></div>Zone d'accueil</div></td>
+                  <td><span class="risk-pill rp-r2">R2</span></td>
+                  <td><input type="number" value="12" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td><input type="number" value="2" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td><input type="number" value="1" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td><input type="number" value="0" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td class="zone-total">15</td>
+                  <td><select class="channel-sel"><option>Plan B-3 Entrées</option><option>Plan B-1 Évacuation</option></select></td>
+                  <td><button onclick="this.closest('tr').remove();calcTotals()" style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:0.8rem">✕</button></td>
+                </tr>
+                <tr>
+                  <td><div class="zone-name"><div class="zone-color" style="background:#8b5cf6"></div>Zone VIP</div></td>
+                  <td><span class="risk-pill rp-r2">R2</span></td>
+                  <td><input type="number" value="4" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td><input type="number" value="2" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td><input type="number" value="1" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td><input type="number" value="2" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td class="zone-total">9</td>
+                  <td><select class="channel-sel"><option>Plan VIP-1</option><option>Plan B-1 Évacuation</option></select></td>
+                  <td><button onclick="this.closest('tr').remove();calcTotals()" style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:0.8rem">✕</button></td>
+                </tr>
+                <tr>
+                  <td><div class="zone-name"><div class="zone-color" style="background:#22c55e"></div>Zone médicale</div></td>
+                  <td><span class="risk-pill rp-r1">R1</span></td>
+                  <td><input type="number" value="2" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td><input type="number" value="1" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td><input type="number" value="0" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td><input type="number" value="3" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td class="zone-total">6</td>
+                  <td><select class="channel-sel"><option>Plan Med-1</option></select></td>
+                  <td><button onclick="this.closest('tr').remove();calcTotals()" style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:0.8rem">✕</button></td>
+                </tr>
+                <tr>
+                  <td><div class="zone-name"><div class="zone-color" style="background:#fb923c"></div>Zone alcool</div></td>
+                  <td><span class="risk-pill rp-r2">R2</span></td>
+                  <td><input type="number" value="6" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td><input type="number" value="2" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td><input type="number" value="1" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td><input type="number" value="0" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td class="zone-total">9</td>
+                  <td><select class="channel-sel"><option>Plan B-2 Foule</option><option>Plan Alcool-1</option></select></td>
+                  <td><button onclick="this.closest('tr').remove();calcTotals()" style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:0.8rem">✕</button></td>
+                </tr>
+                <tr>
+                  <td><div class="zone-name"><div class="zone-color" style="background:#f43f5e"></div>Périmètre externe</div></td>
+                  <td><span class="risk-pill rp-r2">R2</span></td>
+                  <td><input type="number" value="0" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td><input type="number" value="6" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td><input type="number" value="1" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td><input type="number" value="0" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td class="zone-total">7</td>
+                  <td><select class="channel-sel"><option>Plan Périm-1</option><option>Plan B-1 Évacuation</option></select></td>
+                  <td><button onclick="this.closest('tr').remove();calcTotals()" style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:0.8rem">✕</button></td>
+                </tr>
+                <tr>
+                  <td><div class="zone-name"><div class="zone-color" style="background:#4a5568"></div>Réserve tactique</div></td>
+                  <td><span class="risk-pill" style="background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.3);color:var(--purple)">RÉS</span></td>
+                  <td><input type="number" value="14" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td><input type="number" value="0" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td><input type="number" value="1" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td><input type="number" value="0" min="0" onchange="updateZoneTotal(this)" /></td>
+                  <td class="zone-total">15</td>
+                  <td><select class="channel-sel"><option>Tous plans</option></select></td>
+                  <td><button onclick="this.closest('tr').remove();calcTotals()" style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:0.8rem">✕</button></td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr class="add-zone-row">
+                  <td colspan="9"><button class="btn-add-row" onclick="addZone()" data-fr="+ Ajouter une zone" data-en="+ Add a zone">+ Ajouter une zone</button></td>
+                </tr>
+                <tr class="total-row">
+                  <td colspan="2" data-fr="TOTAL DÉPLOIEMENT" data-en="TOTAL DEPLOYMENT">TOTAL DÉPLOIEMENT</td>
+                  <td id="tot-fixes">52</td>
+                  <td id="tot-patrouilles">17</td>
+                  <td id="tot-sup">6</td>
+                  <td id="tot-spec">7</td>
+                  <td id="tot-total" class="zone-total" style="font-size:1rem">76</td>
+                  <td colspan="2" id="tot-vs" style="font-size:0.72rem;color:var(--green)">✓ Dans les capacités (max 80)</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ TAB 3 — RESSOURCES MATÉRIELLES ═══ -->
+      <div class="tab-panel" id="t3">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:rgba(139,92,246,0.1)">🚧</div><span data-fr="Répartition des ressources matérielles" data-en="Material resource allocation">Répartition des ressources matérielles</span></div>
+            <button class="btn btn-cyan" data-fr="🧠 Auto-répartir" data-en="🧠 Auto-allocate">🧠 Auto-répartir</button>
+          </div>
+          <div class="card-body">
+            <div class="mat-grid">
+              <div class="mat-card">
+                <div class="mat-card-title">🚧 <span data-fr="Barrières & contrôle de foule" data-en="Barriers & crowd control">Barrières & contrôle de foule</span></div>
+                <div class="mat-row"><span class="mat-label" data-fr="Barrières Heras (m)" data-en="Heras barriers (m)">Barrières Heras (m)</span><div><input type="number" class="mat-input" value="180" /><span class="mat-unit">m</span></div></div>
+                <div class="mat-row"><span class="mat-label" data-fr="Barrières anti-bélier" data-en="Anti-ram barriers">Barrières anti-bélier</span><div><input type="number" class="mat-input" value="6" /></div></div>
+                <div class="mat-row"><span class="mat-label" data-fr="Cônes de circulation" data-en="Traffic cones">Cônes de circulation</span><div><input type="number" class="mat-input" value="40" /></div></div>
+                <div class="mat-row"><span class="mat-label" data-fr="Guérites de fouille" data-en="Search booths">Guérites de fouille</span><div><input type="number" class="mat-input" value="8" /></div></div>
+              </div>
+              <div class="mat-card">
+                <div class="mat-card-title">📻 <span data-fr="Communications" data-en="Communications">Communications</span></div>
+                <div class="mat-row"><span class="mat-label" data-fr="Radios attribuées" data-en="Assigned radios">Radios attribuées</span><div><input type="number" class="mat-input" value="82" /></div></div>
+                <div class="mat-row"><span class="mat-label" data-fr="Canaux programmés" data-en="Programmed channels">Canaux programmés</span><div><input type="number" class="mat-input" value="6" /></div></div>
+                <div class="mat-row"><span class="mat-label" data-fr="Stations de base" data-en="Base stations">Stations de base</span><div><input type="number" class="mat-input" value="3" /></div></div>
+                <div class="mat-row"><span class="mat-label" data-fr="Mégaphones" data-en="Megaphones">Mégaphones</span><div><input type="number" class="mat-input" value="8" /></div></div>
+              </div>
+              <div class="mat-card">
+                <div class="mat-card-title">🚗 <span data-fr="Véhicules" data-en="Vehicles">Véhicules</span></div>
+                <div class="mat-row"><span class="mat-label" data-fr="Véhicules de patrouille" data-en="Patrol vehicles">Véhicules de patrouille</span><div><input type="number" class="mat-input" value="4" /></div></div>
+                <div class="mat-row"><span class="mat-label" data-fr="VTT / Moto" data-en="ATV / Motorcycle">VTT / Moto</span><div><input type="number" class="mat-input" value="2" /></div></div>
+                <div class="mat-row"><span class="mat-label" data-fr="Ambulances en attente" data-en="Standby ambulances">Ambulances en attente</span><div><input type="number" class="mat-input" value="2" /></div></div>
+                <div class="mat-row"><span class="mat-label" data-fr="Véhicule commandement" data-en="Command vehicle">Véhicule commandement</span><div><input type="number" class="mat-input" value="1" /></div></div>
+              </div>
+              <div class="mat-card">
+                <div class="mat-card-title">🎥 <span data-fr="Surveillance" data-en="Surveillance">Surveillance</span></div>
+                <div class="mat-row"><span class="mat-label" data-fr="Caméras CCTV actives" data-en="Active CCTV cameras">Caméras CCTV actives</span><div><input type="number" class="mat-input" value="24" /></div></div>
+                <div class="mat-row"><span class="mat-label" data-fr="Drones opérationnels" data-en="Operational drones">Drones opérationnels</span><div><input type="number" class="mat-input" value="2" /></div></div>
+                <div class="mat-row"><span class="mat-label" data-fr="Moniteurs poste de cmd" data-en="Command post monitors">Moniteurs poste de cmd</span><div><input type="number" class="mat-input" value="6" /></div></div>
+                <div class="mat-row"><span class="mat-label" data-fr="Écrans heatmap" data-en="Heatmap screens">Écrans heatmap</span><div><input type="number" class="mat-input" value="2" /></div></div>
+              </div>
+              <div class="mat-card">
+                <div class="mat-card-title">💊 <span data-fr="Médical & sécurité" data-en="Medical & safety">Médical & sécurité</span></div>
+                <div class="mat-row"><span class="mat-label" data-fr="Trousses premiers soins" data-en="First aid kits">Trousses premiers soins</span><div><input type="number" class="mat-input" value="12" /></div></div>
+                <div class="mat-row"><span class="mat-label" data-fr="DEA (défibrillateurs)" data-en="AED defibrillators">DEA (défibrillateurs)</span><div><input type="number" class="mat-input" value="4" /></div></div>
+                <div class="mat-row"><span class="mat-label" data-fr="Civières / chaises roues" data-en="Stretchers / wheelchairs">Civières / chaises roues</span><div><input type="number" class="mat-input" value="6" /></div></div>
+                <div class="mat-row"><span class="mat-label" data-fr="Kits bouchage blessure" data-en="Wound care kits">Kits bouchage blessure</span><div><input type="number" class="mat-input" value="8" /></div></div>
+              </div>
+              <div class="mat-card">
+                <div class="mat-card-title">🔑 <span data-fr="Équipements agents" data-en="Agent equipment">Équipements agents</span></div>
+                <div class="mat-row"><span class="mat-label" data-fr="Gilets haute visibilité" data-en="High-vis vests">Gilets haute visibilité</span><div><input type="number" class="mat-input" value="100" /></div></div>
+                <div class="mat-row"><span class="mat-label" data-fr="Lampes de poche" data-en="Flashlights">Lampes de poche</span><div><input type="number" class="mat-input" value="30" /></div></div>
+                <div class="mat-row"><span class="mat-label" data-fr="Tablettes / smartphones" data-en="Tablets / smartphones">Tablettes / smartphones</span><div><input type="number" class="mat-input" value="12" /></div></div>
+                <div class="mat-row"><span class="mat-label" data-fr="Lecteurs QR accréditation" data-en="Accreditation QR readers">Lecteurs QR accréditation</span><div><input type="number" class="mat-input" value="8" /></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ TAB 4 — CARTE DE COUVERTURE ═══ -->
+      <div class="tab-panel" id="t4">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:var(--cyan-dim)">🗺️</div><span data-fr="Zones de couverture prioritaires" data-en="Priority coverage zones">Zones de couverture prioritaires</span></div>
+            <div class="card-actions">
+              <button class="btn btn-ghost" data-fr="+ Zone" data-en="+ Zone">+ Zone</button>
+              <button class="btn btn-cyan" data-fr="Générer heatmap IA →" data-en="Generate AI heatmap →">Générer heatmap IA →</button>
+            </div>
+          </div>
+          <div style="padding:14px">
+            <div class="map-ops">
+              <div class="map-bg"></div>
+              <!-- Zones on map -->
+              <div class="map-zone" style="top:20%;left:35%;width:22%;height:18%;background:rgba(244,63,94,0.18);border:2px solid rgba(244,63,94,0.5);color:var(--red)" title="Scène principale">
+                <div style="text-align:center"><div>🎤</div><div style="font-size:0.65rem;margin-top:2px">Scène<br/>R3</div></div>
+                <span class="priority-tag" style="background:rgba(244,63,94,0.8);color:#fff">CRITIQUE</span>
+              </div>
+              <div class="map-zone" style="top:60%;left:15%;width:18%;height:14%;background:rgba(251,146,60,0.15);border:2px solid rgba(251,146,60,0.4);color:var(--orange)">
+                <div style="text-align:center"><div>🚪</div><div style="font-size:0.65rem;margin-top:2px">Accueil<br/>R2</div></div>
+              </div>
+              <div class="map-zone" style="top:15%;left:65%;width:14%;height:12%;background:rgba(139,92,246,0.15);border:2px solid rgba(139,92,246,0.4);color:var(--purple)">
+                <div style="text-align:center"><div>⭐</div><div style="font-size:0.65rem;margin-top:2px">VIP<br/>R2</div></div>
+              </div>
+              <div class="map-zone" style="top:70%;left:60%;width:14%;height:11%;background:rgba(34,197,94,0.12);border:2px solid rgba(34,197,94,0.35);color:var(--green)">
+                <div style="text-align:center"><div>💊</div><div style="font-size:0.65rem;margin-top:2px">Médical<br/>R1</div></div>
+              </div>
+              <div class="map-zone" style="top:45%;left:28%;width:16%;height:12%;background:rgba(251,146,60,0.12);border:2px solid rgba(251,146,60,0.35);color:var(--orange)">
+                <div style="text-align:center"><div>🍺</div><div style="font-size:0.65rem;margin-top:2px">Alcool<br/>R2</div></div>
+              </div>
+              <!-- Agents dots -->
+              <div style="position:absolute;top:24%;left:39%;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent)" title="Agent"></div>
+              <div style="position:absolute;top:26%;left:43%;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent)"></div>
+              <div style="position:absolute;top:28%;left:37%;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent)"></div>
+              <div style="position:absolute;top:63%;left:20%;width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 6px var(--cyan)"></div>
+              <div style="position:absolute;top:66%;left:24%;width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 6px var(--cyan)"></div>
+
+              <div class="map-controls">
+                <button class="map-ctrl-btn active" data-fr="Zones" data-en="Zones">Zones</button>
+                <button class="map-ctrl-btn" data-fr="Agents" data-en="Agents">Agents</button>
+                <button class="map-ctrl-btn" data-fr="Heatmap" data-en="Heatmap">Heatmap</button>
+                <button class="map-ctrl-btn" data-fr="Évacuation" data-en="Evacuation">Évacuation</button>
+              </div>
+
+              <div class="map-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:rgba(244,63,94,0.6)"></div><span>R3 — Critique</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background:rgba(251,146,60,0.6)"></div><span>R2 — Modéré</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background:rgba(34,197,94,0.6)"></div><span>R1 — Faible</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background:var(--accent);border-radius:50%"></div><span data-fr="Agent actif" data-en="Active agent">Agent actif</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ TAB 5 — ORGANIGRAMME ═══ -->
+      <div class="tab-panel" id="t5">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:rgba(196,224,0,0.1)">🏛️</div><span data-fr="Organigramme de mission" data-en="Mission org chart">Organigramme de mission</span></div>
+            <div class="card-actions">
+              <button class="btn btn-ghost" data-fr="Exporter PDF" data-en="Export PDF">Exporter PDF</button>
+              <button class="btn btn-cyan" data-fr="🧠 Générer auto" data-en="🧠 Auto-generate">🧠 Générer auto</button>
+            </div>
+          </div>
+          <div class="orgchart">
+            <!-- Niveau 1 — Chef de sécurité -->
+            <div class="org-level">
+              <div class="org-node top-node" onclick="editNode(this)">
+                <div class="on-role" data-fr="Chef de la sécurité" data-en="Security Chief">Chef de la sécurité</div>
+                <div class="on-name">D. Blain</div>
+                <div class="on-callsign">ALPHA-1</div>
+              </div>
+            </div>
+            <div class="org-connector"></div>
+
+            <!-- Niveau 2 — Superviseurs -->
+            <div style="position:relative;width:100%;display:flex;justify-content:center">
+              <div class="org-h-line" style="width:55%;top:0;position:absolute"></div>
+            </div>
+            <div class="org-level" style="gap:30px">
+              <div class="org-node" onclick="editNode(this)">
+                <div class="on-role" data-fr="Superviseur Scène" data-en="Stage Supervisor">Superviseur Scène</div>
+                <div class="on-name">M. Tremblay</div>
+                <div class="on-callsign">BRAVO-1</div>
+              </div>
+              <div class="org-node" onclick="editNode(this)">
+                <div class="on-role" data-fr="Superviseur Entrées" data-en="Entry Supervisor">Superviseur Entrées</div>
+                <div class="on-name">S. Côté</div>
+                <div class="on-callsign">CHARLIE-1</div>
+              </div>
+              <div class="org-node" onclick="editNode(this)">
+                <div class="on-role" data-fr="Superviseur Périmètre" data-en="Perimeter Supervisor">Superviseur Périmètre</div>
+                <div class="on-name">K. Nguyen</div>
+                <div class="on-callsign">DELTA-1</div>
+              </div>
+              <div class="org-node" onclick="editNode(this)" style="border-color:rgba(251,146,60,0.4);background:rgba(251,146,60,0.06)">
+                <div class="on-role" style="color:var(--orange)" data-fr="Coord. Médical" data-en="Medical Coord.">Coord. Médical</div>
+                <div class="on-name">Dr L. Martin</div>
+                <div class="on-callsign" style="color:var(--orange)">MEDIC-1</div>
+              </div>
+              <button class="btn-add-node" onclick="addNode()" data-fr="+ Superviseur" data-en="+ Supervisor">+ Superviseur</button>
+            </div>
+            <div class="org-connector"></div>
+
+            <!-- Niveau 3 — Agents -->
+            <div class="org-level" style="gap:16px;flex-wrap:wrap;max-width:700px">
+              <div class="org-node" style="min-width:100px;padding:8px 12px" onclick="editNode(this)">
+                <div class="on-role" style="font-size:0.6rem" data-fr="Agent fixe" data-en="Fixed agent">Agent fixe</div>
+                <div class="on-name" style="font-size:0.72rem">P. Gagnon</div>
+                <div class="on-callsign" style="font-size:0.62rem">BRAVO-3</div>
+              </div>
+              <div class="org-node" style="min-width:100px;padding:8px 12px" onclick="editNode(this)">
+                <div class="on-role" style="font-size:0.6rem" data-fr="Patrouille" data-en="Patrol">Patrouille</div>
+                <div class="on-name" style="font-size:0.72rem">A. Roy</div>
+                <div class="on-callsign" style="font-size:0.62rem">BRAVO-4</div>
+              </div>
+              <div class="org-node" style="min-width:100px;padding:8px 12px" onclick="editNode(this)">
+                <div class="on-role" style="font-size:0.6rem" data-fr="Agent VIP" data-en="VIP agent">Agent VIP</div>
+                <div class="on-name" style="font-size:0.72rem">J. Lebeau</div>
+                <div class="on-callsign" style="font-size:0.62rem">CHARLIE-3</div>
+              </div>
+              <div class="org-node" style="min-width:100px;padding:8px 12px;border-style:dashed" onclick="editNode(this)">
+                <div class="on-role" style="font-size:0.6rem;color:var(--text-3)" data-fr="Poste vacant" data-en="Vacant post">Poste vacant</div>
+                <div class="on-name" style="font-size:0.72rem;color:var(--text-3)">—</div>
+                <div class="on-callsign" style="font-size:0.62rem;color:var(--text-3)">DELTA-4</div>
+              </div>
+              <button class="btn-add-node" style="padding:8px 12px;font-size:0.7rem;min-width:80px" onclick="addNode()" data-fr="+ Agent" data-en="+ Agent">+ Agent</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ TAB 6 — INDICATIFS RADIO ═══ -->
+      <div class="tab-panel" id="t6">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:rgba(0,212,255,0.1)">📻</div><span data-fr="Affectation des indicatifs radio par poste" data-en="Radio callsign assignment by post">Affectation des indicatifs radio par poste</span></div>
+            <button class="btn btn-cyan" data-fr="🔄 Auto-incrémenter" data-en="🔄 Auto-increment">🔄 Auto-incrémenter</button>
+          </div>
+          <div class="ai-readonly">
+            <span class="ai-ic">🧠</span>
+            <span data-fr="Indicatifs générés automatiquement selon la hiérarchie de l'organigramme. Détection automatique des doublons activée." data-en="Callsigns automatically generated from org chart hierarchy. Automatic duplicate detection enabled.">Indicatifs générés automatiquement selon la hiérarchie de l'organigramme. Détection automatique des doublons activée.</span>
+          </div>
+          <div style="overflow-x:auto;padding:0 0 14px">
+            <table class="radio-table">
+              <thead>
+                <tr>
+                  <th data-fr="Indicatif" data-en="Callsign">Indicatif</th>
+                  <th data-fr="Rôle / Poste" data-en="Role / Post">Rôle / Poste</th>
+                  <th data-fr="Nom assigné" data-en="Assigned name">Nom assigné</th>
+                  <th data-fr="Zone" data-en="Zone">Zone</th>
+                  <th data-fr="Canal radio" data-en="Radio channel">Canal radio</th>
+                  <th data-fr="Type radio" data-en="Radio type">Type radio</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="callsign-badge">ALPHA-1</span></td>
+                  <td data-fr="Chef de sécurité" data-en="Security chief">Chef de sécurité</td>
+                  <td><input type="text" value="D. Blain" /></td>
+                  <td data-fr="Commandement" data-en="Command">Commandement</td>
+                  <td><select class="channel-sel"><option>CH-01 (Cmd)</option><option>CH-02</option></select></td>
+                  <td><select class="channel-sel"><option>Kenwood TK</option><option>Motorola</option></select></td>
+                </tr>
+                <tr>
+                  <td><span class="callsign-badge">BRAVO-1</span></td>
+                  <td data-fr="Superviseur Scène" data-en="Stage Supervisor">Superviseur Scène</td>
+                  <td><input type="text" value="M. Tremblay" /></td>
+                  <td data-fr="Scène principale" data-en="Main stage">Scène principale</td>
+                  <td><select class="channel-sel"><option>CH-02 (Scène)</option><option>CH-01</option></select></td>
+                  <td><select class="channel-sel"><option>Kenwood TK</option><option>Motorola</option></select></td>
+                </tr>
+                <tr>
+                  <td><span class="callsign-badge">BRAVO-2</span></td>
+                  <td data-fr="Agent fixe — Scène" data-en="Fixed agent — Stage">Agent fixe — Scène</td>
+                  <td><input type="text" value="P. Gagnon" /></td>
+                  <td data-fr="Scène principale" data-en="Main stage">Scène principale</td>
+                  <td><select class="channel-sel"><option>CH-02 (Scène)</option><option>CH-01</option></select></td>
+                  <td><select class="channel-sel"><option>Portable standard</option></select></td>
+                </tr>
+                <tr>
+                  <td><span class="callsign-badge">CHARLIE-1</span></td>
+                  <td data-fr="Superviseur Entrées" data-en="Entry Supervisor">Superviseur Entrées</td>
+                  <td><input type="text" value="S. Côté" /></td>
+                  <td data-fr="Zone d'accueil" data-en="Entry zone">Zone d'accueil</td>
+                  <td><select class="channel-sel"><option>CH-03 (Accueil)</option><option>CH-01</option></select></td>
+                  <td><select class="channel-sel"><option>Kenwood TK</option></select></td>
+                </tr>
+                <tr>
+                  <td><span class="callsign-badge">DELTA-1</span></td>
+                  <td data-fr="Superviseur Périmètre" data-en="Perimeter Supervisor">Superviseur Périmètre</td>
+                  <td><input type="text" value="K. Nguyen" /></td>
+                  <td data-fr="Périmètre externe" data-en="External perimeter">Périmètre externe</td>
+                  <td><select class="channel-sel"><option>CH-04 (Périm.)</option><option>CH-01</option></select></td>
+                  <td><select class="channel-sel"><option>Kenwood TK</option></select></td>
+                </tr>
+                <tr>
+                  <td><span class="callsign-badge" style="color:var(--orange)">MEDIC-1</span></td>
+                  <td data-fr="Coord. Médical" data-en="Medical Coord.">Coord. Médical</td>
+                  <td><input type="text" value="Dr L. Martin" /></td>
+                  <td data-fr="Zone médicale" data-en="Medical zone">Zone médicale</td>
+                  <td><select class="channel-sel"><option>CH-05 (Médical)</option><option>CH-01</option></select></td>
+                  <td><select class="channel-sel"><option>Motorola APX</option></select></td>
+                </tr>
+                <tr>
+                  <td><span class="callsign-badge" style="color:var(--purple)">ECHO-1</span></td>
+                  <td data-fr="Agent VIP" data-en="VIP Agent">Agent VIP</td>
+                  <td><input type="text" value="J. Lebeau" /></td>
+                  <td data-fr="Zone VIP" data-en="VIP Zone">Zone VIP</td>
+                  <td><select class="channel-sel"><option>CH-06 (VIP)</option><option>CH-01</option></select></td>
+                  <td><select class="channel-sel"><option>Portable chiffré</option></select></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ TAB 7 — PLANS DE CONTINGENCE ═══ -->
+      <div class="tab-panel" id="t7">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:rgba(244,63,94,0.1)">🔰</div><span data-fr="Plans de contingence par zone" data-en="Contingency plans by zone">Plans de contingence par zone</span></div>
+            <button class="btn btn-primary" data-fr="+ Nouveau plan" data-en="+ New plan">+ Nouveau plan</button>
+          </div>
+          <div class="ai-readonly">
+            <span class="ai-ic">🧠</span>
+            <span data-fr="ORDR.AI™ injecte automatiquement le bon plan selon le type de zone et de menace. Les déclencheurs IA sont extraits de vos documents téléversés." data-en="ORDR.AI™ automatically injects the right plan based on zone type and threat. AI triggers are extracted from your uploaded documents.">ORDR.AI™ injecte automatiquement le bon plan selon le type de zone et de menace. Les déclencheurs IA sont extraits de vos documents téléversés.</span>
+          </div>
+          <div class="card-body">
+            <div class="cont-grid">
+              <div class="cont-card">
+                <div class="cont-zone-name"><div class="zone-color" style="background:#c4e000;width:10px;height:10px;border-radius:2px;flex-shrink:0"></div>Scène principale <span class="risk-pill rp-r3" style="font-size:0.6rem;padding:2px 7px">R3</span></div>
+                <div class="cont-select-wrap">
+                  <select><option>Plan B-1 — Évacuation scène</option><option>Plan B-2 — Mouvement de foule</option><option>Plan B-4 — Incident artiste</option></select>
+                </div>
+                <div class="cont-file-link">📄 <span data-fr="Plan_B1_Evacuation_Scene.pdf · Lié" data-en="Plan_B1_Evacuation_Scene.pdf · Linked">Plan_B1_Evacuation_Scene.pdf · Lié</span></div>
+                <div style="font-size:0.7rem;color:var(--text-3)" data-fr="Déclencheurs IA : densité &gt; 4 p/m², alerte mêlée, signal manuel chef" data-en="AI triggers: density &gt; 4 p/m², brawl alert, manual chief signal">Déclencheurs IA : densité > 4 p/m², alerte mêlée, signal manuel chef</div>
+              </div>
+              <div class="cont-card">
+                <div class="cont-zone-name"><div class="zone-color" style="background:#00d4ff;width:10px;height:10px;border-radius:2px;flex-shrink:0"></div>Zone d'accueil <span class="risk-pill rp-r2" style="font-size:0.6rem;padding:2px 7px">R2</span></div>
+                <div class="cont-select-wrap">
+                  <select><option>Plan B-3 — Gestion entrées / débordement</option><option>Plan B-1 — Évacuation</option></select>
+                </div>
+                <div class="cont-file-link">📄 <span>Plan_B3_Entrees.pdf · Lié</span></div>
+                <div style="font-size:0.7rem;color:var(--text-3)" data-fr="Déclencheurs IA : file d'attente &gt; 45 min, débordement guérite" data-en="AI triggers: queue &gt; 45 min, booth overflow">Déclencheurs IA : file d'attente > 45 min, débordement guérite</div>
+              </div>
+              <div class="cont-card">
+                <div class="cont-zone-name"><div class="zone-color" style="background:#8b5cf6;width:10px;height:10px;border-radius:2px;flex-shrink:0"></div>Zone VIP <span class="risk-pill rp-r2" style="font-size:0.6rem;padding:2px 7px">R2</span></div>
+                <div class="cont-select-wrap">
+                  <select><option>Plan VIP-1 — Protection rapprochée</option><option>Plan VIP-2 — Évacuation VIP</option></select>
+                </div>
+                <div class="cont-file-link">📄 <span>Plan_VIP1_Protection.pdf · Lié</span></div>
+                <div style="font-size:0.7rem;color:var(--text-3)" data-fr="Déclencheurs IA : menace directe, signal escorte, décision chef sécu" data-en="AI triggers: direct threat, escort signal, security chief decision">Déclencheurs IA : menace directe, signal escorte, décision chef sécu</div>
+              </div>
+              <div class="cont-card">
+                <div class="cont-zone-name"><div class="zone-color" style="background:#22c55e;width:10px;height:10px;border-radius:2px;flex-shrink:0"></div>Zone médicale <span class="risk-pill rp-r1" style="font-size:0.6rem;padding:2px 7px">R1</span></div>
+                <div class="cont-select-wrap">
+                  <select><option>Plan Med-1 — Triage masse</option><option>Plan Med-2 — Évacuation médicale</option></select>
+                </div>
+                <div class="cont-file-link">📄 <span>Plan_Med1_Triage.pdf · Lié</span></div>
+                <div style="font-size:0.7rem;color:var(--text-3)" data-fr="Déclencheurs IA : +3 victimes simultanées, alerte DEA, appel URGENCES" data-en="AI triggers: +3 simultaneous victims, AED alert, EMERGENCY call">Déclencheurs IA : +3 victimes simultanées, alerte DEA, appel URGENCES</div>
+              </div>
+              <div class="cont-card">
+                <div class="cont-zone-name"><div class="zone-color" style="background:#fb923c;width:10px;height:10px;border-radius:2px;flex-shrink:0"></div>Zone alcool <span class="risk-pill rp-r2" style="font-size:0.6rem;padding:2px 7px">R2</span></div>
+                <div class="cont-select-wrap">
+                  <select><option>Plan Alcool-1 — Gestion désordre</option><option>Plan B-2 — Mouvement de foule</option></select>
+                </div>
+                <div class="cont-file-link">📄 <span>Plan_Alcool1.pdf · Lié</span></div>
+                <div style="font-size:0.7rem;color:var(--text-3)" data-fr="Déclencheurs IA : bagarre détectée, appel agent, densité critique" data-en="AI triggers: fight detected, agent call, critical density">Déclencheurs IA : bagarre détectée, appel agent, densité critique</div>
+              </div>
+              <div class="cont-card" style="border-style:dashed;cursor:pointer;align-items:center;justify-content:center;min-height:120px;gap:8px" onclick="">
+                <div style="font-size:1.5rem;opacity:0.3">+</div>
+                <div style="font-size:0.78rem;color:var(--text-3)" data-fr="Associer un plan à une zone" data-en="Link a plan to a zone">Associer un plan à une zone</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+
+    <!-- NAV BOTTOM -->
+    <div class="nav-bottom">
+      <div class="nav-info"><span data-fr="Module" data-en="Module">Module</span> <strong>2 / 6</strong> — <span id="nav-tab-name" data-fr="Profil de risque consolidé" data-en="Consolidated risk profile">Profil de risque consolidé</span></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" onclick="location.href='01-profil-evenement.html'" data-fr="← Module 1" data-en="← Module 1">← Module 1</button>
+        <button class="btn btn-primary" onclick="location.href='03-deploiement.html'" data-fr="Module 3 — Déploiement →" data-en="Module 3 — Deployment →">Module 3 — Déploiement →</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- RIGHT PANEL -->
+  <aside class="right-panel">
+    <div class="rp-header">
+      <div class="rp-title">🧠 Assistant <span class="rp-badge">ORDR.AI™</span></div>
+      <div class="rp-sub" data-fr="Planification opérationnelle intelligente" data-en="Intelligent operational planning">Planification opérationnelle intelligente</div>
+    </div>
+
+    <div class="rp-risk-summary">
+      <div class="rps-title" data-fr="Profil hérité — Module 1" data-en="Inherited profile — Module 1">Profil hérité — Module 1</div>
+      <div class="rps-score">
+        <div class="rps-circle">
+          <div class="rps-val">47</div>
+          <div style="font-size:0.55rem;color:var(--text-3)">/100</div>
+        </div>
+        <div class="rps-info">
+          <div class="rps-level">🟠 R2 — Modéré</div>
+          <div class="rps-desc" data-fr="Festival culturel · 12 000 pers · Zone alcool active" data-en="Cultural festival · 12,000 persons · Active alcohol zone">Festival culturel · 12 000 pers · Zone alcool active</div>
+        </div>
+      </div>
+      <div class="rp-kpi-row"><span class="rp-kpi-label" data-fr="Agents recommandés" data-en="Recommended agents">Agents recommandés</span><span class="rp-kpi-val" style="color:var(--accent)">96</span></div>
+      <div class="rp-kpi-row"><span class="rp-kpi-label" data-fr="Agents planifiés" data-en="Planned agents">Agents planifiés</span><span class="rp-kpi-val" id="rp-planned" style="color:var(--green)">76</span></div>
+      <div class="rp-kpi-row"><span class="rp-kpi-label" data-fr="Zones configurées" data-en="Configured zones">Zones configurées</span><span class="rp-kpi-val" style="color:var(--cyan)">7</span></div>
+      <div class="rp-kpi-row"><span class="rp-kpi-label" data-fr="Plans contingence liés" data-en="Linked contingency plans">Plans contingence liés</span><span class="rp-kpi-val" style="color:var(--purple)">5 / 7</span></div>
+    </div>
+
+    <div class="ia-block">
+      <div class="ia-block-title" data-fr="Recommandations IA" data-en="AI Recommendations">Recommandations IA</div>
+      <div class="ia-card">
+        <div class="ia-type warn">⚠ ATTENTION</div>
+        <div class="ia-msg" data-fr="76 agents planifiés vs 96 recommandés par l'IA. Écart de 20 agents. Envisagez un renfort externe ou réduisez les zones couvertes." data-en="76 agents planned vs 96 AI-recommended. Gap of 20 agents. Consider external reinforcement or reduce covered zones.">76 agents planifiés vs 96 recommandés par l'IA. Écart de 20 agents. Envisagez un renfort externe ou réduisez les zones couvertes.</div>
+        <div class="ia-action" data-fr="Ajuster les effectifs →" data-en="Adjust staffing →">Ajuster les effectifs →</div>
+      </div>
+      <div class="ia-card">
+        <div class="ia-type ok">✓ OPTIMAL</div>
+        <div class="ia-msg" data-fr="La répartition matérielle (barrières, radios, véhicules) est cohérente avec le profil de risque R2 et la surface du site." data-en="Material allocation (barriers, radios, vehicles) is consistent with the R2 risk profile and site area.">La répartition matérielle est cohérente avec le profil de risque R2 et la surface du site.</div>
+      </div>
+      <div class="ia-card">
+        <div class="ia-type info">ℹ SUGGESTION</div>
+        <div class="ia-msg" data-fr="2 zones (périmètre externe, coulisses) n'ont pas encore de plan de contingence associé. Complétez l'onglet Contingence." data-en="2 zones (external perimeter, backstage) have no contingency plan linked yet. Complete the Contingency tab.">2 zones n'ont pas encore de plan de contingence. Complétez l'onglet Contingence.</div>
+        <div class="ia-action" data-fr="Aller à Contingence →" data-en="Go to Contingency →" onclick="switchTab('t7',null,document.querySelectorAll('.tab-bar-btn')[6])">Aller à Contingence →</div>
+      </div>
+    </div>
+
+    <div class="cov-block">
+      <div class="cov-block-title" data-fr="Couverture par zone" data-en="Zone coverage">Couverture par zone</div>
+      <div class="cov-item">
+        <div class="cov-item-header">
+          <span class="cov-zone"><div style="width:8px;height:8px;background:#c4e000;border-radius:2px"></div>Scène principale</span>
+          <span class="cov-pct" style="color:var(--accent)">100%</span>
+        </div>
+        <div class="cov-bar"><div class="cov-fill" style="width:100%;background:var(--accent)"></div></div>
+      </div>
+      <div class="cov-item">
+        <div class="cov-item-header">
+          <span class="cov-zone"><div style="width:8px;height:8px;background:#00d4ff;border-radius:2px"></div>Zone accueil</span>
+          <span class="cov-pct" style="color:var(--cyan)">87%</span>
+        </div>
+        <div class="cov-bar"><div class="cov-fill" style="width:87%;background:var(--cyan)"></div></div>
+      </div>
+      <div class="cov-item">
+        <div class="cov-item-header">
+          <span class="cov-zone"><div style="width:8px;height:8px;background:#8b5cf6;border-radius:2px"></div>Zone VIP</span>
+          <span class="cov-pct" style="color:var(--purple)">100%</span>
+        </div>
+        <div class="cov-bar"><div class="cov-fill" style="width:100%;background:var(--purple)"></div></div>
+      </div>
+      <div class="cov-item">
+        <div class="cov-item-header">
+          <span class="cov-zone"><div style="width:8px;height:8px;background:#fb923c;border-radius:2px"></div>Zone alcool</span>
+          <span class="cov-pct" style="color:var(--orange)">72%</span>
+        </div>
+        <div class="cov-bar"><div class="cov-fill" style="width:72%;background:var(--orange)"></div></div>
+      </div>
+      <div class="cov-item">
+        <div class="cov-item-header">
+          <span class="cov-zone"><div style="width:8px;height:8px;background:#f43f5e;border-radius:2px"></div>Périmètre ext.</span>
+          <span class="cov-pct" style="color:var(--red)">58%</span>
+        </div>
+        <div class="cov-bar"><div class="cov-fill" style="width:58%;background:var(--red)"></div></div>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+let lang = 'fr';
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lang-toggle button').forEach(b => b.classList.toggle('active', b.dataset.l === l));
+  document.querySelectorAll('[data-fr]').forEach(el => { if (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA') { const v = el.dataset[l]; if (v !== undefined) { if (v.includes('<')) el.innerHTML = v; else el.textContent = v; } } });
+}
+
+let activeTab = 't1';
+const tabNames = {
+  fr:['Profil de risque consolidé','Effectifs par zone','Ressources matérielles','Carte de couverture','Organigramme de mission','Indicatifs radio','Plans de contingence'],
+  en:['Consolidated risk profile','Staff by zone','Material resources','Coverage map','Mission org chart','Radio callsigns','Contingency plans']
+};
+const tabIds = ['t1','t2','t3','t4','t5','t6','t7'];
+
+function switchTab(id, sideItem, barBtn) {
+  tabIds.forEach(t => document.getElementById(t).classList.toggle('active', t === id));
+  document.querySelectorAll('.tab-item').forEach((el,i) => el.classList.toggle('active', tabIds[i] === id));
+  document.querySelectorAll('.tab-bar-btn').forEach((el,i) => el.classList.toggle('active', tabIds[i] === id));
+  activeTab = id;
+  const idx = tabIds.indexOf(id);
+  document.getElementById('nav-tab-name').textContent = tabNames[lang][idx] || tabNames.fr[idx];
+}
+
+function updateZoneTotal(input) {
+  const row = input.closest('tr');
+  const nums = row.querySelectorAll('input[type=number]');
+  let sum = 0;
+  nums.forEach(n => sum += parseInt(n.value) || 0);
+  row.querySelector('.zone-total').textContent = sum;
+  calcTotals();
+}
+
+function calcTotals() {
+  const rows = document.querySelectorAll('#zone-tbody tr');
+  let fixes=0, pats=0, sups=0, specs=0, total=0;
+  rows.forEach(r => {
+    const inputs = r.querySelectorAll('input[type=number]');
+    if (inputs.length >= 4) {
+      fixes += parseInt(inputs[0].value)||0;
+      pats  += parseInt(inputs[1].value)||0;
+      sups  += parseInt(inputs[2].value)||0;
+      specs += parseInt(inputs[3].value)||0;
+      total += parseInt(r.querySelector('.zone-total')?.textContent)||0;
+    }
+  });
+  document.getElementById('tot-fixes').textContent = fixes;
+  document.getElementById('tot-patrouilles').textContent = pats;
+  document.getElementById('tot-sup').textContent = sups;
+  document.getElementById('tot-spec').textContent = specs;
+  document.getElementById('tot-total').textContent = total;
+  document.getElementById('rp-planned').textContent = total;
+  const cap = 80;
+  const vs = document.getElementById('tot-vs');
+  if (total > cap) { vs.style.color = 'var(--red)'; vs.textContent = `⚠ Dépasse la capacité max (${cap})`; }
+  else { vs.style.color = 'var(--green)'; vs.textContent = `✓ Dans les capacités (max ${cap})`; }
+}
+
+let zoneCounter = 8;
+function addZone() {
+  zoneCounter++;
+  const colors = ['#c4e000','#00d4ff','#8b5cf6','#22c55e','#fb923c','#f43f5e'];
+  const color = colors[zoneCounter % colors.length];
+  const tbody = document.getElementById('zone-tbody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><div class="zone-name"><div class="zone-color" style="background:${color}"></div><input type="text" style="background:transparent;border:none;color:var(--text);font-size:0.8rem;width:120px;font-weight:600" value="Nouvelle zone ${zoneCounter}" /></div></td>
+    <td><select class="channel-sel" style="font-size:0.7rem"><option>R1</option><option selected>R2</option><option>R3</option></select></td>
+    <td><input type="number" value="0" min="0" onchange="updateZoneTotal(this)" /></td>
+    <td><input type="number" value="0" min="0" onchange="updateZoneTotal(this)" /></td>
+    <td><input type="number" value="0" min="0" onchange="updateZoneTotal(this)" /></td>
+    <td><input type="number" value="0" min="0" onchange="updateZoneTotal(this)" /></td>
+    <td class="zone-total">0</td>
+    <td><select class="channel-sel"><option>Aucun</option><option>Plan B-1 Évacuation</option></select></td>
+    <td><button onclick="this.closest('tr').remove();calcTotals()" style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:0.8rem">✕</button></td>`;
+  tbody.appendChild(tr);
+  calcTotals();
+}
+
+function editNode(el) {
+  const nameEl = el.querySelector('.on-name');
+  const curr = nameEl.textContent;
+  const inp = prompt(lang === 'fr' ? 'Nom de l\'agent :' : 'Agent name:', curr);
+  if (inp) nameEl.textContent = inp;
+}
+function addNode() {
+  alert(lang === 'fr' ? 'Ajouter un nœud — fonctionnalité disponible en version complète.' : 'Add node — feature available in full version.');
+}
+
+document.addEventListener('DOMContentLoaded', () => { setLang('fr'); calcTotals(); });
+</script>
+</body>
+</html>

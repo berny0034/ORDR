@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ORDR.AI™ — Application</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:#07070f; --bg-card:#111120; --bg-input:#16162a;
+      --border:rgba(255,255,255,0.07); --border-accent:rgba(196,224,0,0.3);
+      --accent:#c4e000; --accent-dim:rgba(196,224,0,0.10);
+      --cyan:#00d4ff; --purple:#8b5cf6; --red:#f43f5e; --orange:#fb923c; --green:#22c55e;
+      --text:#eeeef8; --text-2:#8892a4; --text-3:#4a5568;
+      --font:'Inter',system-ui,sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+    a{text-decoration:none;color:inherit}
+
+    /* TOPBAR */
+    .topbar{height:56px;background:rgba(7,7,15,0.97);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:14px;position:sticky;top:0;z-index:100}
+    .topbar img{height:28px}
+    .topbar-div{width:1px;height:22px;background:var(--border)}
+    .topbar-title{font-size:0.78rem;color:var(--text-2);font-weight:600}
+    .topbar-right{margin-left:auto;display:flex;gap:10px;align-items:center}
+    .btn-back{background:transparent;border:1px solid var(--border);border-radius:7px;padding:6px 14px;font-size:0.75rem;font-weight:700;color:var(--text-2);cursor:pointer;transition:all 0.2s}
+    .btn-back:hover{color:var(--text);border-color:rgba(255,255,255,0.2)}
+
+    /* HERO */
+    .hero{text-align:center;padding:60px 28px 40px;border-bottom:1px solid var(--border)}
+    .hero-tag{display:inline-flex;align-items:center;gap:6px;font-size:0.68rem;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);background:var(--accent-dim);border:1px solid var(--border-accent);border-radius:20px;padding:4px 14px;margin-bottom:18px}
+    .hero-title{font-size:2.4rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:10px}
+    .hero-title span{color:var(--accent)}
+    .hero-sub{font-size:0.95rem;color:var(--text-2);max-width:520px;margin:0 auto;line-height:1.7}
+    .event-badge{display:inline-flex;align-items:center;gap:8px;margin-top:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:10px 18px;font-size:0.8rem}
+    .eb-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+    /* MODULE GRID */
+    .modules{max-width:900px;margin:0 auto;padding:40px 28px 60px;width:100%}
+    .modules-title{font-size:0.7rem;font-weight:700;color:var(--text-3);letter-spacing:0.1em;text-transform:uppercase;text-align:center;margin-bottom:24px}
+    .mod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .mod-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:22px;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:12px}
+    .mod-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--border);transition:background 0.25s}
+    .mod-card:hover{border-color:rgba(255,255,255,0.12);transform:translateY(-3px);box-shadow:0 16px 40px rgba(0,0,0,0.4)}
+    .mod-card.m1::before{background:linear-gradient(90deg,var(--orange),var(--red))}
+    .mod-card.m2::before{background:linear-gradient(90deg,var(--cyan),var(--purple))}
+    .mod-card.m3::before{background:linear-gradient(90deg,var(--accent),var(--cyan))}
+    .mod-card.m4::before{background:linear-gradient(90deg,var(--red),var(--orange))}
+    .mod-card.m5::before{background:linear-gradient(90deg,var(--purple),var(--cyan))}
+    .mod-card.m6::before{background:linear-gradient(90deg,var(--accent),var(--green))}
+    .mod-card:hover::before{filter:brightness(1.2)}
+    .mod-header{display:flex;align-items:center;gap:12px}
+    .mod-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+    .mod-num{position:absolute;top:14px;right:16px;font-size:0.65rem;font-weight:800;color:var(--text-3)}
+    .mod-name{font-size:0.95rem;font-weight:900}
+    .mod-sub{font-size:0.7rem;color:var(--text-2);line-height:1.5;flex:1}
+    .mod-features{display:flex;flex-direction:column;gap:4px}
+    .mod-feat{font-size:0.68rem;color:var(--text-3);display:flex;align-items:center;gap:6px}
+    .mod-feat::before{content:'›';color:var(--text-3)}
+    .mod-footer{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:10px;border-top:1px solid var(--border)}
+    .mod-status{font-size:0.62rem;font-weight:700;padding:2px 8px;border-radius:10px}
+    .ms-done{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);color:var(--green)}
+    .ms-ready{background:var(--accent-dim);border:1px solid var(--border-accent);color:var(--accent)}
+    .ms-new{background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.25);color:var(--purple)}
+    .mod-arrow{font-size:0.8rem;color:var(--text-3);transition:all 0.2s}
+    .mod-card:hover .mod-arrow{color:var(--accent);transform:translateX(4px)}
+
+    /* Quick access bar */
+    .quick-bar{background:rgba(196,224,0,0.04);border-top:1px solid rgba(196,224,0,0.1);border-bottom:1px solid rgba(196,224,0,0.1);padding:14px 28px;display:flex;align-items:center;gap:10px;overflow-x:auto}
+    .qb-label{font-size:0.68rem;font-weight:700;color:var(--text-3);white-space:nowrap;flex-shrink:0;margin-right:6px}
+    .qb-btn{display:flex;align-items:center;gap:6px;background:var(--bg-card);border:1px solid var(--border);border-radius:7px;padding:6px 14px;font-size:0.72rem;font-weight:700;color:var(--text-2);cursor:pointer;transition:all 0.2s;white-space:nowrap;flex-shrink:0}
+    .qb-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+    .qb-btn .q-dot{width:6px;height:6px;border-radius:50%}
+
+    footer{margin-top:auto;padding:20px 28px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+    .ft-text{font-size:0.7rem;color:var(--text-3)}
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <img src="../assets/logos/logo_dark.png" alt="ORDR.AI" />
+  <div class="topbar-div"></div>
+  <span class="topbar-title">Plateforme applicative</span>
+  <div class="topbar-right">
+    <a href="../index.html"><button class="btn-back">← Site principal</button></a>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-tag">● Application ORDR.AI™</div>
+  <h1 class="hero-title">Choisissez un <span>module</span></h1>
+  <p class="hero-sub">6 modules intégrés couvrant l'intégralité du cycle de vie d'un événement sécurisé — de l'évaluation des risques à la rétroaction IA.</p>
+  <div class="event-badge">
+    <div class="eb-dot"></div>
+    <strong>Festival du Parc 2026</strong>
+    <span style="color:var(--text-3)">·</span>
+    <span style="color:var(--text-2)">7–9 juin 2026 · Parc Maisonneuve</span>
+    <span style="color:var(--text-3)">·</span>
+    <span style="color:var(--orange);font-weight:700">R2 — Modéré</span>
+  </div>
+</div>
+
+<!-- Quick access bar -->
+<div class="quick-bar">
+  <span class="qb-label">Accès rapide :</span>
+  <a href="01-profil-evenement.html"><div class="qb-btn"><div class="q-dot" style="background:var(--orange)"></div>1 · Profil événement</div></a>
+  <a href="02-planification.html"><div class="qb-btn"><div class="q-dot" style="background:var(--cyan)"></div>2 · Planification</div></a>
+  <a href="03-deploiement.html"><div class="qb-btn"><div class="q-dot" style="background:var(--accent)"></div>3 · Déploiement LIVE</div></a>
+  <a href="04-crise.html"><div class="qb-btn"><div class="q-dot" style="background:var(--red)"></div>4 · Gestion de crise</div></a>
+  <a href="05-backoffice.html"><div class="qb-btn"><div class="q-dot" style="background:var(--purple)"></div>5 · BackOffice</div></a>
+  <div class="qb-btn" style="opacity:0.4"><div class="q-dot" style="background:var(--green)"></div>6 · Rétroaction IA</div>
+</div>
+
+<div class="modules">
+  <div class="modules-title">Modules de la plateforme</div>
+  <div class="mod-grid">
+
+    <a href="01-profil-evenement.html">
+      <div class="mod-card m1">
+        <div class="mod-num">01</div>
+        <div class="mod-header">
+          <div class="mod-icon" style="background:rgba(251,146,60,0.12)">🎯</div>
+          <div class="mod-name">Évaluation du risque</div>
+        </div>
+        <div class="mod-sub">Profil complet de l'événement, calcul de score R1/R2/R3, matrices IA intégrées.</div>
+        <div class="mod-features">
+          <div class="mod-feat">Profil événement (A–F)</div>
+          <div class="mod-feat">Score tactique temps réel</div>
+          <div class="mod-feat">Matrice de Risque™</div>
+        </div>
+        <div class="mod-footer">
+          <span class="mod-status ms-done">✓ Complété</span>
+          <span class="mod-arrow">→</span>
+        </div>
+      </div>
+    </a>
+
+    <a href="02-planification.html">
+      <div class="mod-card m2">
+        <div class="mod-num">02</div>
+        <div class="mod-header">
+          <div class="mod-icon" style="background:rgba(0,212,255,0.1)">📋</div>
+          <div class="mod-name">Planification opérationnelle</div>
+        </div>
+        <div class="mod-sub">Effectifs par zone, ressources matérielles, organigramme, indicatifs radio et plans de contingence.</div>
+        <div class="mod-features">
+          <div class="mod-feat">7 zones configurées</div>
+          <div class="mod-feat">Carte de couverture interactive</div>
+          <div class="mod-feat">Organigramme de mission</div>
+        </div>
+        <div class="mod-footer">
+          <span class="mod-status ms-done">✓ Complété</span>
+          <span class="mod-arrow">→</span>
+        </div>
+      </div>
+    </a>
+
+    <a href="03-deploiement.html">
+      <div class="mod-card m3">
+        <div class="mod-num">03</div>
+        <div class="mod-header">
+          <div class="mod-icon" style="background:rgba(196,224,0,0.1)">🗺️</div>
+          <div class="mod-name">Déploiement dynamique</div>
+        </div>
+        <div class="mod-sub">Supervision LIVE des agents sur carte, gestion des quarts, alertes en temps réel et réaffectation IA.</div>
+        <div class="mod-features">
+          <div class="mod-feat">Carte tactique LIVE</div>
+          <div class="mod-feat">Alertes & incidents actifs</div>
+          <div class="mod-feat">Réaffectation intelligente IA</div>
+        </div>
+        <div class="mod-footer">
+          <span class="mod-status ms-ready" style="background:rgba(244,63,94,0.1);border-color:rgba(244,63,94,0.25);color:var(--red)">● LIVE</span>
+          <span class="mod-arrow">→</span>
+        </div>
+      </div>
+    </a>
+
+    <a href="04-crise.html">
+      <div class="mod-card m4">
+        <div class="mod-num">04</div>
+        <div class="mod-header">
+          <div class="mod-icon" style="background:rgba(244,63,94,0.1)">🚨</div>
+          <div class="mod-name">Gestion de crise</div>
+        </div>
+        <div class="mod-sub">Niveaux N1/N2/N3, checklists d'urgence, arbre décisionnel IA, contacts et rapport de clôture.</div>
+        <div class="mod-features">
+          <div class="mod-feat">3 niveaux d'activation</div>
+          <div class="mod-feat">Arbre décisionnel ORDR.AI™</div>
+          <div class="mod-feat">Contacts d'urgence</div>
+        </div>
+        <div class="mod-footer">
+          <span class="mod-status ms-done">✓ Complété</span>
+          <span class="mod-arrow">→</span>
+        </div>
+      </div>
+    </a>
+
+    <a href="05-backoffice.html">
+      <div class="mod-card m5">
+        <div class="mod-num">05</div>
+        <div class="mod-header">
+          <div class="mod-icon" style="background:rgba(139,92,246,0.1)">💼</div>
+          <div class="mod-name">BackOffice</div>
+        </div>
+        <div class="mod-sub">Contrats, facturation, budget, RH, paie, documents légaux et gestion des fournisseurs.</div>
+        <div class="mod-features">
+          <div class="mod-feat">Contrats & facturation</div>
+          <div class="mod-feat">Paie 76 agents</div>
+          <div class="mod-feat">Documents légaux</div>
+        </div>
+        <div class="mod-footer">
+          <span class="mod-status ms-done">✓ Complété</span>
+          <span class="mod-arrow">→</span>
+        </div>
+      </div>
+    </a>
+
+    <a href="06-retroaction.html" class="mod-card m6">
+      <div class="mod-num">06</div>
+      <div class="mod-header">
+        <div class="mod-icon" style="background:rgba(196,224,0,0.08)">📈</div>
+        <div class="mod-name">Rétroaction IA</div>
+      </div>
+      <div class="mod-sub">Analyse post-événement, calibration des matrices, KPIs comparatifs et recommandations pour le prochain événement.</div>
+      <div class="mod-features">
+        <div class="mod-feat">Rapport post-événement</div>
+        <div class="mod-feat">Calibration matrices ORDR.AI™</div>
+        <div class="mod-feat">Prévisions prochaine édition</div>
+      </div>
+      <div class="mod-footer">
+        <span class="mod-status ms-live">✓ Disponible</span>
+        <span class="mod-arrow">→</span>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<footer>
+  <div class="ft-text">ORDR.AI™ · Plateforme de gestion de sécurité événementielle</div>
+  <div class="ft-text">© 2026 Dominik Blain — Tous droits réservés</div>
+</footer>
+
+</body>
+</html>

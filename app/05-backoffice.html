@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ORDR.AI™ — BackOffice</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:#07070f; --bg-sidebar:#0b0b16; --bg-card:#111120; --bg-input:#16162a;
+      --border:rgba(255,255,255,0.07); --border-accent:rgba(196,224,0,0.3);
+      --accent:#c4e000; --accent-dim:rgba(196,224,0,0.10);
+      --cyan:#00d4ff; --cyan-dim:rgba(0,212,255,0.10);
+      --purple:#8b5cf6; --purple-dim:rgba(139,92,246,0.10);
+      --red:#f43f5e; --orange:#fb923c; --green:#22c55e;
+      --text:#eeeef8; --text-2:#8892a4; --text-3:#4a5568;
+      --topbar-h:56px; --sidebar-w:220px; --right-w:300px;
+      --font:'Inter',system-ui,sans-serif; --r:8px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{font-size:14px} body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+    a{text-decoration:none;color:inherit} input,select,textarea,button{font-family:var(--font)}
+
+    .topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar-h);background:rgba(7,7,15,0.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:14px;z-index:1000}
+    .topbar-logo img{height:30px}
+    .topbar-divider{width:1px;height:24px;background:var(--border)}
+    .breadcrumb{display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text-2)}
+    .breadcrumb .active{color:var(--accent);font-weight:700}
+    .breadcrumb .sep{opacity:0.4}
+    .topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+    .lang-toggle{display:flex;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;overflow:hidden;font-size:0.72rem}
+    .lang-toggle button{padding:4px 11px;background:transparent;border:none;color:var(--text-2);cursor:pointer;font-weight:700;transition:all 0.2s}
+    .lang-toggle button.active{background:var(--accent);color:#000}
+    .badge{display:flex;align-items:center;gap:5px;font-size:0.68rem;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--accent-dim);border:1px solid var(--border-accent);color:var(--accent)}
+    .avatar{width:30px;height:30px;border-radius:50%;background:var(--accent-dim);border:2px solid var(--border-accent);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;color:var(--accent)}
+
+    .app{display:flex;padding-top:var(--topbar-h);min-height:100vh}
+
+    .sidebar{position:fixed;top:var(--topbar-h);left:0;width:var(--sidebar-w);height:calc(100vh - var(--topbar-h));background:var(--bg-sidebar);border-right:1px solid var(--border);overflow-y:auto;z-index:900;display:flex;flex-direction:column}
+    .sb-section{padding:14px 14px 6px}
+    .sb-label{font-size:0.62rem;font-weight:700;color:var(--text-3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
+    .mod-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;cursor:pointer;margin-bottom:2px;color:var(--text-2);font-size:0.78rem;font-weight:500;transition:all 0.2s}
+    .mod-item:hover{background:rgba(255,255,255,0.04);color:var(--text)}
+    .mod-item.active{background:var(--accent-dim);color:var(--accent)}
+    .mod-item .mn{font-size:0.65rem;font-weight:800;color:var(--text-3);width:14px;flex-shrink:0}
+    .mod-item.active .mn{color:var(--accent)}
+    .mod-item.done .mn{color:var(--green)}
+    .mod-item .mi{font-size:0.9rem;width:18px;text-align:center;flex-shrink:0}
+    .sb-sep{height:1px;background:var(--border);margin:8px 12px}
+    .tab-nav{padding:8px 14px;flex:1}
+    .tab-item{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px;cursor:pointer;margin-bottom:2px;font-size:0.77rem;transition:all 0.2s;color:var(--text-2)}
+    .tab-item:hover{background:rgba(255,255,255,0.04);color:var(--text)}
+    .tab-item.active{background:var(--accent-dim);color:var(--accent);font-weight:700}
+    .tab-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.62rem;font-weight:800;flex-shrink:0;color:var(--text-3)}
+    .tab-item.active .tab-dot{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+
+    .main{margin-left:var(--sidebar-w);margin-right:var(--right-w);flex:1;display:flex;flex-direction:column;min-width:0}
+    .page-header{padding:20px 28px 0;border-bottom:1px solid var(--border);background:rgba(7,7,15,0.7);backdrop-filter:blur(8px);position:sticky;top:var(--topbar-h);z-index:50}
+    .page-title-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+    .page-title{font-size:1.4rem;font-weight:900;letter-spacing:-0.02em}
+    .page-title .hl{color:var(--accent)}
+    .page-sub{font-size:0.78rem;color:var(--text-2);margin-top:2px}
+    .page-actions{display:flex;gap:8px;align-items:center}
+    .btn{padding:7px 14px;border-radius:7px;font-size:0.78rem;font-weight:700;cursor:pointer;border:none;transition:all 0.2s}
+    .btn-ghost{background:transparent;color:var(--text-2);border:1px solid var(--border)}
+    .btn-ghost:hover{color:var(--text);border-color:rgba(255,255,255,0.2)}
+    .btn-primary{background:var(--accent);color:#000}
+    .btn-primary:hover{background:#d4f000}
+    .btn-cyan{background:rgba(0,212,255,0.12);color:var(--cyan);border:1px solid rgba(0,212,255,0.25)}
+    .btn-green{background:rgba(34,197,94,0.12);color:var(--green);border:1px solid rgba(34,197,94,0.25)}
+    .tab-bar{display:flex}
+    .tab-bar-btn{padding:10px 18px;background:transparent;border:none;cursor:pointer;font-size:0.8rem;font-weight:600;color:var(--text-2);border-bottom:2px solid transparent;transition:all 0.2s}
+    .tab-bar-btn:hover{color:var(--text)}
+    .tab-bar-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+    .content{padding:20px 28px 80px;display:flex;flex-direction:column;gap:18px}
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r)}
+    .card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border)}
+    .card-title{display:flex;align-items:center;gap:10px;font-size:0.88rem;font-weight:800}
+    .card-icon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0}
+    .card-body{padding:18px}
+    .card-actions{display:flex;gap:6px;align-items:center}
+    .tab-panel{display:none} .tab-panel.active{display:flex;flex-direction:column;gap:18px}
+
+    /* KPI row */
+    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .kpi-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:16px;position:relative;overflow:hidden}
+    .kpi-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--border)}
+    .kpi-card.kc-green::before{background:var(--green)}
+    .kpi-card.kc-orange::before{background:var(--orange)}
+    .kpi-card.kc-cyan::before{background:var(--cyan)}
+    .kpi-card.kc-accent::before{background:var(--accent)}
+    .kpi-label{font-size:0.65rem;font-weight:700;color:var(--text-3);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:8px}
+    .kpi-val{font-size:1.7rem;font-weight:900;line-height:1;margin-bottom:5px;letter-spacing:-0.02em}
+    .kpi-sub{font-size:0.68rem;color:var(--text-2)}
+    .kpi-trend{font-size:0.68rem;font-weight:700;margin-top:4px}
+    .trend-up{color:var(--green)} .trend-down{color:var(--red)}
+
+    /* Tables */
+    .data-table{width:100%;border-collapse:collapse}
+    .data-table th{padding:9px 14px;text-align:left;font-size:0.65rem;font-weight:700;color:var(--text-3);letter-spacing:0.08em;text-transform:uppercase;border-bottom:2px solid var(--border);white-space:nowrap}
+    .data-table td{padding:9px 14px;border-bottom:1px solid var(--border);font-size:0.79rem;vertical-align:middle}
+    .data-table tr:last-child td{border:none}
+    .data-table tr:hover td{background:rgba(255,255,255,0.015);cursor:pointer}
+    .status-pill{padding:3px 10px;border-radius:20px;font-size:0.65rem;font-weight:800;border:1px solid}
+    .sp-paid{background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.25);color:var(--green)}
+    .sp-pending{background:rgba(251,146,60,0.08);border-color:rgba(251,146,60,0.25);color:var(--orange)}
+    .sp-overdue{background:rgba(244,63,94,0.08);border-color:rgba(244,63,94,0.25);color:var(--red)}
+    .sp-draft{background:rgba(255,255,255,0.04);border-color:var(--border);color:var(--text-3)}
+    .sp-active{background:var(--accent-dim);border-color:var(--border-accent);color:var(--accent)}
+    .sp-expired{background:rgba(244,63,94,0.06);border-color:rgba(244,63,94,0.2);color:var(--red)}
+    .sp-cert{background:rgba(0,212,255,0.06);border-color:rgba(0,212,255,0.2);color:var(--cyan)}
+    .amount{font-family:monospace;font-weight:800;font-size:0.82rem}
+    .amount.positive{color:var(--green)} .amount.negative{color:var(--red)} .amount.neutral{color:var(--text)}
+    .row-action{background:transparent;border:1px solid var(--border);border-radius:5px;padding:3px 9px;font-size:0.65rem;font-weight:700;color:var(--text-2);cursor:pointer;transition:all 0.2s}
+    .row-action:hover{border-color:var(--accent);color:var(--accent)}
+
+    /* Progress bar */
+    .progress-wrap{height:6px;background:var(--border);border-radius:6px;overflow:hidden}
+    .progress-fill{height:100%;border-radius:6px;transition:width 0.5s ease}
+
+    /* Budget chart */
+    .budget-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .donut-wrap{position:relative;width:140px;height:140px;flex-shrink:0}
+    .donut-svg{transform:rotate(-90deg)}
+    .donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .donut-val{font-size:1.1rem;font-weight:900;color:var(--text)}
+    .donut-sub{font-size:0.6rem;color:var(--text-2)}
+    .budget-categories{flex:1;display:flex;flex-direction:column;gap:8px}
+    .budget-cat{display:flex;flex-direction:column;gap:4px}
+    .bc-header{display:flex;justify-content:space-between;align-items:center}
+    .bc-name{font-size:0.75rem;font-weight:700;display:flex;align-items:center;gap:7px}
+    .bc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .bc-vals{font-size:0.7rem;color:var(--text-2)}
+
+    /* HR grid */
+    .hr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .hr-card{background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r);padding:14px;transition:all 0.2s;cursor:pointer}
+    .hr-card:hover{border-color:var(--border-accent)}
+    .hr-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .hr-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:800;flex-shrink:0}
+    .hr-name{font-size:0.82rem;font-weight:800}
+    .hr-role{font-size:0.65rem;color:var(--text-2)}
+    .hr-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+    .hr-stat{background:var(--bg-card);border-radius:5px;padding:7px 9px}
+    .hr-stat-val{font-size:0.9rem;font-weight:900}
+    .hr-stat-lbl{font-size:0.6rem;color:var(--text-3);margin-top:1px}
+    .cert-tag{font-size:0.6rem;padding:2px 7px;border-radius:10px;border:1px solid;margin-right:3px;margin-top:4px;display:inline-block}
+    .cert-ok{border-color:rgba(34,197,94,0.3);color:var(--green);background:rgba(34,197,94,0.06)}
+    .cert-warn{border-color:rgba(251,146,60,0.3);color:var(--orange);background:rgba(251,146,60,0.06)}
+
+    /* Contract cards */
+    .contract-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    .contract-card{background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r);padding:16px;position:relative;overflow:hidden;transition:all 0.2s;cursor:pointer}
+    .contract-card:hover{border-color:var(--border-accent)}
+    .contract-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%}
+    .cc-active::before{background:var(--green)}
+    .cc-pending::before{background:var(--orange)}
+    .cc-expired::before{background:var(--red)}
+    .cc-draft::before{background:var(--border)}
+    .cct-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+    .cct-name{font-size:0.85rem;font-weight:800;margin-bottom:3px}
+    .cct-client{font-size:0.7rem;color:var(--text-2)}
+    .cct-amount{font-size:1.1rem;font-weight:900;color:var(--accent)}
+    .cct-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+    .cct-meta-item{background:var(--bg-card);border-radius:5px;padding:6px 9px}
+    .cct-meta-label{font-size:0.6rem;color:var(--text-3);margin-bottom:1px}
+    .cct-meta-val{font-size:0.75rem;font-weight:700}
+    .cct-progress{margin-top:10px}
+    .cct-progress-header{display:flex;justify-content:space-between;font-size:0.65rem;color:var(--text-2);margin-bottom:4px}
+
+    /* Docs */
+    .doc-list{display:flex;flex-direction:column;gap:0}
+    .doc-item{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:all 0.2s}
+    .doc-item:hover{background:rgba(255,255,255,0.02)}
+    .doc-item:last-child{border:none}
+    .doc-icon{font-size:1.1rem;flex-shrink:0;width:30px;text-align:center}
+    .doc-name{flex:1;font-size:0.8rem;font-weight:700}
+    .doc-meta{font-size:0.67rem;color:var(--text-3)}
+    .doc-size{font-size:0.65rem;color:var(--text-3);white-space:nowrap}
+    .doc-actions{display:flex;gap:6px}
+
+    /* Payroll */
+    .pay-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+    .pay-card{background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center}
+    .pay-val{font-size:1.4rem;font-weight:900;margin-bottom:3px}
+    .pay-lbl{font-size:0.7rem;color:var(--text-2);font-weight:600}
+    .pay-sub{font-size:0.65rem;color:var(--text-3);margin-top:2px}
+
+    /* Right panel */
+    .right-panel{position:fixed;top:var(--topbar-h);right:0;width:var(--right-w);height:calc(100vh - var(--topbar-h));background:var(--bg-sidebar);border-left:1px solid var(--border);overflow-y:auto;z-index:900;display:flex;flex-direction:column}
+    .rp-header{padding:14px 16px;border-bottom:1px solid var(--border)}
+    .rp-title{font-size:0.8rem;font-weight:800;display:flex;align-items:center;gap:7px;margin-bottom:3px}
+    .rp-badge{background:var(--accent-dim);border:1px solid var(--border-accent);color:var(--accent);font-size:0.62rem;font-weight:800;padding:2px 7px;border-radius:10px}
+    .rp-sub{font-size:0.7rem;color:var(--text-2)}
+    .rp-kpi-row{display:flex;justify-content:space-between;align-items:center;padding:7px 16px;border-bottom:1px solid var(--border)}
+    .rp-kpi-label{font-size:0.72rem;color:var(--text-2)}
+    .rp-kpi-val{font-size:0.8rem;font-weight:800}
+    .ia-block{padding:14px 16px;border-bottom:1px solid var(--border)}
+    .ia-block-title{font-size:0.65rem;font-weight:700;color:var(--text-3);letter-spacing:0.09em;text-transform:uppercase;margin-bottom:10px}
+    .ia-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:11px;margin-bottom:8px;cursor:pointer;transition:all 0.2s}
+    .ia-card:last-child{margin-bottom:0}
+    .ia-card:hover{border-color:var(--border-accent)}
+    .ia-type{font-size:0.6rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
+    .ia-type.warn{color:var(--orange)} .ia-type.info{color:var(--cyan)} .ia-type.ok{color:var(--green)}
+    .ia-msg{font-size:0.73rem;color:var(--text-2);line-height:1.5}
+    .ia-action{margin-top:6px;font-size:0.68rem;font-weight:700;color:var(--accent);cursor:pointer}
+
+    .nav-bottom{display:flex;justify-content:space-between;align-items:center;padding:14px 28px;border-top:1px solid var(--border);position:sticky;bottom:0;background:rgba(7,7,15,0.96);backdrop-filter:blur(8px)}
+    input,select,textarea{color:var(--text)}
+    ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-logo"><img src="../assets/logos/logo_dark.png" alt="ORDR.AI" /></div>
+  <div class="topbar-divider"></div>
+  <div class="breadcrumb">
+    <span>ORDR.AI™</span><span class="sep">/</span>
+    <a href="04-crise.html">Gestion de crise</a><span class="sep">/</span>
+    <span class="active">BackOffice</span>
+  </div>
+  <div class="topbar-right">
+    <div class="badge"><span data-fr="Administration" data-en="Administration">Administration</span></div>
+    <div class="lang-toggle">
+      <button onclick="setLang('fr')" class="active" data-l="fr">FR</button>
+      <button onclick="setLang('en')" data-l="en">EN</button>
+    </div>
+    <div class="avatar">AB</div>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-section">
+      <div class="sb-label">Modules</div>
+      <div class="mod-item done" onclick="location.href='01-profil-evenement.html'"><span class="mn">✓</span><span class="mi">🎯</span><span data-fr="Évaluation du risque" data-en="Risk assessment">Évaluation du risque</span></div>
+      <div class="mod-item done" onclick="location.href='02-planification.html'"><span class="mn">✓</span><span class="mi">📋</span><span data-fr="Planification" data-en="Planning">Planification</span></div>
+      <div class="mod-item done" onclick="location.href='03-deploiement.html'"><span class="mn">✓</span><span class="mi">🗺️</span><span data-fr="Déploiement" data-en="Deployment">Déploiement</span></div>
+      <div class="mod-item done" onclick="location.href='04-crise.html'"><span class="mn">✓</span><span class="mi">🚨</span><span data-fr="Gestion de crise" data-en="Crisis mgmt">Gestion de crise</span></div>
+      <div class="mod-item active"><span class="mn">5</span><span class="mi">💼</span><span>BackOffice</span></div>
+      <div class="mod-item"><span class="mn">6</span><span class="mi">📈</span><span data-fr="Rétroaction IA" data-en="AI Feedback">Rétroaction IA</span></div>
+    </div>
+    <div class="sb-sep"></div>
+    <div class="tab-nav">
+      <div class="sb-label" data-fr="BackOffice" data-en="BackOffice">BackOffice</div>
+      <div class="tab-item active" onclick="switchTab('t1',this)"><div class="tab-dot">1</div><span data-fr="Tableau de bord" data-en="Dashboard">Tableau de bord</span></div>
+      <div class="tab-item" onclick="switchTab('t2',this)"><div class="tab-dot">2</div><span data-fr="Contrats & facturation" data-en="Contracts & billing">Contrats & facturation</span></div>
+      <div class="tab-item" onclick="switchTab('t3',this)"><div class="tab-dot">3</div><span data-fr="Budget & dépenses" data-en="Budget & expenses">Budget & dépenses</span></div>
+      <div class="tab-item" onclick="switchTab('t4',this)"><div class="tab-dot">4</div><span data-fr="Ressources humaines" data-en="Human resources">Ressources humaines</span></div>
+      <div class="tab-item" onclick="switchTab('t5',this)"><div class="tab-dot">5</div><span data-fr="Paie & heures" data-en="Payroll & hours">Paie & heures</span></div>
+      <div class="tab-item" onclick="switchTab('t6',this)"><div class="tab-dot">6</div><span data-fr="Documents légaux" data-en="Legal documents">Documents légaux</span></div>
+      <div class="tab-item" onclick="switchTab('t7',this)"><div class="tab-dot">7</div><span data-fr="Fournisseurs" data-en="Suppliers">Fournisseurs</span></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="page-header">
+      <div class="page-title-row">
+        <div>
+          <div class="page-title"><span class="hl">Back</span>Office</div>
+          <div class="page-sub" data-fr="Module 5 · Contrats, RH, paie, documents légaux & fournisseurs" data-en="Module 5 · Contracts, HR, payroll, legal documents & suppliers">Module 5 · Contrats, RH, paie, documents légaux & fournisseurs</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-ghost" data-fr="Exporter rapport" data-en="Export report">Exporter rapport</button>
+          <button class="btn btn-cyan" data-fr="📊 Analytique IA" data-en="📊 AI Analytics">📊 Analytique IA</button>
+          <button class="btn btn-primary" data-fr="+ Nouveau" data-en="+ New">+ Nouveau</button>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <button class="tab-bar-btn active" onclick="switchTab('t1',null,this)" data-fr="① Dashboard" data-en="① Dashboard">① Dashboard</button>
+        <button class="tab-bar-btn" onclick="switchTab('t2',null,this)" data-fr="② Contrats" data-en="② Contracts">② Contrats</button>
+        <button class="tab-bar-btn" onclick="switchTab('t3',null,this)" data-fr="③ Budget" data-en="③ Budget">③ Budget</button>
+        <button class="tab-bar-btn" onclick="switchTab('t4',null,this)" data-fr="④ RH" data-en="④ HR">④ RH</button>
+        <button class="tab-bar-btn" onclick="switchTab('t5',null,this)" data-fr="⑤ Paie" data-en="⑤ Payroll">⑤ Paie</button>
+        <button class="tab-bar-btn" onclick="switchTab('t6',null,this)" data-fr="⑥ Docs légaux" data-en="⑥ Legal docs">⑥ Docs légaux</button>
+        <button class="tab-bar-btn" onclick="switchTab('t7',null,this)" data-fr="⑦ Fournisseurs" data-en="⑦ Suppliers">⑦ Fournisseurs</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ════ TAB 1 — DASHBOARD ════ -->
+      <div class="tab-panel active" id="t1">
+        <div class="kpi-row">
+          <div class="kpi-card kc-green">
+            <div class="kpi-label" data-fr="Revenus cet événement" data-en="Event revenue">Revenus cet événement</div>
+            <div class="kpi-val" style="color:var(--green)">127 400 $</div>
+            <div class="kpi-sub" data-fr="3 contrats actifs" data-en="3 active contracts">3 contrats actifs</div>
+            <div class="kpi-trend trend-up">↑ +12% vs dernier</div>
+          </div>
+          <div class="kpi-card kc-orange">
+            <div class="kpi-label" data-fr="Dépenses engagées" data-en="Incurred expenses">Dépenses engagées</div>
+            <div class="kpi-val" style="color:var(--orange)">84 210 $</div>
+            <div class="kpi-sub" data-fr="66% du budget" data-en="66% of budget">66% du budget</div>
+            <div class="kpi-trend" style="color:var(--orange)">→ Dans les limites</div>
+          </div>
+          <div class="kpi-card kc-accent">
+            <div class="kpi-label" data-fr="Marge brute estimée" data-en="Estimated gross margin">Marge brute estimée</div>
+            <div class="kpi-val" style="color:var(--accent)">43 190 $</div>
+            <div class="kpi-sub" data-fr="33,9% de marge" data-en="33.9% margin">33,9% de marge</div>
+            <div class="kpi-trend trend-up">↑ Cible atteinte</div>
+          </div>
+          <div class="kpi-card kc-cyan">
+            <div class="kpi-label" data-fr="Factures en attente" data-en="Pending invoices">Factures en attente</div>
+            <div class="kpi-val" style="color:var(--cyan)">2</div>
+            <div class="kpi-sub" data-fr="Échéance dans 7–14 jours" data-en="Due in 7–14 days">Échéance dans 7–14 jours</div>
+            <div class="kpi-trend trend-down">⚠ Action requise</div>
+          </div>
+        </div>
+
+        <!-- Mini contracts + tasks -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><div class="card-icon" style="background:var(--accent-dim)">📑</div><span data-fr="Contrats récents" data-en="Recent contracts">Contrats récents</span></div>
+              <button class="btn btn-ghost" style="font-size:0.7rem" onclick="switchTab('t2',null,document.querySelectorAll('.tab-bar-btn')[1])" data-fr="Voir tous →" data-en="View all →">Voir tous →</button>
+            </div>
+            <div style="overflow:hidden">
+              <table class="data-table">
+                <thead><tr><th data-fr="Client" data-en="Client">Client</th><th data-fr="Montant" data-en="Amount">Montant</th><th>Statut</th></tr></thead>
+                <tbody>
+                  <tr><td style="font-weight:700">Festival du Parc</td><td class="amount positive">85 000 $</td><td><span class="status-pill sp-active" data-fr="Actif" data-en="Active">Actif</span></td></tr>
+                  <tr><td style="font-weight:700">Corp. Tech Expo</td><td class="amount positive">28 400 $</td><td><span class="status-pill sp-pending" data-fr="En attente" data-en="Pending">En attente</span></td></tr>
+                  <tr><td style="font-weight:700">Gala Prestige</td><td class="amount neutral">14 000 $</td><td><span class="status-pill sp-draft" data-fr="Brouillon" data-en="Draft">Brouillon</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><div class="card-icon" style="background:rgba(244,63,94,0.1)">⚡</div><span data-fr="Actions urgentes" data-en="Urgent actions">Actions urgentes</span></div>
+            </div>
+            <div style="padding:12px 18px;display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;background:rgba(244,63,94,0.06);border:1px solid rgba(244,63,94,0.15);border-radius:7px">
+                <span style="color:var(--red);font-size:0.9rem">🔴</span>
+                <div style="flex:1"><div style="font-size:0.77rem;font-weight:800;margin-bottom:2px" data-fr="Certification BSP échéant — 3 agents" data-en="BSP certification expiring — 3 agents">Certification BSP échéant — 3 agents</div><div style="font-size:0.68rem;color:var(--text-2)" data-fr="Expire dans moins de 30 jours" data-en="Expires in less than 30 days">Expire dans moins de 30 jours</div></div>
+                <button class="row-action" onclick="switchTab('t4',null,document.querySelectorAll('.tab-bar-btn')[3])" data-fr="Voir" data-en="View">Voir</button>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;background:rgba(251,146,60,0.06);border:1px solid rgba(251,146,60,0.15);border-radius:7px">
+                <span style="color:var(--orange);font-size:0.9rem">🟠</span>
+                <div style="flex:1"><div style="font-size:0.77rem;font-weight:800;margin-bottom:2px" data-fr="Facture #2024-047 — Tech Expo (28 400 $)" data-en="Invoice #2024-047 — Tech Expo ($28,400)">Facture #2024-047 — Tech Expo (28 400 $)</div><div style="font-size:0.68rem;color:var(--text-2)" data-fr="Échéance dans 7 jours" data-en="Due in 7 days">Échéance dans 7 jours</div></div>
+                <button class="row-action" data-fr="Relancer" data-en="Follow up">Relancer</button>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;background:rgba(251,146,60,0.06);border:1px solid rgba(251,146,60,0.15);border-radius:7px">
+                <span style="color:var(--orange);font-size:0.9rem">🟠</span>
+                <div style="flex:1"><div style="font-size:0.77rem;font-weight:800;margin-bottom:2px" data-fr="Convention collective à renouveler" data-en="Collective agreement to renew">Convention collective à renouveler</div><div style="font-size:0.68rem;color:var(--text-2)" data-fr="Expire le 31 juillet 2026" data-en="Expires July 31, 2026">Expire le 31 juillet 2026</div></div>
+                <button class="row-action" data-fr="Voir" data-en="View">Voir</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activité récente -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:var(--cyan-dim)">📊</div><span data-fr="Activité BackOffice récente" data-en="Recent BackOffice activity">Activité BackOffice récente</span></div>
+          </div>
+          <div style="overflow:hidden">
+            <table class="data-table">
+              <thead><tr><th data-fr="Date" data-en="Date">Date</th><th data-fr="Type" data-en="Type">Type</th><th data-fr="Description" data-en="Description">Description</th><th data-fr="Responsable" data-en="Responsible">Responsable</th><th data-fr="Montant" data-en="Amount">Montant</th><th>Statut</th></tr></thead>
+              <tbody>
+                <tr><td style="color:var(--text-2);font-size:0.72rem">2026-06-07</td><td><span style="font-size:0.7rem;font-weight:700;color:var(--accent)">Contrat</span></td><td style="font-weight:600" data-fr="Festival du Parc — Contrat signé" data-en="Parc Festival — Contract signed">Festival du Parc — Contrat signé</td><td style="color:var(--text-2)">D. Blain</td><td class="amount positive">85 000 $</td><td><span class="status-pill sp-paid" data-fr="Signé" data-en="Signed">Signé</span></td></tr>
+                <tr><td style="color:var(--text-2);font-size:0.72rem">2026-06-05</td><td><span style="font-size:0.7rem;font-weight:700;color:var(--cyan)">Facture</span></td><td style="font-weight:600" data-fr="Facture #2024-046 émise — Festival du Parc" data-en="Invoice #2024-046 issued — Parc Festival">Facture #2024-046 émise — Festival du Parc</td><td style="color:var(--text-2)">A. Bernard</td><td class="amount positive">42 500 $</td><td><span class="status-pill sp-paid" data-fr="Payée" data-en="Paid">Payée</span></td></tr>
+                <tr><td style="color:var(--text-2);font-size:0.72rem">2026-06-03</td><td><span style="font-size:0.7rem;font-weight:700;color:var(--orange)">Dépense</span></td><td style="font-weight:600" data-fr="Location barrières Heras — Fournisseur A" data-en="Heras barrier rental — Supplier A">Location barrières Heras — Fournisseur A</td><td style="color:var(--text-2)">S. Côté</td><td class="amount negative">-3 240 $</td><td><span class="status-pill sp-paid" data-fr="Approuvée" data-en="Approved">Approuvée</span></td></tr>
+                <tr><td style="color:var(--text-2);font-size:0.72rem">2026-06-01</td><td><span style="font-size:0.7rem;font-weight:700;color:var(--purple)">RH</span></td><td style="font-weight:600" data-fr="Paie traitement — 76 agents · Mai 2026" data-en="Payroll processing — 76 agents · May 2026">Paie traitement — 76 agents · Mai 2026</td><td style="color:var(--text-2)">M. Tremblay</td><td class="amount negative">-61 824 $</td><td><span class="status-pill sp-paid" data-fr="Traitée" data-en="Processed">Traitée</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ TAB 2 — CONTRATS ════ -->
+      <div class="tab-panel" id="t2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:var(--accent-dim)">📑</div><span data-fr="Contrats & facturation" data-en="Contracts & billing">Contrats & facturation</span></div>
+            <div class="card-actions">
+              <button class="btn btn-ghost" data-fr="Filtrer" data-en="Filter">Filtrer</button>
+              <button class="btn btn-primary" data-fr="+ Nouveau contrat" data-en="+ New contract">+ Nouveau contrat</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="contract-grid">
+              <div class="contract-card cc-active">
+                <div class="cct-header">
+                  <div><div class="cct-name" data-fr="Festival du Parc 2026" data-en="Parc Festival 2026">Festival du Parc 2026</div><div class="cct-client" data-fr="Client : Cultura Montréal inc." data-en="Client: Cultura Montréal inc.">Client : Cultura Montréal inc.</div></div>
+                  <div style="text-align:right"><div class="cct-amount">85 000 $</div><span class="status-pill sp-active" data-fr="Actif" data-en="Active">Actif</span></div>
+                </div>
+                <div class="cct-meta">
+                  <div class="cct-meta-item"><div class="cct-meta-label" data-fr="Date début" data-en="Start date">Date début</div><div class="cct-meta-val">7 juin 2026</div></div>
+                  <div class="cct-meta-item"><div class="cct-meta-label" data-fr="Date fin" data-en="End date">Date fin</div><div class="cct-meta-val">9 juin 2026</div></div>
+                  <div class="cct-meta-item"><div class="cct-meta-label" data-fr="Agents requis" data-en="Agents required">Agents requis</div><div class="cct-meta-val">76</div></div>
+                  <div class="cct-meta-item"><div class="cct-meta-label" data-fr="Facturé à ce jour" data-en="Billed to date">Facturé à ce jour</div><div class="cct-meta-val" style="color:var(--green)">42 500 $</div></div>
+                </div>
+                <div class="cct-progress">
+                  <div class="cct-progress-header"><span data-fr="Avancement facturation" data-en="Billing progress">Avancement facturation</span><span style="font-weight:700;color:var(--accent)">50%</span></div>
+                  <div class="progress-wrap"><div class="progress-fill" style="width:50%;background:var(--accent)"></div></div>
+                </div>
+                <div style="display:flex;gap:6px;margin-top:12px">
+                  <button class="row-action" data-fr="Voir contrat" data-en="View contract">Voir contrat</button>
+                  <button class="row-action" data-fr="Émettre facture" data-en="Issue invoice">Émettre facture</button>
+                  <button class="row-action" data-fr="Rapport" data-en="Report">Rapport</button>
+                </div>
+              </div>
+
+              <div class="contract-card cc-pending">
+                <div class="cct-header">
+                  <div><div class="cct-name" data-fr="Corp. Tech Expo 2026" data-en="Corp. Tech Expo 2026">Corp. Tech Expo 2026</div><div class="cct-client" data-fr="Client : TechMontréal s.e.c." data-en="Client: TechMontréal l.p.">Client : TechMontréal s.e.c.</div></div>
+                  <div style="text-align:right"><div class="cct-amount">28 400 $</div><span class="status-pill sp-pending" data-fr="En attente" data-en="Pending">En attente</span></div>
+                </div>
+                <div class="cct-meta">
+                  <div class="cct-meta-item"><div class="cct-meta-label" data-fr="Date début" data-en="Start date">Date début</div><div class="cct-meta-val">14 juin 2026</div></div>
+                  <div class="cct-meta-item"><div class="cct-meta-label" data-fr="Date fin" data-en="End date">Date fin</div><div class="cct-meta-val">16 juin 2026</div></div>
+                  <div class="cct-meta-item"><div class="cct-meta-label" data-fr="Agents requis" data-en="Agents required">Agents requis</div><div class="cct-meta-val">28</div></div>
+                  <div class="cct-meta-item"><div class="cct-meta-label" data-fr="Acompte reçu" data-en="Deposit received">Acompte reçu</div><div class="cct-meta-val" style="color:var(--orange)">Non</div></div>
+                </div>
+                <div class="cct-progress">
+                  <div class="cct-progress-header"><span data-fr="Signature contrat" data-en="Contract signature">Signature contrat</span><span style="font-weight:700;color:var(--orange)">0%</span></div>
+                  <div class="progress-wrap"><div class="progress-fill" style="width:0%;background:var(--orange)"></div></div>
+                </div>
+                <div style="display:flex;gap:6px;margin-top:12px">
+                  <button class="row-action" data-fr="Envoyer contrat" data-en="Send contract">Envoyer contrat</button>
+                  <button class="row-action" data-fr="Relancer client" data-en="Follow up">Relancer client</button>
+                </div>
+              </div>
+
+              <div class="contract-card cc-draft">
+                <div class="cct-header">
+                  <div><div class="cct-name" data-fr="Gala Prestige Montréal" data-en="Prestige Montreal Gala">Gala Prestige Montréal</div><div class="cct-client" data-fr="Client : Événements Luxe & Co." data-en="Client: Events Luxe & Co.">Client : Événements Luxe & Co.</div></div>
+                  <div style="text-align:right"><div class="cct-amount" style="color:var(--text-2)">14 000 $</div><span class="status-pill sp-draft" data-fr="Brouillon" data-en="Draft">Brouillon</span></div>
+                </div>
+                <div class="cct-meta">
+                  <div class="cct-meta-item"><div class="cct-meta-label" data-fr="Date prévue" data-en="Planned date">Date prévue</div><div class="cct-meta-val">22 août 2026</div></div>
+                  <div class="cct-meta-item"><div class="cct-meta-label">Agents</div><div class="cct-meta-val">15</div></div>
+                </div>
+                <div style="display:flex;gap:6px;margin-top:12px">
+                  <button class="row-action" data-fr="Finaliser" data-en="Finalize">Finaliser</button>
+                  <button class="row-action" data-fr="Supprimer" data-en="Delete">Supprimer</button>
+                </div>
+              </div>
+
+              <div class="contract-card" style="border-style:dashed;display:flex;align-items:center;justify-content:center;min-height:180px;cursor:pointer;gap:10px;flex-direction:column" onclick="">
+                <div style="font-size:2rem;opacity:0.25">+</div>
+                <div style="font-size:0.8rem;color:var(--text-3)" data-fr="Nouveau contrat" data-en="New contract">Nouveau contrat</div>
+              </div>
+            </div>
+
+            <!-- Factures -->
+            <div style="margin-top:20px">
+              <div style="font-size:0.8rem;font-weight:800;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+                <span data-fr="Factures émises" data-en="Issued invoices">Factures émises</span>
+                <button class="btn btn-ghost" style="font-size:0.7rem" data-fr="+ Nouvelle facture" data-en="+ New invoice">+ Nouvelle facture</button>
+              </div>
+              <table class="data-table">
+                <thead><tr><th>#</th><th data-fr="Client" data-en="Client">Client</th><th data-fr="Date" data-en="Date">Date</th><th data-fr="Échéance" data-en="Due date">Échéance</th><th data-fr="Montant TPS+TVQ" data-en="Amount (taxes)">Montant TPS+TVQ</th><th>Statut</th><th></th></tr></thead>
+                <tbody>
+                  <tr><td style="color:var(--accent);font-weight:800">#2024-046</td><td>Festival du Parc</td><td style="color:var(--text-2)">05/06/2026</td><td style="color:var(--text-2)">19/06/2026</td><td class="amount positive">48 826 $</td><td><span class="status-pill sp-paid" data-fr="Payée" data-en="Paid">Payée</span></td><td><button class="row-action">PDF</button></td></tr>
+                  <tr><td style="color:var(--accent);font-weight:800">#2024-047</td><td>Corp. Tech Expo</td><td style="color:var(--text-2)">01/06/2026</td><td style="color:var(--orange)">08/06/2026</td><td class="amount neutral">32 638 $</td><td><span class="status-pill sp-pending" data-fr="En attente" data-en="Pending">En attente</span></td><td><button class="row-action">Relancer</button></td></tr>
+                  <tr><td style="color:var(--text-3);font-weight:800">#2024-044</td><td>Salon Auto 2026</td><td style="color:var(--text-2)">12/05/2026</td><td style="color:var(--red)">26/05/2026</td><td class="amount negative">18 400 $</td><td><span class="status-pill sp-overdue" data-fr="En retard" data-en="Overdue">En retard</span></td><td><button class="row-action" style="border-color:rgba(244,63,94,0.3);color:var(--red)">Escalader</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ TAB 3 — BUDGET ════ -->
+      <div class="tab-panel" id="t3">
+        <div class="kpi-row">
+          <div class="kpi-card kc-accent"><div class="kpi-label" data-fr="Budget total approuvé" data-en="Total approved budget">Budget total approuvé</div><div class="kpi-val" style="color:var(--accent)">128 000 $</div></div>
+          <div class="kpi-card kc-orange"><div class="kpi-label" data-fr="Dépenses engagées" data-en="Incurred expenses">Dépenses engagées</div><div class="kpi-val" style="color:var(--orange)">84 210 $</div><div class="kpi-sub">66% utilisé</div></div>
+          <div class="kpi-card kc-green"><div class="kpi-label" data-fr="Solde disponible" data-en="Available balance">Solde disponible</div><div class="kpi-val" style="color:var(--green)">43 790 $</div><div class="kpi-sub">34% restant</div></div>
+          <div class="kpi-card kc-cyan"><div class="kpi-label" data-fr="Dépenses imprévues" data-en="Unplanned expenses">Dépenses imprévues</div><div class="kpi-val" style="color:var(--cyan)">3 410 $</div><div class="kpi-sub" data-fr="2,7% du budget" data-en="2.7% of budget">2,7% du budget</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:var(--accent-dim)">💰</div><span data-fr="Répartition budgétaire — Festival du Parc 2026" data-en="Budget allocation — Parc Festival 2026">Répartition budgétaire — Festival du Parc 2026</span></div>
+            <button class="btn btn-cyan" data-fr="🧠 Optimiser budget IA" data-en="🧠 AI budget optimize">🧠 Optimiser budget IA</button>
+          </div>
+          <div class="card-body">
+            <div class="budget-grid">
+              <div style="display:flex;align-items:center;gap:20px">
+                <div class="donut-wrap">
+                  <svg class="donut-svg" width="140" height="140" viewBox="0 0 140 140">
+                    <circle cx="70" cy="70" r="55" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="18"/>
+                    <!-- Main-d'oeuvre 73% -->
+                    <circle cx="70" cy="70" r="55" fill="none" stroke="#c4e000" stroke-width="18" stroke-dasharray="252 93" stroke-linecap="round"/>
+                    <!-- Matériel 14% -->
+                    <circle cx="70" cy="70" r="55" fill="none" stroke="#00d4ff" stroke-width="18" stroke-dasharray="48 297" stroke-dashoffset="-252" stroke-linecap="round"/>
+                    <!-- Autres 8% -->
+                    <circle cx="70" cy="70" r="55" fill="none" stroke="#8b5cf6" stroke-width="18" stroke-dasharray="28 317" stroke-dashoffset="-300" stroke-linecap="round"/>
+                    <!-- Imprévus 5% -->
+                    <circle cx="70" cy="70" r="55" fill="none" stroke="#fb923c" stroke-width="18" stroke-dasharray="17 328" stroke-dashoffset="-328" stroke-linecap="round"/>
+                  </svg>
+                  <div class="donut-center">
+                    <div class="donut-val">84 k$</div>
+                    <div class="donut-sub" data-fr="dépensé" data-en="spent">dépensé</div>
+                  </div>
+                </div>
+                <div class="budget-categories">
+                  <div class="budget-cat">
+                    <div class="bc-header">
+                      <div class="bc-name"><div class="bc-dot" style="background:var(--accent)"></div><span data-fr="Main-d'œuvre" data-en="Labour">Main-d'œuvre</span></div>
+                      <div class="bc-vals">61 824 $ / 68 000 $</div>
+                    </div>
+                    <div class="progress-wrap"><div class="progress-fill" style="width:91%;background:var(--accent)"></div></div>
+                  </div>
+                  <div class="budget-cat">
+                    <div class="bc-header">
+                      <div class="bc-name"><div class="bc-dot" style="background:var(--cyan)"></div><span data-fr="Matériel & équipement" data-en="Material & equipment">Matériel & équipement</span></div>
+                      <div class="bc-vals">11 840 $ / 28 000 $</div>
+                    </div>
+                    <div class="progress-wrap"><div class="progress-fill" style="width:42%;background:var(--cyan)"></div></div>
+                  </div>
+                  <div class="budget-cat">
+                    <div class="bc-header">
+                      <div class="bc-name"><div class="bc-dot" style="background:var(--purple)"></div><span data-fr="Administration & assurances" data-en="Admin & insurance">Administration & assurances</span></div>
+                      <div class="bc-vals">7 136 $ / 22 000 $</div>
+                    </div>
+                    <div class="progress-wrap"><div class="progress-fill" style="width:32%;background:var(--purple)"></div></div>
+                  </div>
+                  <div class="budget-cat">
+                    <div class="bc-header">
+                      <div class="bc-name"><div class="bc-dot" style="background:var(--orange)"></div><span data-fr="Dépenses imprévues" data-en="Unplanned expenses">Dépenses imprévues</span></div>
+                      <div class="bc-vals">3 410 $ / 10 000 $</div>
+                    </div>
+                    <div class="progress-wrap"><div class="progress-fill" style="width:34%;background:var(--orange)"></div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div style="font-size:0.8rem;font-weight:800;margin-bottom:12px" data-fr="Dépenses récentes" data-en="Recent expenses">Dépenses récentes</div>
+                <table class="data-table">
+                  <thead><tr><th data-fr="Description" data-en="Description">Description</th><th data-fr="Catégorie" data-en="Category">Catégorie</th><th data-fr="Montant" data-en="Amount">Montant</th><th>Statut</th></tr></thead>
+                  <tbody>
+                    <tr><td data-fr="Paie agents (76)" data-en="Agent payroll (76)">Paie agents (76)</td><td style="color:var(--accent);font-size:0.7rem;font-weight:700" data-fr="Main-d'œuvre" data-en="Labour">Main-d'œuvre</td><td class="amount negative">-61 824 $</td><td><span class="status-pill sp-paid" data-fr="Traitée" data-en="Processed">Traitée</span></td></tr>
+                    <tr><td data-fr="Location barrières Heras" data-en="Heras barrier rental">Location barrières Heras</td><td style="color:var(--cyan);font-size:0.7rem;font-weight:700" data-fr="Matériel" data-en="Material">Matériel</td><td class="amount negative">-3 240 $</td><td><span class="status-pill sp-paid" data-fr="Payée" data-en="Paid">Payée</span></td></tr>
+                    <tr><td data-fr="Radios Kenwood TK (82 unités)" data-en="Kenwood TK radios (82 units)">Radios Kenwood TK (82 unités)</td><td style="color:var(--cyan);font-size:0.7rem;font-weight:700" data-fr="Matériel" data-en="Material">Matériel</td><td class="amount negative">-4 920 $</td><td><span class="status-pill sp-paid" data-fr="Payée" data-en="Paid">Payée</span></td></tr>
+                    <tr><td data-fr="Police d'assurance responsabilité" data-en="Liability insurance policy">Police d'assurance responsabilité</td><td style="color:var(--purple);font-size:0.7rem;font-weight:700">Admin</td><td class="amount negative">-5 800 $</td><td><span class="status-pill sp-paid" data-fr="Payée" data-en="Paid">Payée</span></td></tr>
+                    <tr><td data-fr="Heures supplémentaires (incident)" data-en="Overtime hours (incident)">Heures supplémentaires (incident)</td><td style="color:var(--orange);font-size:0.7rem;font-weight:700" data-fr="Imprévus" data-en="Unplanned">Imprévus</td><td class="amount negative">-3 410 $</td><td><span class="status-pill sp-pending" data-fr="En attente" data-en="Pending">En attente</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ TAB 4 — RH ════ -->
+      <div class="tab-panel" id="t4">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:rgba(139,92,246,0.1)">👥</div><span data-fr="Dossiers ressources humaines" data-en="Human resources files">Dossiers ressources humaines</span></div>
+            <div class="card-actions">
+              <input type="text" style="background:var(--bg-input);border:1px solid var(--border);border-radius:7px;padding:6px 12px;color:var(--text);font-size:0.77rem;width:180px" placeholder="Rechercher un agent…" />
+              <button class="btn btn-primary" data-fr="+ Ajouter agent" data-en="+ Add agent">+ Ajouter agent</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="hr-grid">
+              <div class="hr-card">
+                <div class="hr-header">
+                  <div class="hr-avatar" style="background:rgba(196,224,0,0.15);color:var(--accent)">DB</div>
+                  <div><div class="hr-name">D. Blain</div><div class="hr-role" data-fr="Chef de sécurité — Permanent" data-en="Security Chief — Permanent">Chef de sécurité — Permanent</div></div>
+                </div>
+                <div class="hr-stats">
+                  <div class="hr-stat"><div class="hr-stat-val" style="color:var(--accent)">312 h</div><div class="hr-stat-lbl" data-fr="Heures/an" data-en="Hours/year">Heures/an</div></div>
+                  <div class="hr-stat"><div class="hr-stat-val" style="color:var(--green)">47 $</div><div class="hr-stat-lbl" data-fr="Taux horaire" data-en="Hourly rate">Taux horaire</div></div>
+                </div>
+                <div style="margin-top:8px">
+                  <span class="cert-tag cert-ok">BSP ✓</span>
+                  <span class="cert-tag cert-ok">WHMIS ✓</span>
+                  <span class="cert-tag cert-ok">SIMDUT ✓</span>
+                </div>
+              </div>
+
+              <div class="hr-card">
+                <div class="hr-header">
+                  <div class="hr-avatar" style="background:rgba(139,92,246,0.15);color:var(--purple)">MT</div>
+                  <div><div class="hr-name">M. Tremblay</div><div class="hr-role" data-fr="Superviseur — Permanent" data-en="Supervisor — Permanent">Superviseur — Permanent</div></div>
+                </div>
+                <div class="hr-stats">
+                  <div class="hr-stat"><div class="hr-stat-val" style="color:var(--accent)">276 h</div><div class="hr-stat-lbl" data-fr="Heures/an" data-en="Hours/year">Heures/an</div></div>
+                  <div class="hr-stat"><div class="hr-stat-val" style="color:var(--green)">34 $</div><div class="hr-stat-lbl" data-fr="Taux horaire" data-en="Hourly rate">Taux horaire</div></div>
+                </div>
+                <div style="margin-top:8px">
+                  <span class="cert-tag cert-ok">BSP ✓</span>
+                  <span class="cert-tag cert-ok">RCR ✓</span>
+                </div>
+              </div>
+
+              <div class="hr-card" style="border-color:rgba(251,146,60,0.25)">
+                <div class="hr-header">
+                  <div class="hr-avatar" style="background:rgba(251,146,60,0.15);color:var(--orange)">PG</div>
+                  <div><div class="hr-name">P. Gagnon</div><div class="hr-role" data-fr="Agent fixe — Occasionnel" data-en="Fixed agent — Occasional">Agent fixe — Occasionnel</div></div>
+                </div>
+                <div class="hr-stats">
+                  <div class="hr-stat"><div class="hr-stat-val" style="color:var(--accent)">84 h</div><div class="hr-stat-lbl" data-fr="Heures/an" data-en="Hours/year">Heures/an</div></div>
+                  <div class="hr-stat"><div class="hr-stat-val" style="color:var(--green)">22 $</div><div class="hr-stat-lbl">Taux</div></div>
+                </div>
+                <div style="margin-top:8px">
+                  <span class="cert-tag cert-ok">BSP ✓</span>
+                  <span class="cert-tag cert-warn" title="Expire dans 25 jours">RCR ⚠ 25j</span>
+                </div>
+              </div>
+
+              <div class="hr-card" style="border-color:rgba(244,63,94,0.2)">
+                <div class="hr-header">
+                  <div class="hr-avatar" style="background:rgba(244,63,94,0.12);color:var(--red)">RS</div>
+                  <div><div class="hr-name">R. Simard</div><div class="hr-role" data-fr="Patrouille — Occasionnel" data-en="Patrol — Occasional">Patrouille — Occasionnel</div></div>
+                </div>
+                <div class="hr-stats">
+                  <div class="hr-stat"><div class="hr-stat-val" style="color:var(--accent)">62 h</div><div class="hr-stat-lbl">Heures/an</div></div>
+                  <div class="hr-stat"><div class="hr-stat-val" style="color:var(--green)">22 $</div><div class="hr-stat-lbl">Taux</div></div>
+                </div>
+                <div style="margin-top:8px">
+                  <span class="cert-tag cert-ok">BSP ✓</span>
+                  <span class="cert-tag cert-warn">BSP ⚠ 18j</span>
+                </div>
+              </div>
+
+              <div class="hr-card">
+                <div class="hr-header">
+                  <div class="hr-avatar" style="background:rgba(34,197,94,0.15);color:var(--green)">LM</div>
+                  <div><div class="hr-name">Dr L. Martin</div><div class="hr-role" data-fr="Coord. médical — Contractuel" data-en="Medical coord. — Contract">Coord. médical — Contractuel</div></div>
+                </div>
+                <div class="hr-stats">
+                  <div class="hr-stat"><div class="hr-stat-val" style="color:var(--accent)">48 h</div><div class="hr-stat-lbl">Heures/an</div></div>
+                  <div class="hr-stat"><div class="hr-stat-val" style="color:var(--green)">75 $</div><div class="hr-stat-lbl">Taux</div></div>
+                </div>
+                <div style="margin-top:8px">
+                  <span class="cert-tag cert-ok">MD ✓</span>
+                  <span class="cert-tag cert-ok">ACLS ✓</span>
+                  <span class="cert-tag cert-ok">DEA ✓</span>
+                </div>
+              </div>
+
+              <div class="hr-card" style="border-style:dashed;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-direction:column;gap:8px;min-height:140px">
+                <div style="font-size:1.8rem;opacity:0.2">+</div>
+                <div style="font-size:0.75rem;color:var(--text-3)" data-fr="Ajouter un agent" data-en="Add an agent">Ajouter un agent</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ TAB 5 — PAIE ════ -->
+      <div class="tab-panel" id="t5">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:var(--accent-dim)">💳</div><span data-fr="Paie & heures travaillées" data-en="Payroll & hours worked">Paie & heures travaillées</span></div>
+            <div class="card-actions">
+              <button class="btn btn-ghost" data-fr="Exporter CSV" data-en="Export CSV">Exporter CSV</button>
+              <button class="btn btn-primary" data-fr="Traiter la paie →" data-en="Process payroll →">Traiter la paie →</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="pay-summary">
+              <div class="pay-card"><div class="pay-val" style="color:var(--accent)">61 824 $</div><div class="pay-lbl" data-fr="Masse salariale brute" data-en="Gross payroll">Masse salariale brute</div><div class="pay-sub" data-fr="Festival du Parc · 76 agents" data-en="Parc Festival · 76 agents">Festival du Parc · 76 agents</div></div>
+              <div class="pay-card"><div class="pay-val" style="color:var(--orange)">3 410 $</div><div class="pay-lbl" data-fr="Heures supplémentaires" data-en="Overtime hours">Heures supplémentaires</div><div class="pay-sub" data-fr="Incident zone alcool · 7 agents" data-en="Alcohol zone incident · 7 agents">Incident zone alcool · 7 agents</div></div>
+              <div class="pay-card"><div class="pay-val" style="color:var(--green)">65 234 $</div><div class="pay-lbl" data-fr="Total à verser" data-en="Total to pay">Total à verser</div><div class="pay-sub" data-fr="Prochaine paie : 15 juin 2026" data-en="Next pay: June 15, 2026">Prochaine paie : 15 juin 2026</div></div>
+            </div>
+            <table class="data-table">
+              <thead><tr><th data-fr="Agent" data-en="Agent">Agent</th><th data-fr="Rôle" data-en="Role">Rôle</th><th data-fr="Heures régulières" data-en="Regular hours">H. régulières</th><th data-fr="Heures supp." data-en="Overtime">H. supp.</th><th data-fr="Taux" data-en="Rate">Taux</th><th data-fr="Brut" data-en="Gross">Brut</th><th data-fr="Retenues" data-en="Deductions">Retenues</th><th data-fr="Net" data-en="Net">Net</th></tr></thead>
+              <tbody>
+                <tr><td style="font-weight:700">D. Blain</td><td style="color:var(--text-2);font-size:0.72rem" data-fr="Chef sécu." data-en="Security chief">Chef sécu.</td><td>24 h</td><td style="color:var(--orange)">3 h</td><td>47 $/h</td><td class="amount positive">1 269 $</td><td class="amount negative">-342 $</td><td class="amount positive">927 $</td></tr>
+                <tr><td style="font-weight:700">M. Tremblay</td><td style="color:var(--text-2);font-size:0.72rem">Superviseur</td><td>24 h</td><td style="color:var(--orange)">2 h</td><td>34 $/h</td><td class="amount positive">884 $</td><td class="amount negative">-239 $</td><td class="amount positive">645 $</td></tr>
+                <tr><td style="font-weight:700">S. Côté</td><td style="color:var(--text-2);font-size:0.72rem">Superviseur</td><td>16 h</td><td>0 h</td><td>34 $/h</td><td class="amount positive">544 $</td><td class="amount negative">-147 $</td><td class="amount positive">397 $</td></tr>
+                <tr><td style="font-weight:700">P. Gagnon</td><td style="color:var(--text-2);font-size:0.72rem" data-fr="Agent fixe" data-en="Fixed agent">Agent fixe</td><td>12 h</td><td style="color:var(--orange)">1.5 h</td><td>22 $/h</td><td class="amount positive">297 $</td><td class="amount negative">-80 $</td><td class="amount positive">217 $</td></tr>
+                <tr><td style="font-weight:700">Dr L. Martin</td><td style="color:var(--text-2);font-size:0.72rem" data-fr="Médical" data-en="Medical">Médical</td><td>12 h</td><td>0 h</td><td>75 $/h</td><td class="amount positive">900 $</td><td class="amount negative">-243 $</td><td class="amount positive">657 $</td></tr>
+                <tr style="background:rgba(196,224,0,0.03)"><td colspan="5" style="font-weight:800;color:var(--accent)" data-fr="TOTAL (76 agents)" data-en="TOTAL (76 agents)">TOTAL (76 agents)</td><td class="amount positive" style="font-size:0.9rem">65 234 $</td><td class="amount negative" style="font-size:0.9rem">-17 613 $</td><td class="amount positive" style="font-size:0.9rem">47 621 $</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ TAB 6 — DOCUMENTS LÉGAUX ════ -->
+      <div class="tab-panel" id="t6">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:rgba(0,212,255,0.1)">⚖️</div><span data-fr="Documents légaux & conformité" data-en="Legal documents & compliance">Documents légaux & conformité</span></div>
+            <div class="card-actions">
+              <button class="btn btn-ghost" data-fr="Téléverser document" data-en="Upload document">Téléverser document</button>
+              <button class="btn btn-primary" data-fr="Archiver sélection" data-en="Archive selection">Archiver sélection</button>
+            </div>
+          </div>
+          <div class="doc-list">
+            <div class="doc-item"><div class="doc-icon">📄</div><div><div class="doc-name" data-fr="Contrat de service — Festival du Parc 2026.pdf" data-en="Service contract — Parc Festival 2026.pdf">Contrat de service — Festival du Parc 2026.pdf</div><div class="doc-meta" data-fr="Signé le 1er juin 2026 · Valide jusqu'au 9 juin 2026" data-en="Signed June 1, 2026 · Valid until June 9, 2026">Signé le 1er juin 2026 · Valide jusqu'au 9 juin 2026</div></div><span class="status-pill sp-active" style="flex-shrink:0" data-fr="Valide" data-en="Valid">Valide</span><span class="doc-size">248 Ko</span><div class="doc-actions"><button class="row-action">PDF</button><button class="row-action" data-fr="Voir" data-en="View">Voir</button></div></div>
+            <div class="doc-item"><div class="doc-icon">🛡️</div><div><div class="doc-name" data-fr="Police d'assurance responsabilité civile — 5M$.pdf" data-en="Civil liability insurance policy — $5M.pdf">Police d'assurance responsabilité civile — 5M$.pdf</div><div class="doc-meta" data-fr="Assureur : La Capitale · Échéance : 31 déc. 2026" data-en="Insurer: La Capitale · Expiry: Dec 31, 2026">Assureur : La Capitale · Échéance : 31 déc. 2026</div></div><span class="status-pill sp-active" style="flex-shrink:0" data-fr="Valide" data-en="Valid">Valide</span><span class="doc-size">1,1 Mo</span><div class="doc-actions"><button class="row-action">PDF</button></div></div>
+            <div class="doc-item"><div class="doc-icon">📋</div><div><div class="doc-name" data-fr="Convention collective agents de sécurité FPSSQ.pdf" data-en="FPSSQ security agents collective agreement.pdf">Convention collective agents de sécurité FPSSQ.pdf</div><div class="doc-meta" data-fr="Valide jusqu'au 31 juillet 2026 · Renouvellement requis" data-en="Valid until July 31, 2026 · Renewal required">Valide jusqu'au 31 juillet 2026 · Renouvellement requis</div></div><span class="status-pill sp-pending" style="flex-shrink:0" data-fr="À renouveler" data-en="To renew">À renouveler</span><span class="doc-size">3,4 Mo</span><div class="doc-actions"><button class="row-action">PDF</button><button class="row-action" style="color:var(--orange);border-color:rgba(251,146,60,0.3)" data-fr="Renouveler" data-en="Renew">Renouveler</button></div></div>
+            <div class="doc-item"><div class="doc-icon">🏛️</div><div><div class="doc-name" data-fr="Permis municipal — Ville de Montréal — Juin 2026.pdf" data-en="Municipal permit — City of Montreal — June 2026.pdf">Permis municipal — Ville de Montréal — Juin 2026.pdf</div><div class="doc-meta" data-fr="Accordé le 20 mai 2026 · Zone : Parc Maisonneuve" data-en="Granted May 20, 2026 · Zone: Parc Maisonneuve">Accordé le 20 mai 2026 · Zone : Parc Maisonneuve</div></div><span class="status-pill sp-active" style="flex-shrink:0" data-fr="Valide" data-en="Valid">Valide</span><span class="doc-size">540 Ko</span><div class="doc-actions"><button class="row-action">PDF</button></div></div>
+            <div class="doc-item"><div class="doc-icon">📜</div><div><div class="doc-name" data-fr="Rapport d'incident — INC-2026-0607-001.pdf" data-en="Incident report — INC-2026-0607-001.pdf">Rapport d'incident — INC-2026-0607-001.pdf</div><div class="doc-meta" data-fr="Généré aujourd'hui · 7 juin 2026 14:15" data-en="Generated today · June 7, 2026 14:15">Généré aujourd'hui · 7 juin 2026 14:15</div></div><span class="status-pill sp-draft" style="flex-shrink:0" data-fr="Brouillon" data-en="Draft">Brouillon</span><span class="doc-size">—</span><div class="doc-actions"><button class="row-action" data-fr="Finaliser" data-en="Finalize">Finaliser</button></div></div>
+            <div class="doc-item"><div class="doc-icon">🔑</div><div><div class="doc-name" data-fr="Contrat de sous-traitance — Urgences-santé.pdf" data-en="Subcontracting agreement — Urgences-santé.pdf">Contrat de sous-traitance — Urgences-santé.pdf</div><div class="doc-meta" data-fr="Valide pour l'événement · 7–9 juin 2026" data-en="Valid for the event · June 7–9, 2026">Valide pour l'événement · 7–9 juin 2026</div></div><span class="status-pill sp-active" style="flex-shrink:0" data-fr="Valide" data-en="Valid">Valide</span><span class="doc-size">198 Ko</span><div class="doc-actions"><button class="row-action">PDF</button></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ TAB 7 — FOURNISSEURS ════ -->
+      <div class="tab-panel" id="t7">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="card-icon" style="background:rgba(0,212,255,0.1)">🏭</div><span data-fr="Gestion des fournisseurs" data-en="Supplier management">Gestion des fournisseurs</span></div>
+            <button class="btn btn-primary" data-fr="+ Ajouter fournisseur" data-en="+ Add supplier">+ Ajouter fournisseur</button>
+          </div>
+          <div style="overflow:hidden">
+            <table class="data-table">
+              <thead><tr><th data-fr="Fournisseur" data-en="Supplier">Fournisseur</th><th data-fr="Catégorie" data-en="Category">Catégorie</th><th data-fr="Contact" data-en="Contact">Contact</th><th data-fr="Montant YTD" data-en="YTD amount">Montant YTD</th><th data-fr="Dernière commande" data-en="Last order">Dernière commande</th><th data-fr="Évaluation" data-en="Rating">Évaluation</th><th>Statut</th><th></th></tr></thead>
+              <tbody>
+                <tr>
+                  <td style="font-weight:800">Barrières Métro Inc.</td>
+                  <td style="color:var(--cyan);font-size:0.72rem;font-weight:700" data-fr="Équipement" data-en="Equipment">Équipement</td>
+                  <td style="color:var(--text-2);font-size:0.72rem">J. Leclerc · (514) 555-3300</td>
+                  <td class="amount neutral">12 800 $</td>
+                  <td style="color:var(--text-2);font-size:0.72rem">03/06/2026</td>
+                  <td><span style="color:var(--accent);font-weight:800">★★★★★</span></td>
+                  <td><span class="status-pill sp-active" data-fr="Préféré" data-en="Preferred">Préféré</span></td>
+                  <td><button class="row-action" data-fr="Commande" data-en="Order">Commande</button></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:800">Kenwood Communications</td>
+                  <td style="color:var(--purple);font-size:0.72rem;font-weight:700" data-fr="Comm." data-en="Comm.">Comm.</td>
+                  <td style="color:var(--text-2);font-size:0.72rem">D. Park · 1-800-555-0192</td>
+                  <td class="amount neutral">4 920 $</td>
+                  <td style="color:var(--text-2);font-size:0.72rem">01/06/2026</td>
+                  <td><span style="color:var(--accent);font-weight:800">★★★★☆</span></td>
+                  <td><span class="status-pill sp-active" data-fr="Préféré" data-en="Preferred">Préféré</span></td>
+                  <td><button class="row-action" data-fr="Commande" data-en="Order">Commande</button></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:800">Urgences-santé (contrat)</td>
+                  <td style="color:var(--green);font-size:0.72rem;font-weight:700" data-fr="Médical" data-en="Medical">Médical</td>
+                  <td style="color:var(--text-2);font-size:0.72rem">Central · (514) 555-9000</td>
+                  <td class="amount neutral">3 600 $</td>
+                  <td style="color:var(--text-2);font-size:0.72rem">07/06/2026</td>
+                  <td><span style="color:var(--accent);font-weight:800">★★★★★</span></td>
+                  <td><span class="status-pill sp-active" data-fr="Actif" data-en="Active">Actif</span></td>
+                  <td><button class="row-action" data-fr="Voir contrat" data-en="View contract">Voir contrat</button></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:800">SécuPro Uniformes</td>
+                  <td style="color:var(--orange);font-size:0.72rem;font-weight:700" data-fr="Équipement" data-en="Equipment">Équipement</td>
+                  <td style="color:var(--text-2);font-size:0.72rem">M. Dupont · (450) 555-7711</td>
+                  <td class="amount neutral">2 340 $</td>
+                  <td style="color:var(--text-2);font-size:0.72rem">15/05/2026</td>
+                  <td><span style="color:var(--accent);font-weight:800">★★★☆☆</span></td>
+                  <td><span class="status-pill sp-pending" data-fr="Évaluation" data-en="Evaluation">Évaluation</span></td>
+                  <td><button class="row-action" data-fr="Évaluer" data-en="Evaluate">Évaluer</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="nav-bottom">
+      <div style="font-size:0.75rem;color:var(--text-2)"><strong style="color:var(--accent)">Module 5 / 6</strong> · BackOffice</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" onclick="location.href='04-crise.html'" data-fr="← Module 4" data-en="← Module 4">← Module 4</button>
+        <button class="btn btn-primary" onclick="location.href='06-retroaction.html'" data-fr="Module 6 — Rétroaction IA →" data-en="Module 6 — AI Feedback →">Module 6 — Rétroaction IA →</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- RIGHT PANEL -->
+  <aside class="right-panel">
+    <div class="rp-header">
+      <div class="rp-title">🧠 Assistant <span class="rp-badge">ORDR.AI™</span></div>
+      <div class="rp-sub" data-fr="Intelligence administrative" data-en="Administrative intelligence">Intelligence administrative</div>
+    </div>
+
+    <div style="padding:0 0 0;border-bottom:1px solid var(--border)">
+      <div class="rp-kpi-row"><span class="rp-kpi-label" data-fr="Revenus en cours" data-en="Current revenue">Revenus en cours</span><span class="rp-kpi-val" style="color:var(--green)">127 400 $</span></div>
+      <div class="rp-kpi-row"><span class="rp-kpi-label" data-fr="Budget utilisé" data-en="Budget used">Budget utilisé</span><span class="rp-kpi-val" style="color:var(--orange)">66%</span></div>
+      <div class="rp-kpi-row"><span class="rp-kpi-label" data-fr="Marge brute" data-en="Gross margin">Marge brute</span><span class="rp-kpi-val" style="color:var(--accent)">33,9%</span></div>
+      <div class="rp-kpi-row"><span class="rp-kpi-label" data-fr="Agents RH actifs" data-en="Active HR agents">Agents RH actifs</span><span class="rp-kpi-val">76</span></div>
+      <div class="rp-kpi-row"><span class="rp-kpi-label" data-fr="Certifications à risque" data-en="At-risk certifications">Certifications à risque</span><span class="rp-kpi-val" style="color:var(--red)">3</span></div>
+    </div>
+
+    <div class="ia-block">
+      <div class="ia-block-title" data-fr="Recommandations BackOffice" data-en="BackOffice recommendations">Recommandations BackOffice</div>
+      <div class="ia-card">
+        <div class="ia-type warn">⚠ CERTIFICATION</div>
+        <div class="ia-msg" data-fr="3 agents ont des certifications BSP/RCR expirant dans 30 jours. Planifiez les formations avant le prochain événement." data-en="3 agents have BSP/RCR certifications expiring in 30 days. Schedule training before the next event.">3 agents ont des certifications expirant dans 30 jours. Planifiez les formations.</div>
+        <div class="ia-action" onclick="switchTab('t4',null,document.querySelectorAll('.tab-bar-btn')[3])" data-fr="Voir dossiers RH →" data-en="View HR files →">Voir dossiers RH →</div>
+      </div>
+      <div class="ia-card">
+        <div class="ia-type ok">✓ FINANCIER</div>
+        <div class="ia-msg" data-fr="La marge brute de 33,9% dépasse la cible de 30%. Excellent ratio pour un événement de cette envergure." data-en="The 33.9% gross margin exceeds the 30% target. Excellent ratio for an event of this scale.">Marge brute 33,9% dépasse la cible 30%. Excellent ratio pour cet événement.</div>
+      </div>
+      <div class="ia-card">
+        <div class="ia-type warn">⚠ FACTURE</div>
+        <div class="ia-msg" data-fr="Facture #2024-047 (28 400 $) arrive à échéance dans 7 jours. Envoyez une relance automatique." data-en="Invoice #2024-047 ($28,400) due in 7 days. Send an automatic follow-up.">Facture #2024-047 (28 400 $) due dans 7 jours. Envoi relance recommandé.</div>
+        <div class="ia-action" data-fr="Envoyer relance →" data-en="Send follow-up →">Envoyer relance →</div>
+      </div>
+    </div>
+
+    <div style="padding:14px 16px">
+      <div style="font-size:0.65rem;font-weight:700;color:var(--text-3);letter-spacing:0.09em;text-transform:uppercase;margin-bottom:10px" data-fr="Accès rapide" data-en="Quick access">Accès rapide</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button class="btn btn-ghost" style="width:100%;text-align:left;font-size:0.72rem" onclick="switchTab('t2',null,document.querySelectorAll('.tab-bar-btn')[1])" data-fr="📑 Nouveau contrat" data-en="📑 New contract">📑 Nouveau contrat</button>
+        <button class="btn btn-ghost" style="width:100%;text-align:left;font-size:0.72rem" onclick="switchTab('t3',null,document.querySelectorAll('.tab-bar-btn')[2])" data-fr="💰 Ajouter une dépense" data-en="💰 Add expense">💰 Ajouter une dépense</button>
+        <button class="btn btn-ghost" style="width:100%;text-align:left;font-size:0.72rem" onclick="switchTab('t5',null,document.querySelectorAll('.tab-bar-btn')[4])" data-fr="💳 Traiter la paie" data-en="💳 Process payroll">💳 Traiter la paie</button>
+        <button class="btn btn-primary" style="width:100%;font-size:0.72rem" onclick="location.href='06-retroaction.html'" data-fr="→ Module 6 Rétroaction IA" data-en="→ Module 6 AI Feedback">→ Module 6 Rétroaction IA</button>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+let lang = 'fr';
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lang-toggle button').forEach(b => b.classList.toggle('active', b.dataset.l === l));
+  document.querySelectorAll('[data-fr]').forEach(el => {
+    if (!['INPUT','TEXTAREA','OPTION'].includes(el.tagName)) {
+      const v = el.dataset[l];
+      if (v !== undefined) el.textContent = v;
+    }
+  });
+}
+const tabIds = ['t1','t2','t3','t4','t5','t6','t7'];
+function switchTab(id, sideItem, barBtn) {
+  tabIds.forEach(t => document.getElementById(t).classList.toggle('active', t === id));
+  document.querySelectorAll('.tab-item').forEach((el,i) => el.classList.toggle('active', tabIds[i] === id));
+  document.querySelectorAll('.tab-bar-btn').forEach((el,i) => el.classList.toggle('active', tabIds[i] === id));
+}
+document.addEventListener('DOMContentLoaded', () => setLang('fr'));
+</script>
+</body>
+</html>

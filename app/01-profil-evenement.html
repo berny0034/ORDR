@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ORDR.AI™ — Profil de l'événement</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #07070f;
+      --bg-sidebar: #0b0b16;
+      --bg-card: #111120;
+      --bg-input: #16162a;
+      --bg-hover: #1a1a2e;
+      --border: rgba(255,255,255,0.07);
+      --border-accent: rgba(196,224,0,0.3);
+      --accent: #c4e000;
+      --accent-dim: rgba(196,224,0,0.10);
+      --cyan: #00d4ff;
+      --cyan-dim: rgba(0,212,255,0.10);
+      --purple: #8b5cf6;
+      --red: #f43f5e;
+      --orange: #fb923c;
+      --green: #22c55e;
+      --text: #eeeef8;
+      --text-2: #8892a4;
+      --text-3: #4a5568;
+      --topbar-h: 56px;
+      --sidebar-w: 220px;
+      --right-w: 300px;
+      --font: 'Inter', system-ui, sans-serif;
+      --r: 8px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 14px; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+    a { text-decoration: none; color: inherit; }
+    input, select, textarea, button { font-family: var(--font); }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; height: var(--topbar-h);
+      background: rgba(7,7,15,0.96); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 16px; gap: 14px; z-index: 1000;
+    }
+    .topbar-logo { display: flex; align-items: center; gap: 8px; }
+    .topbar-logo img { height: 30px; }
+    .topbar-divider { width:1px; height:24px; background:var(--border); flex-shrink:0; }
+    .topbar-breadcrumb {
+      display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--text-2);
+    }
+    .topbar-breadcrumb .crumb-active { color: var(--accent); font-weight: 700; }
+    .topbar-breadcrumb .sep { opacity: 0.4; }
+    .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .lang-toggle { display:flex; background:var(--bg-card); border:1px solid var(--border); border-radius:6px; overflow:hidden; font-size:0.72rem; }
+    .lang-toggle button { padding:4px 11px; background:transparent; border:none; color:var(--text-2); cursor:pointer; font-weight:700; transition:all 0.2s; }
+    .lang-toggle button.active { background:var(--accent); color:#000; }
+    .badge-live { display:flex; align-items:center; gap:5px; background:rgba(34,197,94,0.12); border:1px solid rgba(34,197,94,0.25); color:var(--green); font-size:0.68rem; font-weight:700; padding:4px 10px; border-radius:20px; }
+    .badge-live .dot { width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite; }
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+    .avatar { width:30px;height:30px;border-radius:50%;background:var(--accent-dim);border:2px solid var(--border-accent);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;color:var(--accent); }
+
+    /* ── LAYOUT ── */
+    .app { display:flex; padding-top:var(--topbar-h); min-height:100vh; }
+
+    /* ── LEFT SIDEBAR ── */
+    .sidebar {
+      position:fixed; top:var(--topbar-h); left:0; width:var(--sidebar-w);
+      height:calc(100vh - var(--topbar-h)); background:var(--bg-sidebar);
+      border-right:1px solid var(--border); overflow-y:auto; z-index:900;
+      display:flex; flex-direction:column;
+    }
+    .sidebar-header { padding:16px 14px 10px; }
+    .sidebar-header .label { font-size:0.62rem; font-weight:700; color:var(--text-3); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px; }
+    .module-item {
+      display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:7px;
+      cursor:pointer; margin-bottom:2px; color:var(--text-2); font-size:0.8rem; font-weight:500;
+      transition:all 0.2s; position:relative; text-decoration:none;
+    }
+    .module-item:hover { background:rgba(255,255,255,0.04); color:var(--text); }
+    .module-item.active { background:var(--accent-dim); color:var(--accent); }
+    .module-item .m-num { font-size:0.65rem; font-weight:800; color:var(--text-3); width:16px; flex-shrink:0; }
+    .module-item.active .m-num { color:var(--accent); }
+    .module-item .m-icon { font-size:0.95rem; width:20px; text-align:center; flex-shrink:0; }
+    .module-item .m-badge { margin-left:auto; background:var(--accent); color:#000; font-size:0.6rem; font-weight:800; padding:2px 6px; border-radius:10px; }
+    .sidebar-sep { height:1px; background:var(--border); margin:10px 12px; }
+
+    /* Section nav (A-F wizard) */
+    .section-nav { padding:10px 14px; flex:1; }
+    .section-nav .label { font-size:0.62rem; font-weight:700; color:var(--text-3); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px; }
+    .section-step {
+      display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:7px;
+      cursor:pointer; margin-bottom:3px; font-size:0.78rem; transition:all 0.2s;
+    }
+    .section-step:hover { background:rgba(255,255,255,0.04); }
+    .section-step.active { background:var(--accent-dim); }
+    .step-dot {
+      width:22px; height:22px; border-radius:50%; border:2px solid var(--border);
+      display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:800;
+      flex-shrink:0; color:var(--text-3); transition:all 0.2s;
+    }
+    .section-step.active .step-dot { border-color:var(--accent); color:var(--accent); background:var(--accent-dim); }
+    .section-step.done .step-dot { border-color:var(--green); background:rgba(34,197,94,0.15); color:var(--green); }
+    .step-label { font-weight:500; color:var(--text-2); font-size:0.77rem; line-height:1.3; }
+    .section-step.active .step-label { color:var(--accent); font-weight:700; }
+    .section-step.done .step-label { color:var(--text-2); }
+
+    /* ── MAIN ── */
+    .main {
+      margin-left:var(--sidebar-w); margin-right:var(--right-w);
+      flex:1; display:flex; flex-direction:column; min-width:0;
+    }
+
+    /* Page header */
+    .page-header {
+      padding:24px 32px 0; border-bottom:1px solid var(--border);
+      background:rgba(7,7,15,0.6); backdrop-filter:blur(8px);
+      position:sticky; top:var(--topbar-h); z-index:50;
+    }
+    .page-title-row { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px; }
+    .page-title { font-size:1.5rem; font-weight:900; letter-spacing:-0.02em; }
+    .page-title span { color:var(--accent); }
+    .page-subtitle { font-size:0.82rem; color:var(--text-2); margin-top:3px; }
+    .page-actions { display:flex; gap:8px; align-items:center; }
+    .btn { padding:8px 16px; border-radius:7px; font-size:0.8rem; font-weight:700; cursor:pointer; border:none; transition:all 0.2s; }
+    .btn-ghost { background:transparent; color:var(--text-2); border:1px solid var(--border); }
+    .btn-ghost:hover { color:var(--text); border-color:rgba(255,255,255,0.2); }
+    .btn-primary { background:var(--accent); color:#000; }
+    .btn-primary:hover { background:#d4f000; transform:translateY(-1px); }
+    .btn-outline { background:transparent; color:var(--accent); border:1px solid var(--border-accent); }
+    .btn-outline:hover { background:var(--accent-dim); }
+
+    /* Progress bar */
+    .progress-bar { display:flex; gap:0; margin-bottom:0; }
+    .progress-step {
+      flex:1; height:3px; background:var(--border); position:relative; cursor:pointer;
+    }
+    .progress-step:first-child { border-radius:3px 0 0 3px; }
+    .progress-step:last-child { border-radius:0 3px 3px 0; }
+    .progress-step .fill { height:100%; border-radius:inherit; background:var(--border); transition:background 0.3s; }
+    .progress-step.done .fill { background:var(--green); }
+    .progress-step.active .fill { background:var(--accent); }
+    .progress-step.active + .progress-step .fill { background:var(--border); }
+
+    /* ── FORM AREA ── */
+    .form-area { padding:28px 32px 60px; }
+
+    .form-section { margin-bottom:32px; }
+    .section-title-bar {
+      display:flex; align-items:center; gap:12px; margin-bottom:20px;
+      padding-bottom:12px; border-bottom:1px solid var(--border);
+    }
+    .section-letter {
+      width:32px; height:32px; border-radius:8px; background:var(--accent-dim);
+      border:1px solid var(--border-accent); display:flex; align-items:center;
+      justify-content:center; font-size:0.85rem; font-weight:900; color:var(--accent); flex-shrink:0;
+    }
+    .section-title-text h3 { font-size:0.95rem; font-weight:800; }
+    .section-title-text p { font-size:0.75rem; color:var(--text-2); margin-top:2px; }
+
+    .field-grid { display:grid; gap:14px; }
+    .fg-2 { grid-template-columns:1fr 1fr; }
+    .fg-3 { grid-template-columns:1fr 1fr 1fr; }
+    .fg-1 { grid-template-columns:1fr; }
+
+    .field { display:flex; flex-direction:column; gap:5px; }
+    .field label {
+      font-size:0.72rem; font-weight:600; color:var(--text-2); letter-spacing:0.02em;
+      display:flex; align-items:center; gap:6px;
+    }
+    .field label .req { color:var(--accent); }
+    .field label .info-tip {
+      width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.08);
+      display:inline-flex;align-items:center;justify-content:center;font-size:0.6rem;
+      cursor:help;color:var(--text-2);
+    }
+    .field input, .field select, .field textarea {
+      background:var(--bg-input); border:1px solid var(--border);
+      border-radius:7px; padding:9px 12px; color:var(--text);
+      font-size:0.82rem; transition:all 0.2s; width:100%;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(196,224,0,0.12);
+    }
+    .field input::placeholder, .field textarea::placeholder { color:var(--text-3); }
+    .field select option { background:var(--bg-card); }
+    .field textarea { resize:vertical; min-height:80px; }
+    .field .hint { font-size:0.7rem; color:var(--text-3); }
+    .field .ai-hint {
+      display:flex; align-items:flex-start; gap:6px; padding:7px 10px;
+      background:rgba(196,224,0,0.06); border:1px solid rgba(196,224,0,0.15);
+      border-radius:6px; font-size:0.72rem; color:var(--text-2); margin-top:3px;
+    }
+    .field .ai-hint .ai-icon { color:var(--accent); flex-shrink:0; font-size:0.8rem; }
+
+    /* Input with unit */
+    .input-group { display:flex; }
+    .input-group input { border-radius:7px 0 0 7px; flex:1; }
+    .input-unit {
+      padding:9px 12px; background:rgba(255,255,255,0.04); border:1px solid var(--border);
+      border-left:none; border-radius:0 7px 7px 0; font-size:0.78rem; color:var(--text-2);
+      white-space:nowrap; display:flex; align-items:center;
+    }
+
+    /* Toggle yes/no */
+    .yn-toggle { display:flex; gap:6px; }
+    .yn-btn {
+      flex:1; padding:9px; border:1px solid var(--border); border-radius:7px;
+      background:transparent; color:var(--text-2); font-size:0.8rem; font-weight:600;
+      cursor:pointer; transition:all 0.2s; text-align:center;
+    }
+    .yn-btn:hover { border-color:rgba(255,255,255,0.2); color:var(--text); }
+    .yn-btn.selected-yes { background:rgba(34,197,94,0.12); border-color:rgba(34,197,94,0.4); color:var(--green); }
+    .yn-btn.selected-no  { background:rgba(244,63,94,0.10); border-color:rgba(244,63,94,0.3); color:var(--red); }
+
+    /* Radio group */
+    .radio-group { display:flex; flex-wrap:wrap; gap:8px; }
+    .radio-btn {
+      padding:7px 14px; border:1px solid var(--border); border-radius:20px;
+      background:transparent; color:var(--text-2); font-size:0.78rem; font-weight:500;
+      cursor:pointer; transition:all 0.2s;
+    }
+    .radio-btn:hover { border-color:rgba(255,255,255,0.2); color:var(--text); }
+    .radio-btn.selected { background:var(--accent-dim); border-color:var(--border-accent); color:var(--accent); font-weight:700; }
+
+    /* Checkboxes */
+    .check-grid { display:flex; flex-wrap:wrap; gap:8px; }
+    .check-item {
+      display:flex; align-items:center; gap:7px; padding:7px 12px;
+      border:1px solid var(--border); border-radius:7px; cursor:pointer; transition:all 0.2s;
+      font-size:0.78rem; color:var(--text-2);
+    }
+    .check-item:hover { border-color:rgba(255,255,255,0.15); color:var(--text); }
+    .check-item.checked { background:var(--accent-dim); border-color:var(--border-accent); color:var(--accent); }
+    .check-item input[type=checkbox] { display:none; }
+    .check-box { width:15px;height:15px;border:2px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    .check-item.checked .check-box { border-color:var(--accent);background:var(--accent); }
+    .check-item.checked .check-box::after { content:'✓'; font-size:0.65rem; color:#000; font-weight:900; }
+
+    /* Slider */
+    .slider-wrap { display:flex; flex-direction:column; gap:8px; }
+    .slider-labels { display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-3); }
+    .slider-val { text-align:center; font-size:0.85rem; font-weight:800; color:var(--accent); }
+    input[type=range] {
+      width:100%; height:4px; appearance:none; background:var(--border);
+      border-radius:4px; outline:none; cursor:pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      appearance:none; width:16px; height:16px; border-radius:50%;
+      background:var(--accent); cursor:pointer; box-shadow:0 0 8px rgba(196,224,0,0.4);
+    }
+    input[type=range]::-webkit-slider-runnable-track { border-radius:4px; }
+
+    /* Map placeholder */
+    .map-placeholder {
+      background:var(--bg-input); border:1px solid var(--border); border-radius:var(--r);
+      height:200px; position:relative; overflow:hidden; cursor:pointer; transition:border-color 0.2s;
+    }
+    .map-placeholder:hover { border-color:var(--border-accent); }
+    .map-grid {
+      position:absolute;inset:0;
+      background-image: linear-gradient(rgba(0,212,255,0.04) 1px,transparent 1px), linear-gradient(90deg,rgba(0,212,255,0.04) 1px,transparent 1px);
+      background-size:24px 24px;
+    }
+    .map-overlay {
+      position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+    }
+    .map-overlay .map-icon { font-size:2rem; opacity:0.4; }
+    .map-overlay p { font-size:0.75rem; color:var(--text-3); text-align:center; max-width:200px; }
+    .map-overlay .map-btn {
+      padding:6px 14px; background:var(--accent-dim); border:1px solid var(--border-accent);
+      border-radius:6px; font-size:0.75rem; font-weight:700; color:var(--accent); cursor:pointer;
+    }
+    .map-pin { position:absolute; width:10px;height:10px;border-radius:50%;transform:translate(-50%,-50%); }
+    .map-pin::after { content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid currentColor;opacity:0.4;animation:expand 2s infinite; }
+    @keyframes expand{0%{transform:scale(1);opacity:0.4}100%{transform:scale(2.5);opacity:0}}
+
+    /* File upload */
+    .file-zone {
+      border:2px dashed var(--border); border-radius:var(--r); padding:20px;
+      text-align:center; cursor:pointer; transition:all 0.2s; position:relative;
+    }
+    .file-zone:hover { border-color:var(--border-accent); background:var(--accent-dim); }
+    .file-zone input[type=file] { position:absolute;inset:0;opacity:0;cursor:pointer; }
+    .file-zone .file-icon { font-size:1.5rem; margin-bottom:6px; opacity:0.5; }
+    .file-zone p { font-size:0.75rem; color:var(--text-2); }
+    .file-zone .file-types { font-size:0.68rem; color:var(--text-3); margin-top:3px; }
+    .file-list { display:flex; flex-direction:column; gap:6px; margin-top:10px; }
+    .file-item {
+      display:flex;align-items:center;gap:8px;padding:7px 10px;
+      background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:6px;
+      font-size:0.75rem; color:var(--text);
+    }
+    .file-item .fi-icon { color:var(--green); }
+    .file-item .fi-size { margin-left:auto; color:var(--text-3); font-size:0.7rem; }
+    .file-item .fi-del { color:var(--text-3); cursor:pointer; padding:2px; }
+    .file-item .fi-del:hover { color:var(--red); }
+
+    /* Divider */
+    .form-divider { height:1px; background:var(--border); margin:24px 0; }
+
+    /* Live calculator card */
+    .calc-card {
+      background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r);
+      padding:16px; display:flex; flex-direction:column; gap:12px;
+    }
+    .calc-card .calc-title { font-size:0.72rem; font-weight:700; color:var(--text-2); letter-spacing:0.06em; text-transform:uppercase; }
+    .calc-row { display:flex; justify-content:space-between; align-items:center; }
+    .calc-row .cr-label { font-size:0.78rem; color:var(--text-2); }
+    .calc-row .cr-val { font-size:0.88rem; font-weight:800; color:var(--accent); }
+    .calc-row .cr-val.warn { color:var(--orange); }
+    .calc-row .cr-val.danger { color:var(--red); }
+
+    /* Conditional sub-form */
+    .sub-form { margin-top:12px; padding:14px; background:var(--bg-input); border:1px solid var(--border); border-radius:var(--r); }
+
+    /* ── RIGHT PANEL ── */
+    .right-panel {
+      position:fixed; top:var(--topbar-h); right:0; width:var(--right-w);
+      height:calc(100vh - var(--topbar-h)); background:var(--bg-sidebar);
+      border-left:1px solid var(--border); overflow-y:auto; z-index:900;
+      display:flex; flex-direction:column;
+    }
+    .rp-header { padding:16px; border-bottom:1px solid var(--border); }
+    .rp-title { font-size:0.8rem; font-weight:800; display:flex; align-items:center; gap:8px; }
+    .rp-title .ordr-badge { background:var(--accent-dim); border:1px solid var(--border-accent); color:var(--accent); font-size:0.65rem; font-weight:800; padding:2px 8px; border-radius:10px; letter-spacing:0.05em; }
+    .rp-subtitle { font-size:0.72rem; color:var(--text-2); margin-top:4px; }
+
+    /* Risk score */
+    .risk-score-wrap { padding:16px; border-bottom:1px solid var(--border); }
+    .risk-score-title { font-size:0.68rem; font-weight:700; color:var(--text-3); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:12px; }
+    .risk-score-display { display:flex; align-items:center; gap:14px; margin-bottom:14px; }
+    .risk-circle {
+      width:72px; height:72px; border-radius:50%; flex-shrink:0;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      border:3px solid var(--orange); background:rgba(251,146,60,0.08);
+      position:relative;
+    }
+    .risk-circle .rs-val { font-size:1.4rem; font-weight:900; color:var(--orange); line-height:1; }
+    .risk-circle .rs-max { font-size:0.6rem; color:var(--text-3); }
+    .risk-legend { flex:1; }
+    .risk-label { font-size:0.88rem; font-weight:800; color:var(--orange); margin-bottom:2px; }
+    .risk-desc { font-size:0.72rem; color:var(--text-2); line-height:1.4; }
+    .risk-bar-wrap { display:flex; flex-direction:column; gap:6px; }
+    .risk-bar-row { display:flex; align-items:center; gap:8px; }
+    .rbl { font-size:0.68rem; color:var(--text-2); width:70px; flex-shrink:0; }
+    .rb { flex:1; height:4px; background:var(--border); border-radius:4px; overflow:hidden; }
+    .rb .rbf { height:100%; border-radius:4px; transition:width 0.6s ease; }
+    .rbv { font-size:0.68rem; font-weight:700; width:30px; text-align:right; flex-shrink:0; }
+
+    /* IA suggestions */
+    .ia-suggestions { padding:14px; border-bottom:1px solid var(--border); }
+    .ia-s-title { font-size:0.68rem; font-weight:700; color:var(--text-3); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px; }
+    .ia-card {
+      background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r);
+      padding:12px; margin-bottom:8px; cursor:pointer; transition:all 0.2s;
+    }
+    .ia-card:hover { border-color:var(--border-accent); background:var(--bg-hover); }
+    .ia-card .ia-type { font-size:0.62rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:4px; }
+    .ia-card .ia-type.warn { color:var(--orange); }
+    .ia-card .ia-type.info { color:var(--cyan); }
+    .ia-card .ia-type.ok   { color:var(--green); }
+    .ia-card .ia-msg { font-size:0.75rem; color:var(--text-2); line-height:1.5; }
+    .ia-card .ia-action { margin-top:6px; font-size:0.7rem; font-weight:700; color:var(--accent); }
+
+    /* Required agents */
+    .agents-calc { padding:14px; }
+    .ac-title { font-size:0.68rem; font-weight:700; color:var(--text-3); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px; }
+    .ac-row { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid var(--border); }
+    .ac-row:last-child { border:none; }
+    .ac-label { font-size:0.75rem; color:var(--text-2); }
+    .ac-val { font-size:0.82rem; font-weight:800; }
+    .ac-total-row { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--accent-dim); border:1px solid var(--border-accent); border-radius:var(--r); margin-top:10px; }
+    .ac-total-label { font-size:0.8rem; font-weight:700; color:var(--accent); }
+    .ac-total-val { font-size:1.1rem; font-weight:900; color:var(--accent); }
+
+    /* section visibility */
+    .form-section { display:none; }
+    .form-section.visible { display:block; }
+
+    /* Nav buttons */
+    .nav-buttons {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:16px 32px; border-top:1px solid var(--border);
+      position:sticky; bottom:0; background:rgba(7,7,15,0.95); backdrop-filter:blur(8px);
+    }
+    .nav-info { font-size:0.75rem; color:var(--text-2); }
+    .nav-info strong { color:var(--accent); }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-logo">
+    <img src="../assets/logos/logo_dark.png" alt="ORDR.AI" />
+  </div>
+  <div class="topbar-divider"></div>
+  <div class="topbar-breadcrumb">
+    <span>ORDR.AI™</span>
+    <span class="sep">/</span>
+    <span id="bc1">Évaluation du risque</span>
+    <span class="sep">/</span>
+    <span class="crumb-active" id="bc2">Profil de l'événement</span>
+  </div>
+  <div class="topbar-right">
+    <div class="badge-live"><span class="dot"></span><span id="lbl-live">Brouillon</span></div>
+    <div class="lang-toggle">
+      <button onclick="setLang('fr')" class="active" data-l="fr">FR</button>
+      <button onclick="setLang('en')" data-l="en">EN</button>
+    </div>
+    <div class="avatar">AB</div>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="label" data-fr="Modules" data-en="Modules">Modules</div>
+      <div class="module-item active">
+        <span class="m-num">1</span>
+        <span class="m-icon">🎯</span>
+        <span data-fr="Évaluation du risque" data-en="Risk assessment">Évaluation du risque</span>
+        <span class="m-badge">En cours</span>
+      </div>
+      <a href="02-planification.html" class="module-item">
+        <span class="m-num">2</span><span class="m-icon">📋</span>
+        <span data-fr="Planification" data-en="Planning">Planification</span>
+      </a>
+      <a href="03-deploiement.html" class="module-item">
+        <span class="m-num">3</span><span class="m-icon">🗺️</span>
+        <span data-fr="Déploiement" data-en="Deployment">Déploiement</span>
+      </a>
+      <a href="04-crise.html" class="module-item">
+        <span class="m-num">4</span><span class="m-icon">🚨</span>
+        <span data-fr="Gestion de crise" data-en="Crisis management">Gestion de crise</span>
+      </a>
+      <a href="05-backoffice.html" class="module-item">
+        <span class="m-num">5</span><span class="m-icon">💼</span>
+        <span data-fr="BackOffice" data-en="BackOffice">BackOffice</span>
+      </a>
+      <a href="06-retroaction.html" class="module-item">
+        <span class="m-num">6</span><span class="m-icon">📈</span>
+        <span data-fr="Rétroaction IA" data-en="AI Feedback">Rétroaction IA</span>
+      </a>
+    </div>
+
+    <div class="sidebar-sep"></div>
+
+    <div class="section-nav">
+      <div class="label" data-fr="Sections du profil" data-en="Profile sections">Sections du profil</div>
+
+      <div class="section-step active" onclick="goSection(0)">
+        <div class="step-dot">A</div>
+        <div class="step-label" data-fr="Profil général" data-en="General profile">Profil général</div>
+      </div>
+      <div class="section-step" onclick="goSection(1)">
+        <div class="step-dot">B</div>
+        <div class="step-label" data-fr="Site & périmètre" data-en="Site & perimeter">Site & périmètre</div>
+      </div>
+      <div class="section-step" onclick="goSection(2)">
+        <div class="step-dot">C</div>
+        <div class="step-label" data-fr="Contexte réglementaire" data-en="Regulatory context">Contexte réglementaire</div>
+      </div>
+      <div class="section-step" onclick="goSection(3)">
+        <div class="step-dot">D</div>
+        <div class="step-label" data-fr="Paramètres de risque" data-en="Risk parameters">Paramètres de risque</div>
+      </div>
+      <div class="section-step" onclick="goSection(4)">
+        <div class="step-dot">E</div>
+        <div class="step-label" data-fr="Ressources & contraintes" data-en="Resources & constraints">Ressources & contraintes</div>
+      </div>
+      <div class="section-step" onclick="goSection(5)">
+        <div class="step-dot">F</div>
+        <div class="step-label" data-fr="Documents" data-en="Documents">Documents</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="page-title-row">
+        <div>
+          <div class="page-title" data-fr='Profil de l&apos;événement' data-en="Event profile">Profil de l'événement</div>
+          <div class="page-subtitle" data-fr="Section A — Profil général · Étape 1 de 6" data-en="Section A — General profile · Step 1 of 6" id="page-subtitle">Section A — Profil général · Étape 1 de 6</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-ghost" data-fr="Enregistrer brouillon" data-en="Save draft">Enregistrer brouillon</button>
+          <button class="btn btn-primary" onclick="nextSection()" id="btn-next" data-fr="Section suivante →" data-en="Next section →">Section suivante →</button>
+        </div>
+      </div>
+      <div class="progress-bar" id="progressBar">
+        <div class="progress-step active"><div class="fill"></div></div>
+        <div class="progress-step"><div class="fill"></div></div>
+        <div class="progress-step"><div class="fill"></div></div>
+        <div class="progress-step"><div class="fill"></div></div>
+        <div class="progress-step"><div class="fill"></div></div>
+        <div class="progress-step"><div class="fill"></div></div>
+      </div>
+    </div>
+
+    <!-- FORM AREA -->
+    <div class="form-area">
+
+      <!-- ═══ SECTION A ═══ -->
+      <div class="form-section visible" id="sec-A">
+        <div class="section-title-bar">
+          <div class="section-letter">A</div>
+          <div class="section-title-text">
+            <h3 data-fr="Profil général de l'événement" data-en="General event profile">Profil général de l'événement</h3>
+            <p data-fr="Informations de base pour initialiser l'évaluation du risque IA" data-en="Basic information to initialize the AI risk assessment">Informations de base pour initialiser l'évaluation du risque IA</p>
+          </div>
+        </div>
+
+        <div class="field-grid fg-2">
+          <div class="field" style="grid-column:1/-1">
+            <label><span data-fr="Nom officiel de l'événement" data-en="Official event name">Nom officiel de l'événement</span> <span class="req">*</span></label>
+            <input type="text" id="nom-evenement" placeholder="ex. : Festival Montréal en Lumière 2025" oninput="updateRiskScore()" />
+            <div class="hint" data-fr="Utilisé pour la mémoire corporative et les permis officiels" data-en="Used for corporate memory and official permits">Utilisé pour la mémoire corporative et les permis officiels</div>
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Date & heure d'ouverture" data-en="Opening date & time">Date & heure d'ouverture</span> <span class="req">*</span></label>
+            <input type="datetime-local" id="date-debut" onchange="updateRiskScore()" />
+          </div>
+          <div class="field">
+            <label><span data-fr="Date & heure de fermeture" data-en="Closing date & time">Date & heure de fermeture</span> <span class="req">*</span></label>
+            <input type="datetime-local" id="date-fin" onchange="updateRiskScore()" />
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Type d'activité" data-en="Activity type">Type d'activité</span> <span class="req">*</span> <span class="info-tip" title="Ajuste automatiquement les matrices de risque">?</span></label>
+            <select id="type-activite" onchange="updateRiskScore()">
+              <option value="" data-fr="Sélectionner..." data-en="Select...">Sélectionner...</option>
+              <option value="festival" data-fr="Festival culturel" data-en="Cultural festival">Festival culturel</option>
+              <option value="sportif" data-fr="Événement sportif" data-en="Sports event">Événement sportif</option>
+              <option value="spectacle" data-fr="Spectacle / Concert" data-en="Show / Concert">Spectacle / Concert</option>
+              <option value="corporate" data-fr="Événement corporatif" data-en="Corporate event">Événement corporatif</option>
+              <option value="politique" data-fr="Événement politique / public" data-en="Political / public event">Événement politique / public</option>
+              <option value="manifestion" data-fr="Manifestation / Rassemblement" data-en="Demonstration / Rally">Manifestation / Rassemblement</option>
+              <option value="salon" data-fr="Salon / Foire / Exposition" data-en="Trade show / Exhibition">Salon / Foire / Exposition</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>
+              <span data-fr="Édition" data-en="Edition">Édition</span>
+              <span class="info-tip" title="Première édition ou récurrente">?</span>
+            </label>
+            <select id="edition" onchange="updateRiskScore()">
+              <option value="nouvelle" data-fr="Première édition" data-en="First edition">Première édition</option>
+              <option value="recurrente" data-fr="Édition récurrente (historique disponible)" data-en="Recurring edition (history available)">Édition récurrente (historique disponible)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-divider"></div>
+
+        <div class="field-grid fg-3">
+          <div class="field">
+            <label><span data-fr="Achalandage estimé (pic)" data-en="Estimated attendance (peak)">Achalandage estimé (pic)</span> <span class="req">*</span></label>
+            <div class="input-group">
+              <input type="number" id="achalandage" placeholder="15000" min="0" oninput="updateRiskScore()" />
+              <div class="input-unit" data-fr="personnes" data-en="persons">personnes</div>
+            </div>
+          </div>
+          <div class="field">
+            <label><span data-fr="Surface accessible (m²)" data-en="Accessible area (m²)">Surface accessible (m²)</span> <span class="req">*</span></label>
+            <div class="input-group">
+              <input type="number" id="surface" placeholder="20000" min="0" oninput="updateRiskScore()" />
+              <div class="input-unit">m²</div>
+            </div>
+            <div class="ai-hint" id="density-hint" style="display:none">
+              <span class="ai-icon">🧠</span>
+              <span id="density-text"></span>
+            </div>
+          </div>
+          <div class="field">
+            <label><span data-fr="Durée du pic d'affluence" data-en="Peak attendance duration">Durée du pic d'affluence</span></label>
+            <div class="slider-wrap">
+              <div class="slider-val" id="slider-val">2h</div>
+              <input type="range" id="duree-pic" min="0.5" max="8" step="0.5" value="2" oninput="updateSlider(this.value)" />
+              <div class="slider-labels"><span>30 min</span><span>8h</span></div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Nb. de points d'entrée publics" data-en="No. of public entry points">Nb. de points d'entrée publics</span> <span class="req">*</span></label>
+            <input type="number" id="entrees" placeholder="4" min="1" oninput="updateRiskScore()" />
+          </div>
+          <div class="field">
+            <label><span data-fr="Nb. de guérites de fouille" data-en="No. of search booths">Nb. de guérites de fouille</span></label>
+            <input type="number" id="guerites" placeholder="8" min="0" oninput="updateRiskScore()" />
+          </div>
+          <div class="field">
+            <label><span data-fr="Nb. de bénévoles / techniciens" data-en="No. of volunteers / technicians">Nb. de bénévoles / techniciens</span></label>
+            <input type="number" id="benevoles" placeholder="50" min="0" oninput="updateRiskScore()" />
+          </div>
+        </div>
+
+        <div class="form-divider"></div>
+
+        <div class="field-grid fg-2">
+          <div class="field">
+            <label><span data-fr="Zones cloisonnées ou niveaux multiples ?" data-en="Partitioned zones or multiple levels?">Zones cloisonnées ou niveaux multiples ?</span></label>
+            <div class="yn-toggle">
+              <button class="yn-btn" onclick="setYN(this,'zones-cloison','oui')" data-fr="Oui" data-en="Yes">Oui</button>
+              <button class="yn-btn" onclick="setYN(this,'zones-cloison','non')" data-fr="Non" data-en="No">Non</button>
+            </div>
+            <input type="hidden" id="zones-cloison" value="" />
+            <div class="sub-form" id="sub-zones" style="display:none">
+              <div class="field">
+                <label data-fr="Nombre de zones / niveaux distincts" data-en="Number of distinct zones / levels">Nombre de zones / niveaux distincts</label>
+                <input type="number" placeholder="3" min="1" />
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Corridors de sécurité requis ?" data-en="Security corridors required?">Corridors de sécurité requis ?</span></label>
+            <div class="yn-toggle">
+              <button class="yn-btn" onclick="setYN(this,'corridors','oui')" data-fr="Oui" data-en="Yes">Oui</button>
+              <button class="yn-btn" onclick="setYN(this,'corridors','non')" data-fr="Non" data-en="No">Non</button>
+            </div>
+            <input type="hidden" id="corridors" value="" />
+          </div>
+        </div>
+
+        <div class="form-divider"></div>
+
+        <div class="field">
+          <label><span data-fr="Positionnement de la scène / activité centrale" data-en="Stage / main activity positioning">Positionnement de la scène / activité centrale</span></label>
+          <div class="map-placeholder" id="map-scene">
+            <div class="map-grid"></div>
+            <div class="map-overlay" id="map-overlay-scene">
+              <div class="map-icon">🗺️</div>
+              <p data-fr="Cliquez pour placer la scène principale sur la carte interactive" data-en="Click to place the main stage on the interactive map">Cliquez pour placer la scène principale sur la carte interactive</p>
+              <div class="map-btn" onclick="placePin('map-scene')" data-fr="📍 Placer la scène" data-en="📍 Place stage">📍 Placer la scène</div>
+            </div>
+          </div>
+          <div class="ai-hint" style="margin-top:8px">
+            <span class="ai-icon">🧠</span>
+            <span data-fr="La position de la scène génère automatiquement les zones de couverture critique et les points de pression crowd." data-en="Stage position automatically generates critical coverage zones and crowd pressure points.">La position de la scène génère automatiquement les zones de couverture critique et les points de pression crowd.</span>
+          </div>
+        </div>
+
+        <!-- Live calculator -->
+        <div class="form-divider"></div>
+        <div class="calc-card">
+          <div class="calc-title" data-fr="Calcul automatique IA — Effectifs préliminaires" data-en="AI Auto-calculation — Preliminary staffing">Calcul automatique IA — Effectifs préliminaires</div>
+          <div class="calc-row">
+            <span class="cr-label" data-fr="Densité de foule estimée" data-en="Estimated crowd density">Densité de foule estimée</span>
+            <span class="cr-val" id="calc-density">—</span>
+          </div>
+          <div class="calc-row">
+            <span class="cr-label" data-fr="Agents requis (ratio de base)" data-en="Required agents (base ratio)">Agents requis (ratio de base)</span>
+            <span class="cr-val" id="calc-agents">—</span>
+          </div>
+          <div class="calc-row">
+            <span class="cr-label" data-fr="Agents aux points d'entrée" data-en="Agents at entry points">Agents aux points d'entrée</span>
+            <span class="cr-val" id="calc-entrees">—</span>
+          </div>
+          <div class="calc-row">
+            <span class="cr-label" data-fr="Superviseurs requis" data-en="Required supervisors">Superviseurs requis</span>
+            <span class="cr-val" id="calc-sup">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SECTION B ═══ -->
+      <div class="form-section" id="sec-B">
+        <div class="section-title-bar">
+          <div class="section-letter" style="color:var(--cyan);border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.08)">B</div>
+          <div class="section-title-text">
+            <h3 data-fr="Profil du site & périmètre" data-en="Site & perimeter profile">Profil du site & périmètre</h3>
+            <p data-fr="Localisation, plan du site, zones sensibles et points d'accès" data-en="Location, site plan, sensitive zones and access points">Localisation, plan du site, zones sensibles et points d'accès</p>
+          </div>
+        </div>
+
+        <div class="field-grid fg-1">
+          <div class="field">
+            <label><span data-fr="Adresse civique principale" data-en="Main civic address">Adresse civique principale</span> <span class="req">*</span></label>
+            <input type="text" id="adresse" placeholder="ex. : 1000 rue Saint-Denis, Montréal, QC" oninput="updateRiskScore()" />
+            <div class="ai-hint">
+              <span class="ai-icon">🧠</span>
+              <span data-fr="Géocodage automatique → rattachement au plan interactif et aux services d'urgence locaux." data-en="Automatic geocoding → linked to interactive map and local emergency services.">Géocodage automatique → rattachement au plan interactif et aux services d'urgence locaux.</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Plan du site (PDF / DWG / Image)" data-en="Site plan (PDF / DWG / Image)">Plan du site (PDF / DWG / Image)</span></label>
+            <div class="file-zone" id="fz-plan">
+              <input type="file" accept=".pdf,.dwg,.png,.jpg,.svg" onchange="handleFile(this,'fz-plan','plan-files')" />
+              <div class="file-icon">📐</div>
+              <p data-fr="Glissez le plan du site ici ou cliquez pour parcourir" data-en="Drag site plan here or click to browse">Glissez le plan du site ici ou cliquez pour parcourir</p>
+              <div class="file-types">PDF · DWG · PNG · JPG · SVG</div>
+            </div>
+            <div class="file-list" id="plan-files"></div>
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Zones sensibles sur le site" data-en="Sensitive zones on site">Zones sensibles sur le site</span></label>
+            <div class="check-grid" id="zones-sensibles">
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span data-fr="🎤 Scène principale" data-en="🎤 Main stage">🎤 Scène principale</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span data-fr="⭐ Zone VIP" data-en="⭐ VIP zone">⭐ Zone VIP</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span data-fr="🚪 Coulisses" data-en="🚪 Backstage">🚪 Coulisses</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span data-fr="💊 Zone médicale" data-en="💊 Medical zone">💊 Zone médicale</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span data-fr="🔋 Zone technique" data-en="🔋 Technical zone">🔋 Zone technique</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span data-fr="🚗 Stationnement" data-en="🚗 Parking">🚗 Stationnement</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span data-fr="🍺 Zone alcool" data-en="🍺 Alcohol zone">🍺 Zone alcool</span></div>
+              <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span data-fr="🧒 Zone enfants" data-en="🧒 Children zone">🧒 Zone enfants</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-divider"></div>
+
+        <div class="field-grid fg-3">
+          <div class="field">
+            <label><span data-fr="Largeur cumulée des accès (m)" data-en="Total access width (m)">Largeur cumulée des accès (m)</span></label>
+            <div class="input-group">
+              <input type="number" id="largeur-acces" placeholder="24" min="0" oninput="updateRiskScore()" />
+              <div class="input-unit">m</div>
+            </div>
+            <div class="hint" data-fr="Débit théorique : 82 pers/min par mètre de largeur" data-en="Theoretical flow: 82 persons/min per meter of width">Débit théorique : 82 pers/min par mètre de largeur</div>
+          </div>
+          <div class="field">
+            <label><span data-fr="Accès de service / secours distincts ?" data-en="Separate service / emergency access?">Accès de service / secours distincts ?</span></label>
+            <div class="yn-toggle">
+              <button class="yn-btn" onclick="setYN(this,'acces-secours','oui')">Oui</button>
+              <button class="yn-btn" onclick="setYN(this,'acces-secours','non')">Non</button>
+            </div>
+            <input type="hidden" id="acces-secours" value="" />
+          </div>
+          <div class="field">
+            <label><span data-fr="Caractéristiques du terrain" data-en="Terrain characteristics">Caractéristiques du terrain</span></label>
+            <select id="terrain" onchange="updateRiskScore()">
+              <option value="" data-fr="Sélectionner..." data-en="Select...">Sélectionner...</option>
+              <option value="plat" data-fr="Terrain plat" data-en="Flat terrain">Terrain plat</option>
+              <option value="pente" data-fr="Terrain en pente" data-en="Sloped terrain">Terrain en pente</option>
+              <option value="escaliers" data-fr="Escaliers / gradins" data-en="Stairs / bleachers">Escaliers / gradins</option>
+              <option value="mixte" data-fr="Configuration mixte" data-en="Mixed configuration">Configuration mixte</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-divider"></div>
+
+        <div class="field">
+          <label><span data-fr="Zones de rassemblement en cas d'évacuation" data-en="Assembly zones in case of evacuation">Zones de rassemblement en cas d'évacuation</span></label>
+          <div class="map-placeholder" id="map-evac">
+            <div class="map-grid"></div>
+            <div class="map-overlay" id="map-overlay-evac">
+              <div class="map-icon">🚨</div>
+              <p data-fr="Délimitez les zones d'évacuation sur la carte interactive" data-en="Delineate evacuation zones on the interactive map">Délimitez les zones d'évacuation sur la carte interactive</p>
+              <div class="map-btn" onclick="placePin('map-evac')" data-fr="📍 Ajouter une zone" data-en="📍 Add a zone">📍 Ajouter une zone</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SECTION C ═══ -->
+      <div class="form-section" id="sec-C">
+        <div class="section-title-bar">
+          <div class="section-letter" style="color:var(--purple);border-color:rgba(139,92,246,0.3);background:rgba(139,92,246,0.08)">C</div>
+          <div class="section-title-text">
+            <h3 data-fr="Contexte réglementaire & partenaires" data-en="Regulatory context & partners">Contexte réglementaire & partenaires</h3>
+            <p data-fr="Permis, autorisations, partenaires municipaux et couverture médicale" data-en="Permits, authorizations, municipal partners and medical coverage">Permis, autorisations, partenaires municipaux et couverture médicale</p>
+          </div>
+        </div>
+
+        <div class="field">
+          <label><span data-fr="Permis municipaux requis" data-en="Required municipal permits">Permis municipaux requis</span></label>
+          <div class="check-grid">
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span data-fr="🍺 Permis alcool" data-en="🍺 Alcohol permit">🍺 Permis alcool</span></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span data-fr="🎆 Pyrotechnie" data-en="🎆 Pyrotechnics">🎆 Pyrotechnie</span></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span data-fr="🔊 Permis bruit" data-en="🔊 Noise permit">🔊 Permis bruit</span></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span data-fr="🚧 Occupation voie publique" data-en="🚧 Public road occupation">🚧 Occupation voie publique</span></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span data-fr="🏗️ Installation temporaire" data-en="🏗️ Temporary installation">🏗️ Installation temporaire</span></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span data-fr="🐕 Maître-chien" data-en="🐕 Dog handler">🐕 Maître-chien</span></div>
+          </div>
+        </div>
+
+        <div class="form-divider"></div>
+
+        <div class="field-grid fg-2">
+          <div class="field">
+            <label><span data-fr="Collaboration SPVM / SQ / Service incendie ?" data-en="SPVM / SQ / Fire department collaboration?">Collaboration SPVM / SQ / Service incendie ?</span></label>
+            <div class="yn-toggle">
+              <button class="yn-btn" onclick="setYN(this,'collab-spvm','oui')">Oui</button>
+              <button class="yn-btn" onclick="setYN(this,'collab-spvm','non')">Non</button>
+            </div>
+            <input type="hidden" id="collab-spvm" value="" />
+            <div class="sub-form" id="sub-spvm" style="display:none">
+              <div class="field-grid fg-2">
+                <div class="field">
+                  <label data-fr="Service partenaire" data-en="Partner service">Service partenaire</label>
+                  <select><option>SPVM</option><option>Sûreté du Québec</option><option>Service incendie</option><option>Urgences-santé</option></select>
+                </div>
+                <div class="field">
+                  <label data-fr="Contact responsable" data-en="Responsible contact">Contact responsable</label>
+                  <input type="text" placeholder="Nom, badge, téléphone" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Couverture médicale prévue" data-en="Planned medical coverage">Couverture médicale prévue</span></label>
+            <select id="couverture-med" onchange="updateRiskScore()">
+              <option value="" data-fr="Sélectionner..." data-en="Select...">Sélectionner...</option>
+              <option value="premiers-soins" data-fr="Premiers soins seulement" data-en="First aid only">Premiers soins seulement</option>
+              <option value="infirmiere" data-fr="Infirmière + premiers soins" data-en="Nurse + first aid">Infirmière + premiers soins</option>
+              <option value="medecin" data-fr="Médecin sur site + ambulance en attente" data-en="On-site physician + standby ambulance">Médecin sur site + ambulance en attente</option>
+              <option value="complet" data-fr="Dispositif médical complet (multi-équipes)" data-en="Full medical setup (multi-team)">Dispositif médical complet (multi-équipes)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Assureur événementiel" data-en="Event insurer">Assureur événementiel</span></label>
+            <input type="text" placeholder="Nom de l'assureur" />
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Montant de couverture RC" data-en="Liability coverage amount">Montant de couverture RC</span></label>
+            <div class="input-group">
+              <input type="number" placeholder="2000000" min="0" />
+              <div class="input-unit">$</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:14px">
+          <label><span data-fr="Ententes officielles / partenariats" data-en="Official agreements / partnerships">Ententes officielles / partenariats</span></label>
+          <textarea placeholder="Décrivez les ententes en place avec les partenaires (municipalité, police, sécurité privée...)"></textarea>
+        </div>
+      </div>
+
+      <!-- ═══ SECTION D ═══ -->
+      <div class="form-section" id="sec-D">
+        <div class="section-title-bar">
+          <div class="section-letter" style="color:var(--orange);border-color:rgba(251,146,60,0.3);background:rgba(251,146,60,0.08)">D</div>
+          <div class="section-title-text">
+            <h3 data-fr="Paramètres de risque spécifiques" data-en="Specific risk parameters">Paramètres de risque spécifiques</h3>
+            <p data-fr="Profil de la clientèle, antécédents, menaces et présences VIP" data-en="Client profile, history, threats and VIP presence">Profil de la clientèle, antécédents, menaces et présences VIP</p>
+          </div>
+        </div>
+
+        <div class="field-grid fg-1">
+          <div class="field">
+            <label><span data-fr="Profil de la clientèle attendue" data-en="Expected audience profile">Profil de la clientèle attendue</span> <span class="req">*</span></label>
+            <div class="radio-group" id="profil-client">
+              <button class="radio-btn" onclick="selectRadio(this,'profil-client')" data-fr="👨‍👩‍👧 Familial" data-en="👨‍👩‍👧 Family">👨‍👩‍👧 Familial</button>
+              <button class="radio-btn" onclick="selectRadio(this,'profil-client')" data-fr="🧑 Jeunes adultes (18-30)" data-en="🧑 Young adults (18-30)">🧑 Jeunes adultes (18-30)</button>
+              <button class="radio-btn" onclick="selectRadio(this,'profil-client')" data-fr="👥 Mixte tout âge" data-en="👥 All ages mixed">👥 Mixte tout âge</button>
+              <button class="radio-btn" onclick="selectRadio(this,'profil-client')" data-fr="💼 Corporatif" data-en="💼 Corporate">💼 Corporatif</button>
+              <button class="radio-btn" onclick="selectRadio(this,'profil-client')" data-fr="📣 Militant / Politique" data-en="📣 Activist / Political">📣 Militant / Politique</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Consommation d'alcool prévue" data-en="Expected alcohol consumption">Consommation d'alcool prévue</span> <span class="req">*</span></label>
+            <select id="alcool" onchange="updateRiskScore()">
+              <option value="" data-fr="Sélectionner..." data-en="Select...">Sélectionner...</option>
+              <option value="aucun" data-fr="Aucune consommation" data-en="No consumption">Aucune consommation</option>
+              <option value="moderee" data-fr="Modérée (bière, vin)" data-en="Moderate (beer, wine)">Modérée (bière, vin)</option>
+              <option value="forte" data-fr="Forte (bar open / shots)" data-en="Strong (open bar / shots)">Forte (bar open / shots)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Antécédents d'incidents (éditions précédentes)" data-en="Incident history (previous editions)">Antécédents d'incidents (éditions précédentes)</span></label>
+            <select id="antecedents" onchange="updateRiskScore()">
+              <option value="aucun" data-fr="Aucun incident connu" data-en="No known incidents">Aucun incident connu</option>
+              <option value="mineurs" data-fr="Incidents mineurs seulement" data-en="Minor incidents only">Incidents mineurs seulement</option>
+              <option value="moderés" data-fr="Incidents modérés (interventions, bagarres)" data-en="Moderate incidents (interventions, fights)">Incidents modérés (interventions, bagarres)</option>
+              <option value="majeurs" data-fr="Incidents majeurs (arrestations, hospitalisation)" data-en="Major incidents (arrests, hospitalization)">Incidents majeurs (arrestations, hospitalisation)</option>
+            </select>
+            <div class="field" style="margin-top:8px">
+              <textarea id="detail-antecedents" placeholder="Décrivez les incidents passés pertinents pour le système de mémoire corporative ORDR.AI™..." rows="3"></textarea>
+            </div>
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Artistes, dignitaires ou personnalités sensibles ?" data-en="Artists, dignitaries, or sensitive VIP?">Artistes, dignitaires ou personnalités sensibles ?</span></label>
+            <div class="yn-toggle">
+              <button class="yn-btn" onclick="setYN(this,'vip','oui');document.getElementById('sub-vip').style.display='block'">Oui</button>
+              <button class="yn-btn" onclick="setYN(this,'vip','non');document.getElementById('sub-vip').style.display='none'">Non</button>
+            </div>
+            <input type="hidden" id="vip" value="" />
+            <div class="sub-form" id="sub-vip" style="display:none">
+              <div class="field-grid fg-2">
+                <div class="field"><label>Nom / Titre</label><input type="text" placeholder="ex. : Artiste X, Ministre Y" /></div>
+                <div class="field"><label data-fr="Niveau de protection requis" data-en="Required protection level">Niveau de protection requis</label>
+                  <select><option>Standard</option><option>Renforcée</option><option>Escorte rapprochée</option></select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Menaces reconnues ou contexte particulier" data-en="Known threats or special context">Menaces reconnues ou contexte particulier</span></label>
+            <div class="check-grid" id="menaces">
+              <div class="check-item" onclick="toggleCheck(this);updateRiskScore()"><div class="check-box"></div><span data-fr="📣 Désordre public potentiel" data-en="📣 Potential public disorder">📣 Désordre public potentiel</span></div>
+              <div class="check-item" onclick="toggleCheck(this);updateRiskScore()"><div class="check-box"></div><span data-fr="✊ Militants organisés" data-en="✊ Organized activists">✊ Militants organisés</span></div>
+              <div class="check-item" onclick="toggleCheck(this);updateRiskScore()"><div class="check-box"></div><span data-fr="⚠️ Menace terroriste évaluée" data-en="⚠️ Assessed terrorist threat">⚠️ Menace terroriste évaluée</span></div>
+              <div class="check-item" onclick="toggleCheck(this);updateRiskScore()"><div class="check-box"></div><span data-fr="🌩️ Risque météo sévère" data-en="🌩️ Severe weather risk">🌩️ Risque météo sévère</span></div>
+              <div class="check-item" onclick="toggleCheck(this);updateRiskScore()"><div class="check-box"></div><span data-fr="🚗 Risque attentat véhicule" data-en="🚗 Vehicle attack risk">🚗 Risque attentat véhicule</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SECTION E ═══ -->
+      <div class="form-section" id="sec-E">
+        <div class="section-title-bar">
+          <div class="section-letter" style="color:var(--green);border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.08)">E</div>
+          <div class="section-title-text">
+            <h3 data-fr="Ressources disponibles & contraintes" data-en="Available resources & constraints">Ressources disponibles & contraintes</h3>
+            <p data-fr="Capacité humaine, budget et contraintes opérationnelles" data-en="Human capacity, budget and operational constraints">Capacité humaine, budget et contraintes opérationnelles</p>
+          </div>
+        </div>
+
+        <div class="field-grid fg-2">
+          <div class="field">
+            <label><span data-fr="Nombre max. d'agents mobilisables" data-en="Max. number of mobilizable agents">Nombre max. d'agents mobilisables</span> <span class="req">*</span></label>
+            <input type="number" id="agents-max" placeholder="80" min="0" oninput="updateRiskScore()" />
+            <div class="ai-hint" id="agents-gap-hint" style="display:none">
+              <span class="ai-icon">⚠️</span>
+              <span id="agents-gap-text"></span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Budget sécurité prévisionnel" data-en="Forecast security budget">Budget sécurité prévisionnel</span></label>
+            <div class="input-group">
+              <input type="number" id="budget" placeholder="85000" min="0" />
+              <div class="input-unit">$</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Restrictions horaires du site" data-en="Site time restrictions">Restrictions horaires du site</span></label>
+            <input type="text" placeholder="ex. : Couvre-feu sonore 23h, fin opération 1h" />
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Contraintes syndicales ?" data-en="Union constraints?">Contraintes syndicales ?</span></label>
+            <div class="yn-toggle">
+              <button class="yn-btn" onclick="setYN(this,'syndicat','oui')">Oui</button>
+              <button class="yn-btn" onclick="setYN(this,'syndicat','non')">Non</button>
+            </div>
+            <input type="hidden" id="syndicat" value="" />
+          </div>
+        </div>
+
+        <div class="form-divider"></div>
+
+        <div class="field">
+          <label><span data-fr="Ressources spécialisées requises" data-en="Required specialized resources">Ressources spécialisées requises</span></label>
+          <div class="field-grid fg-3">
+            <div class="field">
+              <label data-fr="Maîtres-chiens" data-en="Dog handlers">Maîtres-chiens</label>
+              <input type="number" placeholder="0" min="0" />
+            </div>
+            <div class="field">
+              <label data-fr="Agents tactiques" data-en="Tactical agents">Agents tactiques</label>
+              <input type="number" placeholder="0" min="0" />
+            </div>
+            <div class="field">
+              <label data-fr="Équipe VIP / escorte" data-en="VIP / escort team">Équipe VIP / escorte</label>
+              <input type="number" placeholder="0" min="0" />
+            </div>
+            <div class="field">
+              <label data-fr="Opérateurs drones" data-en="Drone operators">Opérateurs drones</label>
+              <input type="number" placeholder="0" min="0" />
+            </div>
+            <div class="field">
+              <label data-fr="Agents en civil" data-en="Plainclothes agents">Agents en civil</label>
+              <input type="number" placeholder="0" min="0" />
+            </div>
+            <div class="field">
+              <label data-fr="Personnel médical dédié" data-en="Dedicated medical staff">Personnel médical dédié</label>
+              <input type="number" placeholder="0" min="0" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SECTION F ═══ -->
+      <div class="form-section" id="sec-F">
+        <div class="section-title-bar">
+          <div class="section-letter" style="color:var(--magenta,#e040fb);border-color:rgba(224,64,251,0.3);background:rgba(224,64,251,0.08)">F</div>
+          <div class="section-title-text">
+            <h3 data-fr="Téléversement de documents" data-en="Document upload">Téléversement de documents</h3>
+            <p data-fr="Plans de contingence, assurances, contrats et protocoles officiels" data-en="Contingency plans, insurance, contracts and official protocols">Plans de contingence, assurances, contrats et protocoles officiels</p>
+          </div>
+        </div>
+
+        <div class="field-grid fg-2">
+          <div class="field">
+            <label><span data-fr="Plans de contingence existants" data-en="Existing contingency plans">Plans de contingence existants</span></label>
+            <div class="file-zone">
+              <input type="file" accept=".pdf,.docx" onchange="handleFile(this,null,'flist-contingence')" />
+              <div class="file-icon">🔰</div>
+              <p data-fr="Glissez vos plans de contingence" data-en="Drag your contingency plans">Glissez vos plans de contingence</p>
+              <div class="file-types">PDF · DOCX</div>
+            </div>
+            <div class="file-list" id="flist-contingence"></div>
+            <div class="ai-hint" style="margin-top:6px">
+              <span class="ai-icon">🧠</span>
+              <span data-fr="L'IA analyse et extrait automatiquement les déclencheurs critiques pour les intégrer au module de réponse rapide." data-en="AI automatically analyzes and extracts critical triggers to integrate into the rapid response module.">L'IA analyse et extrait automatiquement les déclencheurs critiques.</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Polices d'assurance RC / sécurité" data-en="Liability / security insurance policies">Polices d'assurance RC / sécurité</span></label>
+            <div class="file-zone">
+              <input type="file" accept=".pdf" onchange="handleFile(this,null,'flist-assurance')" />
+              <div class="file-icon">🛡️</div>
+              <p data-fr="Police d'assurance responsabilité civile" data-en="Liability insurance policy">Police d'assurance responsabilité civile</p>
+              <div class="file-types">PDF</div>
+            </div>
+            <div class="file-list" id="flist-assurance"></div>
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Conventions collectives (si applicable)" data-en="Collective agreements (if applicable)">Conventions collectives (si applicable)</span></label>
+            <div class="file-zone">
+              <input type="file" accept=".pdf,.docx" onchange="handleFile(this,null,'flist-convention')" />
+              <div class="file-icon">📜</div>
+              <p data-fr="Conventions collectives applicables" data-en="Applicable collective agreements">Conventions collectives applicables</p>
+              <div class="file-types">PDF · DOCX</div>
+            </div>
+            <div class="file-list" id="flist-convention"></div>
+          </div>
+
+          <div class="field">
+            <label><span data-fr="Contrats de fournisseurs sécurité" data-en="Security provider contracts">Contrats de fournisseurs sécurité</span></label>
+            <div class="file-zone">
+              <input type="file" accept=".pdf,.docx" onchange="handleFile(this,null,'flist-contrats')" />
+              <div class="file-icon">🤝</div>
+              <p data-fr="Contrats agences de sécurité privée" data-en="Private security agency contracts">Contrats agences de sécurité privée</p>
+              <div class="file-types">PDF · DOCX</div>
+            </div>
+            <div class="file-list" id="flist-contrats"></div>
+          </div>
+
+          <div class="field" style="grid-column:1/-1">
+            <label><span data-fr="Protocole officiel de gestion de crise" data-en="Official crisis management protocol">Protocole officiel de gestion de crise</span></label>
+            <div class="file-zone">
+              <input type="file" accept=".pdf,.docx" onchange="handleFile(this,null,'flist-crise')" />
+              <div class="file-icon">🚨</div>
+              <p data-fr="Protocole de gestion de crise existant — l'IA l'intègre dans le module de réponse rapide" data-en="Existing crisis management protocol — AI integrates it into the rapid response module">Protocole de gestion de crise existant</p>
+              <div class="file-types">PDF · DOCX</div>
+            </div>
+            <div class="file-list" id="flist-crise"></div>
+          </div>
+        </div>
+
+        <!-- FINAL SUBMIT -->
+        <div style="margin-top:28px;padding:24px;background:var(--accent-dim);border:1px solid var(--border-accent);border-radius:var(--r);text-align:center">
+          <div style="font-size:1rem;font-weight:800;margin-bottom:6px" data-fr="✅ Profil de l'événement complété" data-en="✅ Event profile completed">✅ Profil de l'événement complété</div>
+          <div style="font-size:0.8rem;color:var(--text-2);margin-bottom:16px" data-fr="L'IA va maintenant analyser vos données et générer le Score Tactique Global ORDR.AI™" data-en="AI will now analyze your data and generate the ORDR.AI™ Global Tactical Score">L'IA va maintenant analyser vos données et générer le Score Tactique Global ORDR.AI™</div>
+          <button class="btn btn-primary" style="padding:12px 32px;font-size:0.9rem" onclick="submitProfile()">
+            <span data-fr="🧠 Lancer l'analyse IA →" data-en="🧠 Launch AI analysis →">🧠 Lancer l'analyse IA →</span>
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /form-area -->
+
+    <!-- NAV BUTTONS -->
+    <div class="nav-buttons">
+      <div class="nav-info">
+        <span data-fr="Section" data-en="Section">Section</span>
+        <strong id="nav-current">A</strong> / 6 —
+        <span id="nav-name" data-fr="Profil général" data-en="General profile">Profil général</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" id="btn-prev" onclick="prevSection()" style="display:none" data-fr="← Précédent" data-en="← Previous">← Précédent</button>
+        <button class="btn btn-primary" id="btn-next2" onclick="nextSection()" data-fr="Section suivante →" data-en="Next section →">Section suivante →</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- RIGHT PANEL -->
+  <aside class="right-panel">
+    <div class="rp-header">
+      <div class="rp-title">
+        🧠 Assistant
+        <span class="ordr-badge">ORDR.AI™</span>
+      </div>
+      <div class="rp-subtitle" data-fr="Analyse en temps réel · Score de risque dynamique" data-en="Real-time analysis · Dynamic risk score">Analyse en temps réel · Score de risque dynamique</div>
+    </div>
+
+    <!-- Risk Score -->
+    <div class="risk-score-wrap">
+      <div class="risk-score-title" data-fr="Score tactique global" data-en="Global tactical score">Score tactique global</div>
+      <div class="risk-score-display">
+        <div class="risk-circle" id="risk-circle">
+          <div class="rs-val" id="rs-val">—</div>
+          <div class="rs-max">/100</div>
+        </div>
+        <div class="risk-legend">
+          <div class="risk-label" id="risk-label" data-fr="En attente de données..." data-en="Awaiting data...">En attente de données...</div>
+          <div class="risk-desc" id="risk-desc" data-fr="Complétez les champs pour générer l'analyse IA" data-en="Fill in the fields to generate the AI analysis">Complétez les champs pour générer l'analyse IA</div>
+        </div>
+      </div>
+      <div class="risk-bar-wrap">
+        <div class="risk-bar-row">
+          <span class="rbl" data-fr="Affluence" data-en="Attendance">Affluence</span>
+          <div class="rb"><div class="rbf" id="rb-affluence" style="width:0%;background:var(--orange)"></div></div>
+          <span class="rbv" id="rbv-affluence" style="color:var(--orange)">0</span>
+        </div>
+        <div class="risk-bar-row">
+          <span class="rbl" data-fr="Type event" data-en="Event type">Type event</span>
+          <div class="rb"><div class="rbf" id="rb-type" style="width:0%;background:var(--cyan)"></div></div>
+          <span class="rbv" id="rbv-type" style="color:var(--cyan)">0</span>
+        </div>
+        <div class="risk-bar-row">
+          <span class="rbl" data-fr="Contexte" data-en="Context">Contexte</span>
+          <div class="rb"><div class="rbf" id="rb-contexte" style="width:0%;background:var(--purple)"></div></div>
+          <span class="rbv" id="rbv-contexte" style="color:var(--purple)">0</span>
+        </div>
+        <div class="risk-bar-row">
+          <span class="rbl" data-fr="Menaces" data-en="Threats">Menaces</span>
+          <div class="rb"><div class="rbf" id="rb-menaces" style="width:0%;background:var(--red)"></div></div>
+          <span class="rbv" id="rbv-menaces" style="color:var(--red)">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- IA Suggestions -->
+    <div class="ia-suggestions">
+      <div class="ia-s-title" data-fr="Recommandations IA" data-en="AI Recommendations">Recommandations IA</div>
+      <div id="ia-cards">
+        <div class="ia-card">
+          <div class="ia-type info" data-fr="IA ORDR.AI™" data-en="IA ORDR.AI™">IA ORDR.AI™</div>
+          <div class="ia-msg" data-fr="Commencez par saisir le nom de l'événement et le type d'activité pour activer l'analyse prédictive." data-en="Start by entering the event name and activity type to activate predictive analysis.">Commencez par saisir le nom de l'événement et le type d'activité pour activer l'analyse prédictive.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agents calc -->
+    <div class="agents-calc">
+      <div class="ac-title" data-fr="Effectifs estimés requis" data-en="Estimated required staff">Effectifs estimés requis</div>
+      <div class="ac-row">
+        <span class="ac-label" data-fr="Agents terrain" data-en="Field agents">Agents terrain</span>
+        <span class="ac-val" id="ac-terrain" style="color:var(--accent)">—</span>
+      </div>
+      <div class="ac-row">
+        <span class="ac-label" data-fr="Superviseurs" data-en="Supervisors">Superviseurs</span>
+        <span class="ac-val" id="ac-sup" style="color:var(--cyan)">—</span>
+      </div>
+      <div class="ac-row">
+        <span class="ac-label" data-fr="Points d'entrée" data-en="Entry points">Points d'entrée</span>
+        <span class="ac-val" id="ac-entrees-r" style="color:var(--purple)">—</span>
+      </div>
+      <div class="ac-row">
+        <span class="ac-label" data-fr="Réserve (15%)" data-en="Reserve (15%)">Réserve (15%)</span>
+        <span class="ac-val" id="ac-reserve" style="color:var(--orange)">—</span>
+      </div>
+      <div class="ac-total-row">
+        <span class="ac-total-label" data-fr="TOTAL RECOMMANDÉ" data-en="RECOMMENDED TOTAL">TOTAL RECOMMANDÉ</span>
+        <span class="ac-total-val" id="ac-total">—</span>
+      </div>
+    </div>
+  </aside>
+
+</div><!-- /app -->
+
+<script>
+// ── Language ──────────────────────────────────────────────
+let lang = 'fr';
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lang-toggle button').forEach(b => b.classList.toggle('active', b.dataset.l === l));
+  document.querySelectorAll('[data-fr],[data-en]').forEach(el => {
+    const txt = el.dataset[l];
+    if (txt) el.textContent = txt;
+  });
+}
+
+// ── Section navigation ────────────────────────────────────
+const sections = ['A','B','C','D','E','F'];
+const sectionNames = {
+  fr:['Profil général','Site & périmètre','Contexte réglementaire','Paramètres de risque','Ressources & contraintes','Documents'],
+  en:['General profile','Site & perimeter','Regulatory context','Risk parameters','Resources & constraints','Documents']
+};
+let currentSection = 0;
+
+function goSection(idx) {
+  document.querySelectorAll('.form-section').forEach((s,i) => s.classList.toggle('visible', i === idx));
+  document.querySelectorAll('.section-step').forEach((s,i) => {
+    s.classList.toggle('active', i === idx);
+    if (i < idx) s.classList.add('done'); else if (i > idx) s.classList.remove('done');
+  });
+  const steps = document.querySelectorAll('.progress-step');
+  steps.forEach((s,i) => {
+    s.classList.remove('active','done');
+    if (i < idx) s.classList.add('done');
+    if (i === idx) s.classList.add('active');
+  });
+  currentSection = idx;
+  const letter = sections[idx];
+  document.getElementById('nav-current').textContent = letter;
+  document.getElementById('nav-name').textContent = sectionNames[lang][idx];
+  document.getElementById('page-subtitle').textContent = `Section ${letter} — ${sectionNames[lang][idx]} · Étape ${idx+1} de 6`;
+  document.getElementById('btn-prev').style.display = idx === 0 ? 'none' : '';
+  const btnNext = document.getElementById('btn-next2');
+  if (idx === 5) { btnNext.textContent = lang === 'fr' ? '🧠 Lancer l\'analyse IA' : '🧠 Launch AI analysis'; }
+  else { btnNext.textContent = lang === 'fr' ? 'Section suivante →' : 'Next section →'; }
+  window.scrollTo(0,0);
+}
+function nextSection() { if (currentSection < 5) goSection(currentSection + 1); else submitProfile(); }
+function prevSection() { if (currentSection > 0) goSection(currentSection - 1); }
+
+// ── Toggle helpers ────────────────────────────────────────
+function setYN(btn, fieldId, val) {
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.yn-btn').forEach(b => { b.classList.remove('selected-yes','selected-no'); });
+  btn.classList.add(val === 'oui' ? 'selected-yes' : 'selected-no');
+  document.getElementById(fieldId).value = val;
+  // show/hide sub-forms
+  const subMap = { 'zones-cloison':'sub-zones','collab-spvm':'sub-spvm' };
+  if (subMap[fieldId]) {
+    const sub = document.getElementById(subMap[fieldId]);
+    if (sub) sub.style.display = val === 'oui' ? 'block' : 'none';
+  }
+  updateRiskScore();
+}
+
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  updateRiskScore();
+}
+
+function selectRadio(btn, groupId) {
+  document.querySelectorAll(`#${groupId} .radio-btn`).forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  updateRiskScore();
+}
+
+function updateSlider(val) {
+  document.getElementById('slider-val').textContent = val + 'h';
+}
+
+// ── Map pin ───────────────────────────────────────────────
+function placePin(mapId) {
+  const map = document.getElementById(mapId);
+  const overlay = map.querySelector('.map-overlay');
+  if (overlay) overlay.style.display = 'none';
+  const pin = document.createElement('div');
+  pin.className = 'map-pin';
+  pin.style.cssText = `top:50%;left:50%;background:var(--accent);color:var(--accent)`;
+  map.appendChild(pin);
+}
+
+// ── File upload ───────────────────────────────────────────
+function handleFile(input, zoneId, listId) {
+  const list = document.getElementById(listId);
+  if (!list) return;
+  Array.from(input.files).forEach(f => {
+    const item = document.createElement('div');
+    item.className = 'file-item';
+    item.innerHTML = `<span class="fi-icon">✓</span><span>${f.name}</span><span class="fi-size">${(f.size/1024).toFixed(0)} KB</span><span class="fi-del" onclick="this.parentElement.remove()">✕</span>`;
+    list.appendChild(item);
+  });
+}
+
+// ── Risk score calculation ────────────────────────────────
+function updateRiskScore() {
+  const ach = parseInt(document.getElementById('achalandage')?.value) || 0;
+  const surf = parseInt(document.getElementById('surface')?.value) || 0;
+  const type = document.getElementById('type-activite')?.value || '';
+  const alcool = document.getElementById('alcool')?.value || 'aucun';
+  const antec = document.getElementById('antecedents')?.value || 'aucun';
+  const agentsMax = parseInt(document.getElementById('agents-max')?.value) || 0;
+  const menaces = document.querySelectorAll('#menaces .check-item.checked').length;
+
+  // Density
+  const density = surf > 0 ? (ach / surf).toFixed(2) : 0;
+  const densityHint = document.getElementById('density-hint');
+  const densityText = document.getElementById('density-text');
+  if (ach > 0 && surf > 0) {
+    densityHint.style.display = 'flex';
+    const d = ach/surf;
+    let msg = lang === 'fr' ? `Densité : ${density} pers/m² — ` : `Density: ${density} p/m² — `;
+    if (d < 0.5) msg += lang === 'fr' ? 'Faible congestion' : 'Low congestion';
+    else if (d < 2) msg += lang === 'fr' ? 'Fluide' : 'Fluid';
+    else if (d < 4) msg += lang === 'fr' ? '⚠️ Achalandage élevé' : '⚠️ High attendance';
+    else msg += lang === 'fr' ? '🔴 Densité critique — risque mouvement de foule' : '🔴 Critical density — crowd movement risk';
+    densityText.textContent = msg;
+  } else { densityHint.style.display = 'none'; }
+
+  // Type score
+  const typeScore = { festival:55, sportif:60, spectacle:50, corporate:20, politique:80, manifestion:90, salon:25, '':0 };
+  const ts = typeScore[type] || 0;
+
+  // Alcool
+  const alcoolScore = { aucun:0, moderee:15, forte:35 };
+  const as = alcoolScore[alcool] || 0;
+
+  // Antecedents
+  const antecScore = { aucun:0, mineurs:10, 'moderés':25, majeurs:40 };
+  const ants = antecScore[antec] || 0;
+
+  // Affluence score
+  let affScore = 0;
+  if (ach > 0) { affScore = Math.min(40, Math.round(ach / 1000 * 4)); }
+
+  // Menaces
+  const menacesScore = Math.min(30, menaces * 10);
+
+  const total = Math.min(100, Math.round(affScore * 0.3 + ts * 0.3 + as * 0.15 + ants * 0.15 + menacesScore * 0.1));
+
+  // Update UI
+  if (ach > 0 || type) {
+    document.getElementById('rs-val').textContent = total || '—';
+    const circle = document.getElementById('risk-circle');
+    const label = document.getElementById('risk-label');
+    const desc = document.getElementById('risk-desc');
+
+    if (total < 30) {
+      circle.style.borderColor = 'var(--green)'; circle.style.background = 'rgba(34,197,94,0.08)';
+      document.querySelector('.rs-val').style.color = 'var(--green)';
+      label.style.color = 'var(--green)';
+      label.textContent = lang === 'fr' ? '🟢 Risque faible (R1)' : '🟢 Low risk (R1)';
+      desc.textContent = lang === 'fr' ? 'Déploiement standard recommandé. Maintien de la couverture nominale.' : 'Standard deployment recommended. Maintain nominal coverage.';
+    } else if (total < 60) {
+      circle.style.borderColor = 'var(--orange)'; circle.style.background = 'rgba(251,146,60,0.08)';
+      document.querySelector('.rs-val').style.color = 'var(--orange)';
+      label.style.color = 'var(--orange)';
+      label.textContent = lang === 'fr' ? '🟠 Risque modéré (R2)' : '🟠 Moderate risk (R2)';
+      desc.textContent = lang === 'fr' ? 'Vigilance accrue. Activation partielle des plans de contingence recommandée.' : 'Heightened vigilance. Partial activation of contingency plans recommended.';
+    } else {
+      circle.style.borderColor = 'var(--red)'; circle.style.background = 'rgba(244,63,94,0.08)';
+      document.querySelector('.rs-val').style.color = 'var(--red)';
+      label.style.color = 'var(--red)';
+      label.textContent = lang === 'fr' ? '🔴 Risque critique (R3)' : '🔴 Critical risk (R3)';
+      desc.textContent = lang === 'fr' ? 'Déploiement renforcé impératif. Plans de bascule à précharger.' : 'Reinforced deployment imperative. Contingency plans must be pre-loaded.';
+    }
+
+    // Bars
+    setBar('rb-affluence','rbv-affluence', Math.min(100, affScore*2.5));
+    setBar('rb-type','rbv-type', ts);
+    setBar('rb-contexte','rbv-contexte', Math.min(100, (as+ants)/0.75));
+    setBar('rb-menaces','rbv-menaces', Math.min(100, menacesScore*3.33));
+
+    // Staffing calc
+    const ratio = type === 'manifestion' ? 80 : type === 'politique' ? 100 : 150;
+    const agentsTerrain = ach > 0 ? Math.ceil(ach / ratio) : 0;
+    const entrees = parseInt(document.getElementById('entrees')?.value) || 0;
+    const agentsEntrees = entrees * 3;
+    const sups = Math.ceil(agentsTerrain / 8);
+    const reserve = Math.ceil((agentsTerrain + agentsEntrees + sups) * 0.15);
+    const totalAgents = agentsTerrain + agentsEntrees + sups + reserve;
+
+    document.getElementById('ac-terrain').textContent = agentsTerrain || '—';
+    document.getElementById('ac-sup').textContent = sups || '—';
+    document.getElementById('ac-entrees-r').textContent = agentsEntrees || '—';
+    document.getElementById('ac-reserve').textContent = reserve || '—';
+    document.getElementById('ac-total').textContent = totalAgents || '—';
+    document.getElementById('calc-density').textContent = density > 0 ? density + ' p/m²' : '—';
+    document.getElementById('calc-agents').textContent = agentsTerrain || '—';
+    document.getElementById('calc-entrees').textContent = agentsEntrees || '—';
+    document.getElementById('calc-sup').textContent = sups || '—';
+
+    // Gap alert
+    const gapHint = document.getElementById('agents-gap-hint');
+    if (agentsMax > 0 && totalAgents > 0) {
+      gapHint.style.display = 'flex';
+      const gapEl = document.getElementById('agents-gap-text');
+      if (agentsMax < totalAgents) {
+        gapEl.textContent = lang === 'fr'
+          ? `⚠️ Écart critique : ${totalAgents - agentsMax} agents manquants vs besoins estimés (${totalAgents}). Renfort externe requis.`
+          : `⚠️ Critical gap: ${totalAgents - agentsMax} agents short of estimated needs (${totalAgents}). External reinforcement required.`;
+      } else {
+        gapEl.textContent = lang === 'fr'
+          ? `✓ Capacité suffisante : ${agentsMax - totalAgents} agents de marge disponibles.`
+          : `✓ Sufficient capacity: ${agentsMax - totalAgents} agents margin available.`;
+      }
+    } else { gapHint.style.display = 'none'; }
+
+    // IA Cards
+    updateIACards(total, type, ach, surf, alcool, menaces);
+  }
+}
+
+function setBar(barId, valId, pct) {
+  const bar = document.getElementById(barId);
+  const val = document.getElementById(valId);
+  if (bar) bar.style.width = pct + '%';
+  if (val) val.textContent = Math.round(pct);
+}
+
+function updateIACards(score, type, ach, surf, alcool, menaces) {
+  const container = document.getElementById('ia-cards');
+  container.innerHTML = '';
+  const cards = [];
+
+  if (ach > 0 && surf > 0) {
+    const d = ach / surf;
+    if (d > 4) cards.push({ type:'warn', msg: lang==='fr' ? `Densité critique détectée (${(d).toFixed(1)} p/m²). Planifiez des zones de dépressurisation et des couloirs de sécurité obligatoires.` : `Critical density detected (${(d).toFixed(1)} p/m²). Plan decompression zones and mandatory security corridors.`, action: lang==='fr' ? 'Configurer les zones de flux →' : 'Configure flow zones →' });
+  }
+  if (type === 'manifestion' || type === 'politique') cards.push({ type:'warn', msg: lang==='fr' ? 'Type d\'événement à risque élevé. Renforcez la coordination SPVM/SQ et préchargez les plans de contingence manifestion.' : 'High-risk event type. Reinforce SPVM/SQ coordination and pre-load demonstration contingency plans.', action: lang==='fr' ? 'Voir plans de contingence →' : 'View contingency plans →' });
+  if (alcool === 'forte') cards.push({ type:'warn', msg: lang==='fr' ? 'Consommation d\'alcool forte prévue. Augmentez la présence en agents en civil et planifiez une zone médicale renforcée.' : 'High alcohol consumption expected. Increase plainclothes agents and plan a reinforced medical zone.', action: lang==='fr' ? 'Ajuster les ressources →' : 'Adjust resources →' });
+  if (menaces >= 2) cards.push({ type:'warn', msg: lang==='fr' ? `${menaces} types de menaces identifiés. Activez le plan de contingence multicrisques et notifiez les partenaires publics.` : `${menaces} threat types identified. Activate the multi-crisis contingency plan and notify public partners.`, action: lang==='fr' ? 'Plans de contingence →' : 'Contingency plans →' });
+  if (score > 0 && score < 40) cards.push({ type:'ok', msg: lang==='fr' ? 'Profil de risque favorable. Déploiement standard recommandé avec maintien d\'une réserve tactique de 15%.' : 'Favorable risk profile. Standard deployment recommended with 15% tactical reserve.', action: '' });
+  if (cards.length === 0) cards.push({ type:'info', msg: lang==='fr' ? 'Continuez à remplir les champs pour affiner l\'analyse prédictive ORDR.AI™.' : 'Continue filling in fields to refine the ORDR.AI™ predictive analysis.', action: '' });
+
+  cards.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'ia-card';
+    div.innerHTML = `<div class="ia-type ${c.type}">IA ORDR.AI™</div><div class="ia-msg">${c.msg}</div>${c.action ? `<div class="ia-action">${c.action}</div>` : ''}`;
+    container.appendChild(div);
+  });
+}
+
+function submitProfile() {
+  alert(lang === 'fr'
+    ? '✅ Profil enregistré. L\'IA génère maintenant le Score Tactique Global et initialise le module de Planification opérationnelle.'
+    : '✅ Profile saved. AI is now generating the Global Tactical Score and initializing the Operational Planning module.');
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => { goSection(0); setLang('fr'); });
+</script>
+</body>
+</html>
